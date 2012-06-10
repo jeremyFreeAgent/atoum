@@ -215,15 +215,20 @@ class runner extends atoum\script
 		return $this;
 	}
 
-	public function useDefaultConfigFiles()
+	public function useDefaultConfigFiles($startDirectory = null)
 	{
-		foreach (self::getSubDirectoryPath(atoum\directory) as $directory)
+		if ($startDirectory === null)
+		{
+			$startDirectory = atoum\directory;
+		}
+
+		foreach (self::getSubDirectoryPath($startDirectory) as $directory)
 		{
 			try
 			{
 				$this->useConfigFile($directory . self::defaultConfigFile);
 			}
-			catch (atoum\includer\exception $exception) {};
+			catch (atoum\includer\exception $exception) {}
 		}
 
 		return $this;
@@ -409,7 +414,7 @@ class runner extends atoum\script
 						array('-c', '--configuration-files'),
 						'<file>...',
 						$this->locale->_('Use all configuration files <file>'),
-						PHP_INT_MAX - 2
+						1
 					)
 				->addArgumentHandler(
 						function($script, $argument, $file) {
@@ -639,7 +644,7 @@ class runner extends atoum\script
 						array('--disable-loop-mode'),
 						null,
 						null,
-						PHP_INT_MAX
+						3
 					)
 				->addArgumentHandler(
 						function($script, $argument, $values) {
@@ -679,7 +684,7 @@ class runner extends atoum\script
 						array('-bf', '--bootstrap-file'),
 						'<file>',
 						$this->locale->_('Include <file> before executing each test method'),
-						PHP_INT_MAX - 1
+						2
 					)
 				->addArgumentHandler(
 						function($script, $argument, $values) {
