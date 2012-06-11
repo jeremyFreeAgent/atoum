@@ -113,8 +113,6 @@ class vim extends reports\asynchronous
 		parent::setDepedencies($depedencies);
 
 		$this->depedencies->lock();
-		$this->depedencies['locale'] = function() { return new locale(); };
-		$this->depedencies['adapter'] = function() { return new adapter(); };
 		$this->depedencies['ps1'] = function() { return new prompt('> '); };
 		$this->depedencies['ps2'] = function() { return new prompt('=> '); };
 		$this->depedencies['ps3'] = function() { return new prompt('==> '); };
