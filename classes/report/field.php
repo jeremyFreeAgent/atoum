@@ -11,7 +11,7 @@ abstract class field
 	protected $events = array();
 	protected $locale = null;
 
-	public function __construct(array $events = null, atoum\locale $locale = null)
+	public function __construct(array $events = array(), atoum\locale $locale = null)
 	{
 		$this->events = $events;
 		$this->setLocale($locale ?: new atoum\locale());
@@ -36,7 +36,7 @@ abstract class field
 
 	public function canHandleEvent($event)
 	{
-		return ($this->events === null ? true : in_array($event, $this->events));
+		return in_array($event, $this->events);
 	}
 
 	public function handleEvent($event, atoum\observable $observable)
