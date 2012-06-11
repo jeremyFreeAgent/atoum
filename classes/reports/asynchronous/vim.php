@@ -87,8 +87,7 @@ class vim extends reports\asynchronous
 						$ps3
 					)
 				)
-			->addField(
-				new runner\outputs\cli(
+			->addField(new runner\outputs\cli(
 					$ps1,
 					null,
 					$ps2
