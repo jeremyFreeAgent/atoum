@@ -17,96 +17,111 @@ class vim extends reports\asynchronous
 	{
 		parent::__construct($depedencies);
 
-		$firstLevelPrompt = new prompt('> ');
-		$secondLevelPrompt = new prompt('=> ');
-		$thirdLevelPrompt = new prompt('==> ');
+		$ps1 = $this->depedencies['ps1']();
+		$ps2 = $this->depedencies['ps2']();
+		$ps3 = $this->depedencies['ps3']();
 
 		$this
 			->addField(new runner\atoum\cli(
-						$firstLevelPrompt
+						$ps1
 					)
 				)
 			->addField(new runner\php\path\cli(
-						$firstLevelPrompt
+						$ps1
 					)
 				)
 			->addField(new runner\php\version\cli(
-						$firstLevelPrompt,
+						$ps1,
 						null,
-						$secondLevelPrompt
+						$ps2
 					)
 				)
 			->addField(new runner\tests\duration\cli(
-						$firstLevelPrompt
+						$ps1
 					)
 				)
 			->addField(new runner\tests\memory\cli(
-						$firstLevelPrompt
+						$ps1
 					)
 				)
 			->addField(new runner\tests\coverage\cli(
-						$firstLevelPrompt,
-						$secondLevelPrompt,
-						$thirdLevelPrompt
+						$ps1,
+						$ps2,
+						$ps3
 					)
 				)
 			->addField(new runner\duration\cli(
-						$firstLevelPrompt
+						$ps1
 					)
 				)
 			->addField(new runner\result\cli(
 					)
 				)
 			->addField(new runner\failures\cli(
-						$firstLevelPrompt,
+						$ps1,
 						null,
-						$secondLevelPrompt
+						$ps2
 					)
 				)
 			->addField(new runner\errors\cli(
-						$firstLevelPrompt,
+						$ps1,
 						null,
-						$secondLevelPrompt,
+						$ps2,
 						null,
-						$thirdLevelPrompt
+						$ps3
 					)
 				)
 			->addField(new runner\exceptions\cli(
-						$firstLevelPrompt,
+						$ps1,
 						null,
-						$secondLevelPrompt,
+						$ps2,
 						null,
-						$thirdLevelPrompt
+						$ps3
 					)
 				)
 			->addField(new runner\tests\uncompleted\cli(
-						$firstLevelPrompt,
+						$ps1,
 						null,
-						$secondLevelPrompt,
+						$ps2,
 						null,
-						$thirdLevelPrompt
+						$ps3
 					)
 				)
 			->addField(
 				new runner\outputs\cli(
-					$firstLevelPrompt,
+					$ps1,
 					null,
-					$secondLevelPrompt
+					$ps2
 				)
 			)
 			->addField(new test\run\cli(
-					$firstLevelPrompt
+					$ps1
 				)
 			)
 			->addField(new test\duration\cli(
-					$secondLevelPrompt
+					$ps2
 				)
 			)
 			->addField(new test\memory\cli(
-					$secondLevelPrompt
+					$ps2
 				)
 			)
 		;
+	}
+
+	public function setDepedencies(atoum\depedencies $depedencies)
+	{
+		parent::setDepedencies($depedencies);
+
+		$this->depedencies->lock();
+		$this->depedencies['locale'] = function() { return new locale(); };
+		$this->depedencies['adapter'] = function() { return new adapter(); };
+		$this->depedencies['ps1'] = function() { return new prompt('> '); };
+		$this->depedencies['ps2'] = function() { return new prompt('=> '); };
+		$this->depedencies['ps3'] = function() { return new prompt('==> '); };
+		$this->depedencies->unlock();
+
+		return $this;
 	}
 }
 
