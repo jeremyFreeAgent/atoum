@@ -25,7 +25,7 @@ class builder extends atoum\test
 		$this
 			->if($report = new reports\builder())
 			->then
-				->object($report->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
+				->object($depedencies = $report->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
 				->array($report->getFields())->isEqualTo(array(

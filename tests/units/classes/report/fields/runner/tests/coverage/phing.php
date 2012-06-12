@@ -3,10 +3,12 @@
 namespace mageekguy\atoum\tests\units\report\fields\runner\tests\coverage;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\test,
 	mageekguy\atoum\mock,
 	mageekguy\atoum\score,
+	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields\runner\tests
@@ -14,7 +16,7 @@ use
 
 require_once __DIR__ . '/../../../../../../runner.php';
 
-class phing extends atoum\test
+class phing extends test
 {
 	public function testClass()
 	{
@@ -33,20 +35,11 @@ class phing extends atoum\test
 				->object($field->getCoverageColorizer())->isEqualTo(new colorizer())
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getCoverage())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
+				->array($field->getEvents())->isEqualTo(array(runner::runStop))
 				->boolean($field->missingCodeCoverageIsShowed())->isTrue()
-			->if($field = new tests\coverage\phing(null, null, null, null, null, null))
-			->then
-				->object($field->getTitlePrompt())->isEqualTo(new prompt())
-				->object($field->getClassPrompt())->isEqualTo(new prompt())
-				->object($field->getMethodPrompt())->isEqualTo(new prompt())
-				->object($field->getTitleColorizer())->isEqualTo(new colorizer())
-				->object($field->getCoverageColorizer())->isEqualTo(new colorizer())
-				->object($field->getLocale())->isEqualTo(new locale())
-				->variable($field->getCoverage())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
-				->boolean($field->missingCodeCoverageIsShowed())->isTrue()
-			->if($field = new tests\coverage\phing($titlePrompt = new prompt(), $classPrompt = new prompt(), $methodPrompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $locale = new locale(), false))
+			->if($depedencies = new depedencies())
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new tests\coverage\phing($titlePrompt = new prompt(), $classPrompt = new prompt(), $methodPrompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $depedencies, false))
 			->then
 				->object($field->getTitlePrompt())->isIdenticalTo($titlePrompt)
 				->object($field->getClassPrompt())->isIdenticalTo($classPrompt)
@@ -55,7 +48,7 @@ class phing extends atoum\test
 				->object($field->getCoverageColorizer())->isIdenticalTo($coverageColorizer)
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->variable($field->getCoverage())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
+				->array($field->getEvents())->isEqualTo(array(runner::runStop))
 				->boolean($field->missingCodeCoverageIsShowed())->isFalse()
 		;
 	}
@@ -147,9 +140,9 @@ class phing extends atoum\test
 		$this
 			->if($field = new tests\coverage\phing())
 			->then
-				->boolean($field->handleEvent(atoum\runner::runStart, new atoum\runner()))->isFalse()
+				->boolean($field->handleEvent(runner::runStart, new runner()))->isFalse()
 				->variable($field->getCoverage())->isNull()
-				->boolean($field->handleEvent(atoum\runner::runStop, $runner = new atoum\runner()))->isTrue()
+				->boolean($field->handleEvent(runner::runStop, $runner = new runner()))->isTrue()
 				->object($field->getCoverage())->isIdenticalTo($runner->getScore()->getCoverage())
 		;
 	}
@@ -157,23 +150,24 @@ class phing extends atoum\test
 	public function test__toString()
 	{
 		$this
-			->if($scoreCoverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($scoreCoverage = new score\coverage($depedencies = new depedencies()))
 			->and($score = new \mock\mageekguy\atoum\score())
 			->and($score->getMockController()->getCoverage = function() use ($scoreCoverage) { return $scoreCoverage; })
-			->and($runner = new atoum\runner())
+			->and($runner = new runner())
 			->and($runner->setScore($score))
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
 			->and($defaultField = new tests\coverage\phing())
-			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $locale = new locale()))
+			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStart, $runner))
-			->and($customField->handleEvent(atoum\runner::runStart, $runner))
+			->if($defaultField->handleEvent(runner::runStart, $runner))
+			->and($customField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStop, $runner))
-			->and($customField->handleEvent(atoum\runner::runStop, $runner))
+			->if($defaultField->handleEvent(runner::runStop, $runner))
+			->and($customField->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
@@ -215,17 +209,17 @@ class phing extends atoum\test
 					)
 				)
 			->and($defaultField = new tests\coverage\phing())
-			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $locale = new locale()))
+			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStart, $runner))
-			->and($customField->handleEvent(atoum\runner::runStart, $runner))
+			->if($defaultField->handleEvent(runner::runStart, $runner))
+			->and($customField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStop, $runner))
-			->and($customField->handleEvent(atoum\runner::runStop, $runner))
+			->if($defaultField->handleEvent(runner::runStop, $runner))
+			->and($customField->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($defaultField)->isEqualTo(
 						$defaultField->getTitlePrompt() . sprintf($defaultField->getLocale()->_('Code coverage value : %3.2f%%'), $scoreCoverage->getValue() * 100) . PHP_EOL .

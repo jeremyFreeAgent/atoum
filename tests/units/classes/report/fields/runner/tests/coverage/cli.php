@@ -3,18 +3,20 @@
 namespace mageekguy\atoum\tests\units\report\fields\runner\tests\coverage;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\test,
+	mageekguy\atoum\runner,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\mock,
 	mageekguy\atoum\score,
 	mageekguy\atoum\locale,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
-	mageekguy\atoum\report\fields\runner\tests
+	mageekguy\atoum\report\fields\runner\tests\coverage\cli as field
 ;
 
 require_once __DIR__ . '/../../../../../../runner.php';
 
-class cli extends atoum\test
+class cli extends test
 {
 	public function testClass()
 	{
@@ -24,7 +26,7 @@ class cli extends atoum\test
 	public function test__construct()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
 				->object($field->getTitlePrompt())->isEqualTo(new prompt())
 				->object($field->getClassPrompt())->isEqualTo(new prompt())
@@ -33,18 +35,10 @@ class cli extends atoum\test
 				->object($field->getCoverageColorizer())->isEqualTo(new colorizer())
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getCoverage())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
-			->if($field = new tests\coverage\cli(null, null, null, null, null, null))
-			->then
-				->object($field->getTitlePrompt())->isEqualTo(new prompt())
-				->object($field->getClassPrompt())->isEqualTo(new prompt())
-				->object($field->getMethodPrompt())->isEqualTo(new prompt())
-				->object($field->getTitleColorizer())->isEqualTo(new colorizer())
-				->object($field->getCoverageColorizer())->isEqualTo(new colorizer())
-				->object($field->getLocale())->isEqualTo(new locale())
-				->variable($field->getCoverage())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
-			->if($field = new tests\coverage\cli($titlePrompt = new prompt(), $classPrompt = new prompt(), $methodPrompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $locale = new locale()))
+				->array($field->getEvents())->isEqualTo(array(runner::runStop))
+			->if($depedencies = new depedencies())
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($titlePrompt = new prompt(), $classPrompt = new prompt(), $methodPrompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $depedencies))
 			->then
 				->object($field->getTitlePrompt())->isIdenticalTo($titlePrompt)
 				->object($field->getClassPrompt())->isIdenticalTo($classPrompt)
@@ -53,18 +47,18 @@ class cli extends atoum\test
 				->object($field->getCoverageColorizer())->isIdenticalTo($coverageColorizer)
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->variable($field->getCoverage())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
+				->array($field->getEvents())->isEqualTo(array(runner::runStop))
 		;
 	}
 
 	public function testSetTitlePrompt()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
 				->object($field->setTitlePrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getTitlePrompt())->isEqualTo($prompt)
-			->if($field = new tests\coverage\cli(new prompt()))
+			->if($field = new field(new prompt()))
 			->then
 				->object($field->setTitlePrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getTitlePrompt())->isEqualTo($prompt)
@@ -74,11 +68,11 @@ class cli extends atoum\test
 	public function testSetClassPrompt()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
 				->object($field->setMethodPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getMethodPrompt())->isEqualTo($prompt)
-			->if($field = new tests\coverage\cli(null, new prompt()))
+			->if($field = new field(null, new prompt()))
 			->then
 				->object($field->setMethodPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getMethodPrompt())->isEqualTo($prompt)
@@ -88,11 +82,11 @@ class cli extends atoum\test
 	public function testSetMethodPrompt()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
 				->object($field->setClassPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getClassPrompt())->isEqualTo($prompt)
-			->if($field = new tests\coverage\cli(null, null, new prompt()))
+			->if($field = new field(null, null, new prompt()))
 			->then
 				->object($field->setClassPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getClassPrompt())->isEqualTo($prompt)
@@ -102,11 +96,11 @@ class cli extends atoum\test
 	public function testSetTitleColorizer()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
 				->object($field->setTitleColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getTitleColorizer())->isIdenticalTo($colorizer)
-			->if($field = new tests\coverage\cli(null, null, null, new colorizer()))
+			->if($field = new field(null, null, null, new colorizer()))
 			->then
 				->object($field->setTitleColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getTitleColorizer())->isIdenticalTo($colorizer)
@@ -116,11 +110,11 @@ class cli extends atoum\test
 	public function testSetTitleCoverageColorizer()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
 				->object($field->setCoverageColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getCoverageColorizer())->isIdenticalTo($colorizer)
-			->if($field = new tests\coverage\cli(null, null, null, null, new colorizer()))
+			->if($field = new field(null, null, null, null, new colorizer()))
 			->then
 				->object($field->setCoverageColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getCoverageColorizer())->isIdenticalTo($colorizer)
@@ -130,11 +124,11 @@ class cli extends atoum\test
 	public function testHandleEvent()
 	{
 		$this
-			->if($field = new tests\coverage\cli())
+			->if($field = new field())
 			->then
-				->boolean($field->handleEvent(atoum\runner::runStart, new atoum\runner()))->isFalse()
+				->boolean($field->handleEvent(runner::runStart, new runner()))->isFalse()
 				->variable($field->getCoverage())->isNull()
-				->boolean($field->handleEvent(atoum\runner::runStop, $runner = new atoum\runner()))->isTrue()
+				->boolean($field->handleEvent(runner::runStop, $runner = new runner()))->isTrue()
 				->object($field->getCoverage())->isIdenticalTo($runner->getScore()->getCoverage())
 		;
 	}
@@ -142,23 +136,24 @@ class cli extends atoum\test
 	public function test__toString()
 	{
 		$this
-			->if($scoreCoverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($scoreCoverage = new score\coverage($depedencies = new depedencies()))
 			->and($score = new \mock\mageekguy\atoum\score())
 			->and($score->getMockController()->getCoverage = function() use ($scoreCoverage) { return $scoreCoverage; })
-			->and($runner = new atoum\runner())
+			->and($runner = new runner())
 			->and($runner->setScore($score))
-			->and($defaultField = new tests\coverage\cli())
-			->and($customField = new tests\coverage\cli($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $locale = new locale()))
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($defaultField = new field())
+			->and($customField = new field($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStart, $runner))
-			->and($customField->handleEvent(atoum\runner::runStart, $runner))
+			->if($defaultField->handleEvent(runner::runStart, $runner))
+			->and($customField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStop, $runner))
-			->and($customField->handleEvent(atoum\runner::runStop, $runner))
+			->if($defaultField->handleEvent(runner::runStop, $runner))
+			->and($customField->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
@@ -199,18 +194,18 @@ class cli extends atoum\test
 						)
 					)
 				)
-			->and($defaultField = new tests\coverage\cli())
-			->and($customField = new tests\coverage\cli($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $locale = new locale()))
+			->and($defaultField = new field())
+			->and($customField = new field($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStart, $runner))
-			->and($customField->handleEvent(atoum\runner::runStart, $runner))
+			->if($defaultField->handleEvent(runner::runStart, $runner))
+			->and($customField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
-			->if($defaultField->handleEvent(atoum\runner::runStop, $runner))
-			->and($customField->handleEvent(atoum\runner::runStop, $runner))
+			->if($defaultField->handleEvent(runner::runStop, $runner))
+			->and($customField->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($defaultField)->isEqualTo(
 						$defaultField->getTitlePrompt() . sprintf($defaultField->getLocale()->_('Code coverage value: %3.2f%%'), $scoreCoverage->getValue() * 100) . PHP_EOL .

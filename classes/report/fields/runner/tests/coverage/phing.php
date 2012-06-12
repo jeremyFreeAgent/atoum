@@ -3,8 +3,7 @@
 namespace mageekguy\atoum\report\fields\runner\tests\coverage;
 
 use
-	mageekguy\atoum,
-	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report
@@ -14,9 +13,9 @@ class phing extends report\fields\runner\tests\coverage\cli
 {
 	protected $showMissingCodeCoverage = true;
 
-	public function __construct(prompt $titlePrompt = null, prompt $classPrompt = null, prompt $methodPrompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, locale $locale = null, $showMissingCodeCoverage = true)
+	public function __construct(prompt $titlePrompt = null, prompt $classPrompt = null, prompt $methodPrompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, depedencies $depedencies = null, $showMissingCodeCoverage = true)
 	{
-		parent::__construct($titlePrompt, $classPrompt, $methodPrompt, $titleColorizer, $coverageColorizer, $locale);
+		parent::__construct($titlePrompt, $classPrompt, $methodPrompt, $titleColorizer, $coverageColorizer, $depedencies);
 
 		$this->showMissingCodeCoverage($showMissingCodeCoverage);
 	}

@@ -3,17 +3,20 @@
 namespace mageekguy\atoum\tests\units\report\fields\runner\result;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
-	mageekguy\atoum\report\fields\runner,
-	mageekguy\atoum\tests\units
+	mageekguy\atoum\test,
+	mageekguy\atoum\tests\units,
+	mageekguy\atoum\report\fields\runner\result\cli as field,
+	mock\mageekguy\atoum as mock
 ;
 
 require_once __DIR__ . '/../../../../../runner.php';
 
-class cli extends atoum\test
+class cli extends test
 {
 	public function testClass()
 	{
@@ -23,7 +26,7 @@ class cli extends atoum\test
 	public function test__construct()
 	{
 		$this
-			->if($field = new runner\result\cli())
+			->if($field = new field())
 			->then
 				->object($field->getPrompt())->isEqualTo(new prompt())
 				->object($field->getSuccessColorizer())->isEqualTo(new colorizer())
@@ -34,20 +37,10 @@ class cli extends atoum\test
 				->variable($field->getFailNumber())->isNull()
 				->variable($field->getErrorNumber())->isNull()
 				->variable($field->getExceptionNumber())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
-			->if($field = new runner\result\cli(null, null, null, null))
-			->then
-				->object($field->getPrompt())->isEqualTo(new prompt())
-				->object($field->getSuccessColorizer())->isEqualTo(new colorizer())
-				->object($field->getFailureColorizer())->isEqualTo(new colorizer())
-				->object($field->getLocale())->isEqualTo(new locale())
-				->variable($field->getTestNumber())->isNull()
-				->variable($field->getTestMethodNumber())->isNull()
-				->variable($field->getFailNumber())->isNull()
-				->variable($field->getErrorNumber())->isNull()
-				->variable($field->getExceptionNumber())->isNull()
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
-			->if($field = new runner\result\cli($prompt = new prompt(), $successColorizer = new colorizer(), $failureColorizer = new colorizer(), $locale = new locale()))
+				->array($field->getEvents())->isEqualTo(array(runner::runStop))
+			->if($depedencies = new depedencies())
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->if($field = new field($prompt = new prompt(), $successColorizer = new colorizer(), $failureColorizer = new colorizer(), $depedencies))
 			->then
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->variable($field->getTestNumber())->isNull()
@@ -58,18 +51,18 @@ class cli extends atoum\test
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getSuccessColorizer())->isIdenticalTo($successColorizer)
 				->object($field->getFailureColorizer())->isIdenticalTo($failureColorizer)
-				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
+				->array($field->getEvents())->isEqualTo(array(runner::runStop))
 		;
 	}
 
 	public function testSetPrompt()
 	{
 		$this
-			->if($field = new runner\result\cli())
+			->if($field = new field())
 			->then
 				->object($field->setPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getPrompt())->isEqualTo($prompt)
-			->if($field = new runner\result\cli(new prompt()))
+			->if($field = new field(new prompt()))
 			->then
 				->object($field->setPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getPrompt())->isEqualTo($prompt)
@@ -79,11 +72,11 @@ class cli extends atoum\test
 	public function testSetSuccessColorizer()
 	{
 		$this
-			->if($field = new runner\result\cli())
+			->if($field = new field())
 			->then
 				->object($field->setSuccessColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getSuccessColorizer())->isIdenticalTo($colorizer)
-			->if($field = new runner\result\cli(null, new colorizer()))
+			->if($field = new field(null, new colorizer()))
 			->then
 				->object($field->setSuccessColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getSuccessColorizer())->isIdenticalTo($colorizer)
@@ -93,11 +86,11 @@ class cli extends atoum\test
 	public function testSetFailureColorizer()
 	{
 		$this
-			->if($field = new runner\result\cli())
+			->if($field = new field())
 			->then
 				->object($field->setFailureColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getFailureColorizer())->isIdenticalTo($colorizer)
-			->if($field = new runner\result\cli(null, null, new colorizer()))
+			->if($field = new field(null, null, new colorizer()))
 			->then
 				->object($field->setFailureColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
 				->object($field->getFailureColorizer())->isIdenticalTo($colorizer)
@@ -108,25 +101,25 @@ class cli extends atoum\test
 	{
 
 		$this
-			->if($score = new \mock\mageekguy\atoum\score())
+			->if($score = new mock\score())
 			->and($score->getMockController()->getAssertionNumber = $assertionNumber = rand(1, PHP_INT_MAX))
 			->and($score->getMockController()->getFailNumber = $failNumber = rand(1, PHP_INT_MAX))
 			->and($score->getMockController()->getErrorNumber = $errorNumber = rand(1, PHP_INT_MAX))
 			->and($score->getMockController()->getExceptionNumber = $exceptionNumber = rand(1, PHP_INT_MAX))
-			->and($runner = new \mock\mageekguy\atoum\runner())
+			->and($runner = new mock\runner())
 			->and($runner->setScore($score))
 			->and($runner->getMockController()->getTestNumber = $testNumber = rand(1, PHP_INT_MAX))
 			->and($runner->getMockController()->getTestMethodNumber = $testMethodNumber = rand(1, PHP_INT_MAX))
-			->and($field = new runner\result\cli())
+			->and($field = new field())
 			->then
-				->boolean($field->handleEvent(atoum\runner::runStart, $runner))->isFalse()
+				->boolean($field->handleEvent(runner::runStart, $runner))->isFalse()
 				->variable($field->getTestNumber())->isNull()
 				->variable($field->getTestMethodNumber())->isNull()
 				->variable($field->getAssertionNumber())->isNull()
 				->variable($field->getFailNumber())->isNull()
 				->variable($field->getErrorNumber())->isNull()
 				->variable($field->getExceptionNumber())->isNull()
-				->boolean($field->handleEvent(atoum\runner::runStop, $runner))->isTrue()
+				->boolean($field->handleEvent(runner::runStop, $runner))->isTrue()
 				->integer($field->getTestNumber())->isEqualTo($testNumber)
 				->integer($field->getTestMethodNumber())->isEqualTo($testMethodNumber)
 				->integer($field->getAssertionNumber())->isEqualTo($assertionNumber)
@@ -138,20 +131,20 @@ class cli extends atoum\test
 
 	public function test__toString()
 	{
-		$score = new \mock\mageekguy\atoum\score();
+		$score = new mock\score();
 		$scoreController = $score->getMockController();
 		$scoreController->getAssertionNumber = 1;
 		$scoreController->getFailNumber = 0;
 		$scoreController->getErrorNumber = 0;
 		$scoreController->getExceptionNumber = 0;
 
-		$runner = new \mock\mageekguy\atoum\runner();
+		$runner = new mock\runner();
 		$runnerController = $runner->getMockController();
 		$runnerController->getScore = $score;
 		$runnerController->getTestNumber = 1;
 		$runnerController->getTestMethodNumber = 1;
 
-		$locale = new \mock\mageekguy\atoum\locale();
+		$locale = new mock\locale();
 		$localeController = $locale->getMockController();
 		$localeController->_ = function ($string) use (& $noTestRunningString, & $successString, & $failureString) {
 			switch ($string)
@@ -193,15 +186,15 @@ class cli extends atoum\test
 			}
 		};
 
-		$prompt = new \mock\mageekguy\atoum\cli\prompt();
+		$prompt = new mock\cli\prompt();
 		$promptController = $prompt->getMockController();
 		$promptController->__toString = $promptString = uniqid();
 
-		$successColorizer = new \mock\mageekguy\atoum\cli\colorizer();
+		$successColorizer = new mock\cli\colorizer();
 		$successColorizerController = $successColorizer->getMockController();
 		$successColorizerController->colorize = $colorizedSuccessString = uniqid();
 
-		$failureColorizer = new \mock\mageekguy\atoum\cli\colorizer();
+		$failureColorizer = new mock\cli\colorizer();
 		$failureColorizerController = $failureColorizer->getMockController();
 		$failureColorizerController->colorize = $colorizedFailureString = uniqid();
 
@@ -211,7 +204,9 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new runner\result\cli($prompt, $successColorizer, $failureColorizer, $locale))
+			->and($depedencies = new depedencies())
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale)
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -222,7 +217,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStart, $runner))
+			->and($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -233,7 +228,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStop, $runner))
+			->and($field->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedSuccessString . PHP_EOL)
 				->mock($locale)
@@ -260,7 +255,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new runner\result\cli($prompt, $successColorizer, $failureColorizer, $locale))
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -271,7 +266,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStart, $runner))
+			->and($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -282,7 +277,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStop, $runner))
+			->and($field->handleEvent(runner::runStop, $runner))
 				->castToString($field)->isEqualTo($promptString . $colorizedSuccessString . PHP_EOL)
 				->mock($locale)
 					->call('__')->withArguments('%s test', '%s tests', $testNumber)->once()
@@ -309,7 +304,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new runner\result\cli($prompt, $successColorizer, $failureColorizer, $locale))
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -320,7 +315,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStart, $runner))
+			->and($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -331,7 +326,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStop, $runner))
+			->and($field->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedFailureString . PHP_EOL)
 				->mock($locale)
@@ -359,7 +354,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new runner\result\cli($prompt, $successColorizer, $failureColorizer, $locale))
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -370,7 +365,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStart, $runner))
+			->and($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -381,7 +376,7 @@ class cli extends atoum\test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field->handleEvent(atoum\runner::runStop, $runner))
+			->and($field->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedFailureString . PHP_EOL)
 				->mock($locale)

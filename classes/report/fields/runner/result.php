@@ -3,10 +3,10 @@
 namespace mageekguy\atoum\report\fields\runner;
 
 use
-	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
+	mageekguy\atoum\observable,
 	mageekguy\atoum\runner,
-	mageekguy\atoum\report,
-	mageekguy\atoum\observable
+	mageekguy\atoum\report
 ;
 
 abstract class result extends report\field
@@ -19,9 +19,9 @@ abstract class result extends report\field
 	protected $exceptionNumber = null;
 	protected $uncompletedMethodNumber = null;
 
-	public function __construct(locale $locale = null)
+	public function __construct(depedencies $depedencies = null)
 	{
-		parent::__construct(array(runner::runStop), $locale);
+		parent::__construct(array(runner::runStop), $depedencies);
 	}
 
 	public function getTestNumber()

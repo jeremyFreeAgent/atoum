@@ -3,8 +3,7 @@
 namespace mageekguy\atoum\report\fields\runner\tests\memory;
 
 use
-	mageekguy\atoum,
-	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report
@@ -16,9 +15,9 @@ class cli extends report\fields\runner\tests\memory
 	protected $memoryColorizer = null;
 	protected $titleColorizer = null;
 
-	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $memoryColorizer = null, locale $locale = null)
+	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $memoryColorizer = null, depedencies $depedencies = null)
 	{
-		parent::__construct($locale);
+		parent::__construct($depedencies);
 
 		$this
 			->setPrompt($prompt ?: new prompt())

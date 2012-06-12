@@ -3,19 +3,19 @@
 namespace mageekguy\atoum\report\fields\test;
 
 use
+	mageekguy\atoum\depedencies,
+	mageekguy\atoum\observable,
 	mageekguy\atoum\test,
-	mageekguy\atoum\locale,
-	mageekguy\atoum\report,
-	mageekguy\atoum\observable
+	mageekguy\atoum\report
 ;
 
 abstract class duration extends report\field
 {
 	protected $value = null;
 
-	public function __construct(locale $locale = null)
+	public function __construct(depedencies $depedencies = null)
 	{
-		parent::__construct(array(test::runStop), $locale);
+		parent::__construct(array(test::runStop), $depedencies);
 	}
 
 	public function getValue()

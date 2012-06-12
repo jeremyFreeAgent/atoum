@@ -4,7 +4,7 @@ namespace mageekguy\atoum\report\fields\runner\errors;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\report,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer
@@ -19,9 +19,9 @@ class cli extends report\fields\runner\errors
 	protected $errorPrompt = null;
 	protected $errorColorizer = null;
 
-	public function __construct(prompt $titlePrompt = null, colorizer $titleColorizer = null, prompt $methodPrompt = null, colorizer $methodColorizer = null, prompt $errorPrompt = null, colorizer $errorColorizer = null, locale $locale = null)
+	public function __construct(prompt $titlePrompt = null, colorizer $titleColorizer = null, prompt $methodPrompt = null, colorizer $methodColorizer = null, prompt $errorPrompt = null, colorizer $errorColorizer = null, depedencies $depedencies = null)
 	{
-		parent::__construct($locale);
+		parent::__construct($depedencies);
 
 		$this
 			->setTitlePrompt($titlePrompt ?: new prompt())

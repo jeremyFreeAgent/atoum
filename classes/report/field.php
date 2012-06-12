@@ -3,7 +3,9 @@
 namespace mageekguy\atoum\report;
 
 use
-	mageekguy\atoum
+	mageekguy\atoum\depedencies,
+	mageekguy\atoum\observable,
+	mageekguy\atoum\locale
 ;
 
 abstract class field
@@ -12,13 +14,16 @@ abstract class field
 	protected $locale = null;
 	protected $depedencies = null;
 
-	public function __construct(array $events = array(), atoum\locale $locale = null)
+	public function __construct(array $events = array(), depedencies $depedencies = null)
 	{
-		$this->events = $events;
-		$this->setLocale($locale ?: new atoum\locale());
+		$this
+			->setEvents($events)
+			->setDepedencies($depedencies ?: new depedencies())
+			->setLocale($this->depedencies['locale']())
+		;
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(depedencies $depedencies)
 	{
 		$this->depedencies = $depedencies[$this];
 
@@ -34,7 +39,7 @@ abstract class field
 		return $this->depedencies;
 	}
 
-	public function setLocale(atoum\locale $locale)
+	public function setLocale(locale $locale)
 	{
 		$this->locale = $locale;
 
@@ -44,6 +49,13 @@ abstract class field
 	public function getLocale()
 	{
 		return $this->locale;
+	}
+
+	public function setEvents(array $events)
+	{
+		$this->events = $events;
+
+		return $this;
 	}
 
 	public function getEvents()
@@ -56,7 +68,7 @@ abstract class field
 		return in_array($event, $this->events);
 	}
 
-	public function handleEvent($event, atoum\observable $observable)
+	public function handleEvent($event, observable $observable)
 	{
 		return $this->canHandleEvent($event);
 	}

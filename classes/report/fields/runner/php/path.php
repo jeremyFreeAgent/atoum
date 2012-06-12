@@ -3,7 +3,8 @@
 namespace mageekguy\atoum\report\fields\runner\php;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\observable,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\report,
 	mageekguy\atoum\runner
 ;
@@ -12,9 +13,9 @@ abstract class path extends report\field
 {
 	protected $path = null;
 
-	public function __construct(atoum\locale $locale = null)
+	public function __construct(depedencies $depedencies = null)
 	{
-		parent::__construct(array(runner::runStart), $locale);
+		parent::__construct(array(runner::runStart), $depedencies);
 	}
 
 	public function getPath()
@@ -22,7 +23,7 @@ abstract class path extends report\field
 		return $this->path;
 	}
 
-	public function handleEvent($event, atoum\observable $observable)
+	public function handleEvent($event, observable $observable)
 	{
 		if (parent::handleEvent($event, $observable) === false)
 		{

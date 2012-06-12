@@ -11,9 +11,9 @@ abstract class coverage extends report\field
 {
 	protected $coverage = null;
 
-	public function __construct(\mageekguy\atoum\locale $locale = null)
+	public function __construct(\mageekguy\atoum\depedencies $depedencies = null)
 	{
-		parent::__construct(array(runner::runStop), $locale);
+		parent::__construct(array(runner::runStop), $depedencies);
 	}
 
 	public function getCoverage()

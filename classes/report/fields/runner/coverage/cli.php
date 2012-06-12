@@ -6,7 +6,6 @@ use
 	mageekguy\atoum,
 	mageekguy\atoum\report,
 	mageekguy\atoum\runner,
-	mageekguy\atoum\locale,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer
 ;
@@ -17,9 +16,9 @@ class cli extends report\fields\runner\coverage
 	protected $titleColorizer = null;
 	protected $coverageColorizer = null;
 
-	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, locale $locale = null)
+	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, atoum\depedencies $depedencies = null)
 	{
-		parent::__construct($locale);
+		parent::__construct($depedencies);
 
 		$this
 			->setPrompt($prompt ?: new prompt())

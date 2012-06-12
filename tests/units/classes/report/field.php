@@ -17,11 +17,15 @@ class field extends atoum\test
 			->if($field = new \mock\mageekguy\atoum\report\field())
 			->then
 				->array($field->getEvents())->isEmpty()
+				->object($field->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
 				->object($field->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->boolean($field->canHandleEvent(uniqid()))->isFalse()
-			->if($field = new \mock\mageekguy\atoum\report\field($events = array(uniqid(), uniqid(), uniqid()), $locale = new atoum\locale()))
+			->if($depedencies = new atoum\depedencies())
+			->and($depedencies['mock\mageekguy\atoum\report\field']['locale'] = $locale = new atoum\locale())
+			->and($field = new \mock\mageekguy\atoum\report\field($events = array(uniqid(), uniqid(), uniqid()), $depedencies))
 			->then
 				->array($field->getEvents())->isEqualTo($events)
+				->object($field->getDepedencies())->isIdenticalTo($depedencies[$field])
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->boolean($field->canHandleEvent(uniqid()))->isFalse()
 		;

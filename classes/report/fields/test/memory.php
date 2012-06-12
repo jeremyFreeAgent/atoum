@@ -3,7 +3,8 @@
 namespace mageekguy\atoum\report\fields\test;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\depedencies,
+	mageekguy\atoum\observable,
 	mageekguy\atoum\test,
 	mageekguy\atoum\report
 ;
@@ -12,9 +13,9 @@ abstract class memory extends report\field
 {
 	protected $value = null;
 
-	public function __construct(atoum\locale $locale = null)
+	public function __construct(depedencies $depedencies = null)
 	{
-		parent::__construct(array(test::runStop), $locale);
+		parent::__construct(array(test::runStop), $depedencies);
 	}
 
 	public function getValue()
@@ -22,7 +23,7 @@ abstract class memory extends report\field
 		return $this->value;
 	}
 
-	public function handleEvent($event, atoum\observable $observable)
+	public function handleEvent($event, observable $observable)
 	{
 		if (parent::handleEvent($event, $observable) === false)
 		{

@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\test;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\test,
 	mageekguy\atoum\report,
 	mageekguy\atoum\test\cli,
@@ -12,7 +12,7 @@ use
 
 abstract class event extends report\fields\event
 {
-	public function __construct(atoum\locale $locale = null)
+	public function __construct(depedencies $depedencies = null)
 	{
 		parent::__construct(array(
 				test::runStart,
@@ -24,7 +24,7 @@ abstract class event extends report\fields\event
 				test::success,
 				test::runStop
 			),
-			$locale
+			$depedencies
 		);
 	}
 }

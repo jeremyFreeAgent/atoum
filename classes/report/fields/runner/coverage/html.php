@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../../../../constants.php';
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\report,
 	mageekguy\atoum\template,
 	mageekguy\atoum\exceptions,
@@ -29,9 +29,9 @@ class html extends report\fields\runner\coverage\cli
 	protected $templateParser = null;
 	protected $reflectionClassInjector = null;
 
-	public function __construct($projectName, $destinationDirectory, $templatesDirectory = null, prompt $prompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, prompt $urlPrompt = null, colorizer $urlColorizer = null, template\parser $parser = null, atoum\adapter $adapter = null, locale $locale = null)
+	public function __construct($projectName, $destinationDirectory, $templatesDirectory = null, prompt $prompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, prompt $urlPrompt = null, colorizer $urlColorizer = null, template\parser $parser = null, atoum\adapter $adapter = null, depedencies $depedencies = null)
 	{
-		parent::__construct($prompt, $titleColorizer, $coverageColorizer, $locale);
+		parent::__construct($prompt, $titleColorizer, $coverageColorizer, $depedencies);
 
 		$this
 			->setUrlPrompt($urlPrompt ?: new prompt())

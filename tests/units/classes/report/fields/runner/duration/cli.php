@@ -3,9 +3,10 @@
 namespace mageekguy\atoum\tests\units\report\fields\runner\duration;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\test,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields\runner\duration
@@ -13,7 +14,7 @@ use
 
 require_once __DIR__ . '/../../../../../runner.php';
 
-class cli extends atoum\test
+class cli extends test
 {
 	public function testClass()
 	{
@@ -31,15 +32,9 @@ class cli extends atoum\test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getValue())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($field = new duration\cli(null, null, null, null))
-			->then
-				->object($field->getPrompt())->isEqualTo(new prompt())
-				->object($field->getTitleColorizer())->isEqualTo(new colorizer())
-				->object($field->getDurationColorizer())->isEqualTo(new colorizer())
-				->object($field->getLocale())->isEqualTo(new locale())
-				->variable($field->getValue())->isNull()
-				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($field = new duration\cli($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $locale = new locale()))
+			->if($depedencies = new depedencies())
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new duration\cli($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $depedencies))
 			->then
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getTitleColorizer())->isIdenticalTo($titleColorizer)
@@ -98,7 +93,7 @@ class cli extends atoum\test
 		$this
 			->if($field = new duration\cli())
 			->then
-				->boolean($field->handleEvent(runner::runStart, new atoum\runner()))->isFalse()
+				->boolean($field->handleEvent(runner::runStart, new runner()))->isFalse()
 				->variable($field->getValue())->isNull()
 			->if($runner = new \mock\mageekguy\atoum\runner())
 			->and($runner->getMockController()->getRunningDuration = $runningDuration = rand(0, PHP_INT_MAX))
@@ -121,7 +116,9 @@ class cli extends atoum\test
 			->and($durationColorizer->getMockController()->colorize = $colorizedDuration = uniqid())
 			->and($locale = new \mock\mageekguy\atoum\locale())
 			->and($locale->getMockController()->_ = function($string) { return $string; })
-			->and($field = new duration\cli($prompt, $titleColorizer, $durationColorizer, $locale))
+			->and($depedencies = new depedencies())
+			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale)
+			->and($field = new duration\cli($prompt, $titleColorizer, $durationColorizer, $depedencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedTitle . ': ' . $colorizedDuration . '.' . PHP_EOL)
 				->mock($locale)
@@ -164,7 +161,7 @@ class cli extends atoum\test
 			->and($durationColorizer->getMockController()->resetCalls())
 			->and($locale->getMockController()->resetCalls())
 			->and($runner->getMockController()->getRunningDuration = $runningDuration = rand(2, PHP_INT_MAX))
-			->and($field = new duration\cli($prompt, $titleColorizer, $durationColorizer, $locale))
+			->and($field = new duration\cli($prompt, $titleColorizer, $durationColorizer, $depedencies))
 			->and($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedTitle . ': ' . $colorizedDuration . '.' . PHP_EOL)

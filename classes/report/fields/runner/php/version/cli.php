@@ -4,7 +4,7 @@ namespace mageekguy\atoum\report\fields\runner\php\version;
 
 use
 	mageekguy\atoum\report,
-	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer
 ;
@@ -16,9 +16,9 @@ class cli extends report\fields\runner\php\version
 	protected $versionPrompt = null;
 	protected $versionColorizer = null;
 
-	public function __construct(prompt $titlePrompt = null, colorizer $titleColorizer = null, prompt $versionPrompt = null, colorizer $versionColorizer = null, locale $locale = null)
+	public function __construct(prompt $titlePrompt = null, colorizer $titleColorizer = null, prompt $versionPrompt = null, colorizer $versionColorizer = null, depedencies $depedencies = null)
 	{
-		parent::__construct($locale);
+		parent::__construct($depedencies);
 
 		$this
 			->setTitlePrompt($titlePrompt ?: new prompt())

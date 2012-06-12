@@ -3,7 +3,8 @@
 namespace mageekguy\atoum\report\fields\runner\tests;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\depedencies,
+	mageekguy\atoum\observable,
 	mageekguy\atoum\report,
 	mageekguy\atoum\runner
 ;
@@ -13,9 +14,9 @@ abstract class duration extends report\field
 	protected $value = null;
 	protected $testNumber = null;
 
-	public function __construct(atoum\locale $locale = null)
+	public function __construct(depedencies $depedencies = null)
 	{
-		parent::__construct(array(runner::runStop), $locale);
+		parent::__construct(array(runner::runStop), $depedencies);
 	}
 
 	public function getValue()
@@ -28,7 +29,7 @@ abstract class duration extends report\field
 		return $this->testNumber;
 	}
 
-	public function handleEvent($event, atoum\observable $observable)
+	public function handleEvent($event, observable $observable)
 	{
 		if (parent::handleEvent($event, $observable) === false)
 		{
