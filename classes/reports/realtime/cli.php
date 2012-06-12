@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\reports\realtime;
 
 use
-	mageekguy\atoum,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\reports\realtime,
@@ -13,7 +13,7 @@ use
 
 class cli extends realtime
 {
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(depedencies $depedencies = null)
 	{
 		parent::__construct($depedencies);
 

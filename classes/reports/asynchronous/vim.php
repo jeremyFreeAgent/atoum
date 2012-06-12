@@ -22,10 +22,7 @@ class vim extends reports\asynchronous
 		$ps3 = $this->depedencies['ps3']();
 
 		$this
-			->addField(new runner\atoum\cli(
-						$ps1
-					)
-				)
+			->addField(new runner\atoum\cli($this->depedencies))
 			->addField(new runner\php\path\cli(
 						$ps1
 					)

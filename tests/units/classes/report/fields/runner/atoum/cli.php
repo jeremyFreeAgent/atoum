@@ -3,31 +3,29 @@
 namespace mageekguy\atoum\tests\units\report\fields\runner\atoum;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\test,
 	mageekguy\atoum\score,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
+	mageekguy\atoum\depedencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
-	mageekguy\atoum\tests\units,
-	mageekguy\atoum\report\fields\runner\atoum
+	mageekguy\atoum\report\fields\runner\atoum\cli as field
 ;
 
 require_once __DIR__ . '/../../../../../runner.php';
 
-class cli extends \mageekguy\atoum\test
+class cli extends test
 {
 	public function testClass()
 	{
-		$this->assert
-			->class($this->getTestedClassName())->isSubclassOf('mageekguy\atoum\report\field')
-		;
+		$this->class($this->getTestedClassName())->isSubclassOf('mageekguy\atoum\report\field');
 	}
 
 	public function test__construct()
 	{
-		$this->assert
-			->if($field = new atoum\cli())
+		$this
+			->if($field = new field())
 			->then
 				->object($field->getPrompt())->isEqualTo(new prompt())
 				->object($field->getColorizer())->isEqualTo(new colorizer())
@@ -36,13 +34,16 @@ class cli extends \mageekguy\atoum\test
 				->variable($field->getPath())->isNull()
 				->variable($field->getVersion())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStart))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new atoum\cli($prompt = new prompt(), $colorizer = new colorizer(), $depedencies))
+			->if($fieldClass = $this->getTestedClassName())
+			->and($depedencies = new depedencies())
+			->and($depedencies[$fieldClass]['locale'] = $locale = new locale())
+			->and($depedencies[$fieldClass]['prompt'] = $prompt = new prompt())
+			->and($depedencies[$fieldClass]['colorizer'] = $colorizer = new colorizer())
+			->and($field = new field($depedencies))
 			->then
+				->object($field->getLocale())->isIdenticalTo($locale)
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getColorizer())->isIdenticalTo($colorizer)
-				->object($field->getLocale())->isIdenticalTo($locale)
 				->variable($field->getAuthor())->isNull()
 				->variable($field->getPath())->isNull()
 				->variable($field->getVersion())->isNull()
@@ -50,76 +51,89 @@ class cli extends \mageekguy\atoum\test
 		;
 	}
 
+	public function testSetDepedencies()
+	{
+		$this
+			->if($field = new field())
+			->then
+				->object($field->setDepedencies($depedencies = new depedencies()))->isIdenticalTo($field)
+				->boolean(isset($depedencies[$field]['locale']))->isTrue()
+				->boolean(isset($depedencies[$field]['prompt']))->isTrue()
+				->boolean(isset($depedencies[$field]['colorizer']))->isTrue()
+		;
+	}
+
 	public function testSetPrompt()
 	{
-		$field = new atoum\cli();
-
-		$this->assert
-			->object($field->setPrompt($prompt = new prompt(uniqid())))->isIdenticalTo($field)
-			->object($field->getPrompt())->isIdenticalTo($prompt)
+		$this
+			->if($field = new field())
+			->then
+				->object($field->setPrompt($prompt = new prompt()))->isIdenticalTo($field)
+				->object($field->getPrompt())->isIdenticalTo($prompt)
 		;
 	}
 
 	public function testSetColorizer()
 	{
-		$field = new atoum\cli();
-
-		$this->assert
-			->object($field->setColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
-			->object($field->getColorizer())->isIdenticalTo($colorizer)
+		$this
+			->if($field = new field())
+			->then
+				->object($field->setColorizer($colorizer = new colorizer()))->isIdenticalTo($field)
+				->object($field->getColorizer())->isIdenticalTo($colorizer)
 		;
 	}
 
 	public function testHandleEvent()
 	{
-		$score = new score();
-		$score
-			->setAtoumPath($atoumPath = uniqid())
-			->setAtoumVersion($atoumVersion = uniqid())
-		;
-
-		$runner = new runner();
-		$runner->setScore($score);
-
-		$field = new atoum\cli();
-
-		$this->assert
-			->variable($field->getAuthor())->isNull()
-			->variable($field->getPath())->isNull()
-			->variable($field->getVersion())->isNull()
-			->boolean($field->handleEvent(runner::runStart, $runner))->isTrue()
-			->string($field->getAuthor())->isEqualTo(\mageekguy\atoum\author)
-			->string($field->getPath())->isEqualTo($atoumPath)
-			->string($field->getVersion())->isEqualTo($atoumVersion)
+		$this
+			->if($score = new score())
+			->and($score
+				->setAtoumPath($atoumPath = uniqid())
+				->setAtoumVersion($atoumVersion = uniqid())
+			)
+			->and($runner = new runner())
+			->and($runner->setScore($score))
+			->and($field = new field())
+			->then
+				->variable($field->getAuthor())->isNull()
+				->variable($field->getPath())->isNull()
+				->variable($field->getVersion())->isNull()
+				->boolean($field->handleEvent(runner::runStart, $runner))->isTrue()
+				->string($field->getAuthor())->isEqualTo(\mageekguy\atoum\author)
+				->string($field->getPath())->isEqualTo($atoumPath)
+				->string($field->getVersion())->isEqualTo($atoumVersion)
 		;
 	}
 
 	public function test__toString()
 	{
-		$score = new score();
-		$score
-			->setAtoumPath($atoumPath = uniqid())
-			->setAtoumVersion($atoumVersion = uniqid())
-		;
-
-		$runner = new runner();
-		$runner->setScore($score);
-
-		$this->assert
-			->if($field = new atoum\cli())
+		$this
+			->if($score = new score())
+			->and($score
+				->setAtoumPath($atoumPath = uniqid())
+				->setAtoumVersion($atoumVersion = uniqid())
+			)
+			->and($runner = new runner())
+			->and($runner->setScore($score))
+			->and($field = new field())
 			->and($field->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($field)->isEmpty()
 			->if($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($field->getPrompt() . $field->getColorizer()->colorize(sprintf($field->getLocale()->_('atoum version %s by %s (%s)'), $atoumVersion, \mageekguy\atoum\author, $atoumPath)) . PHP_EOL)
-			->if($field = new atoum\cli($prompt = new prompt(uniqid()), $colorizer = new colorizer(uniqid(), uniqid()), null, $locale = new locale()))
+			->if($fieldClass = $this->getTestedClassName())
+			->and($depedencies = new depedencies())
+			->and($depedencies[$fieldClass]['locale'] = $locale = new locale())
+			->and($depedencies[$fieldClass]['prompt'] = $prompt = new prompt())
+			->and($depedencies[$fieldClass]['colorizer'] = $colorizer = new colorizer())
+			->and($field = new field($depedencies))
 			->and($field->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($field)->isEmpty()
 			->if($field->handleEvent(runner::runStart, $runner))
 			->then
-				->castToString($field)->isEqualTo($field->getPrompt() . $colorizer->colorize(sprintf($field->getLocale()->_('atoum version %s by %s (%s)'), $atoumVersion, \mageekguy\atoum\author, $atoumPath)) . PHP_EOL)
+				->castToString($field)->isEqualTo($prompt . $colorizer->colorize(sprintf($locale->_('atoum version %s by %s (%s)'), $atoumVersion, \mageekguy\atoum\author, $atoumPath)) . PHP_EOL)
 		;
 	}
 }
