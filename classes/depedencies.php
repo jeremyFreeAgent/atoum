@@ -36,6 +36,11 @@ class depedencies implements \arrayAccess, \serializable
 		return $this;
 	}
 
+	public function isLocked()
+	{
+		return $this->lock;
+	}
+
 	public function offsetSet($mixed, $injector)
 	{
 		$key = self::getKey($mixed);

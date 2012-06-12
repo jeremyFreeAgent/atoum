@@ -10,11 +10,28 @@ abstract class field
 {
 	protected $events = array();
 	protected $locale = null;
+	protected $depedencies = null;
 
 	public function __construct(array $events = array(), atoum\locale $locale = null)
 	{
 		$this->events = $events;
 		$this->setLocale($locale ?: new atoum\locale());
+	}
+
+	public function setDepedencies(atoum\depedencies $depedencies)
+	{
+		$this->depedencies = $depedencies[$this];
+
+		$this->depedencies->lock();
+		$this->depedencies['locale'] = function() { return new locale(); };
+		$this->depedencies->unlock();
+
+		return $this;
+	}
+
+	public function getDepedencies()
+	{
+		return $this->depedencies;
 	}
 
 	public function setLocale(atoum\locale $locale)

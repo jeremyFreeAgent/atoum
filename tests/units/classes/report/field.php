@@ -27,6 +27,26 @@ class field extends atoum\test
 		;
 	}
 
+	public function testSetDepedencies()
+	{
+		$this
+			->if($field = new \mock\mageekguy\atoum\report\field())
+			->and($fieldClass = get_class($field))
+			->then
+				->object($field->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($field)
+				->object($fieldDepedencies = $field->getDepedencies())->isIdenticalTo($depedencies[$fieldClass])
+				->boolean($fieldDepedencies->isLocked())->isFalse()
+				->boolean(isset($fieldDepedencies['locale']))->isTrue()
+			->if($depedencies = new atoum\depedencies())
+			->and($depedencies[$fieldClass]['locale'] = $localeInjector = function() {})
+			->then
+				->object($field->setDepedencies($depedencies))->isIdenticalTo($field)
+				->object($fieldDepedencies = $field->getDepedencies())->isIdenticalTo($depedencies[$fieldClass])
+				->boolean($fieldDepedencies->isLocked())->isFalse()
+				->object($fieldDepedencies['locale'])->isIdenticalTo($localeInjector)
+		;
+	}
+
 	public function testCanHandleEvent()
 	{
 		$this

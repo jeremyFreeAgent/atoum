@@ -101,6 +101,21 @@ class depedencies extends atoum\test
 				->object($depedencies[$key])->isIdenticalTo($otherInjector)
 		;
 	}
+
+	public function testIsLocked()
+	{
+		$this
+			->if($depedencies = new atoum\depedencies())
+			->then
+				->boolean($depedencies->isLocked())->isFalse()
+			->if($depedencies->lock())
+			->then
+				->boolean($depedencies->isLocked())->isTrue()
+			->if($depedencies->unlock())
+			->then
+				->boolean($depedencies->isLocked())->isFalse()
+		;
+	}
 }
 
 ?>
