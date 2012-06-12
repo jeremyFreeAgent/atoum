@@ -4,10 +4,7 @@ namespace mageekguy\atoum\report\fields;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\test,
-	mageekguy\atoum\report,
-	mageekguy\atoum\test\cli,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\report
 ;
 
 abstract class event extends report\field
@@ -31,16 +28,14 @@ abstract class event extends report\field
 		{
 			$this->observable = null;
 			$this->event = null;
-
-			return false;
 		}
 		else
 		{
 			$this->observable = $observable;
 			$this->event = $event;
-
-			return true;
 		}
+
+		return ($this->event !== null);
 	}
 }
 
