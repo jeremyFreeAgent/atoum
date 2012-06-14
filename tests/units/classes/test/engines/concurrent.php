@@ -82,6 +82,7 @@ class concurrent extends atoum\test
 					return $resource = uniqid();
 				}
 			)
+			->and($adapter->stream_set_blocking = function() {})
 			->and($adapter->fwrite = function() {})
 			->and($adapter->fclose = function() {})
 			->then
@@ -135,6 +136,7 @@ class concurrent extends atoum\test
 			->and($adapter->proc_get_status = array('running' => true))
 			->and($adapter->fwrite = function() {})
 			->and($adapter->fclose = function() {})
+			->and($adapter->stream_set_blocking = function() {})
 			->and($adapter->stream_get_contents = $output = uniqid())
 			->and($engine->run($test))
 			->then
@@ -142,7 +144,7 @@ class concurrent extends atoum\test
 			->if($adapter->proc_get_status = array('running' => false, 'exitcode' => $exitCode = rand(1, PHP_INT_MAX)))
 			->then
 				->object($score = $engine->getScore())->isInstanceOf('mageekguy\atoum\score')
-				->array($score->getUncompletedMethods())->isEqualTo(array(array('class' => get_class($test), 'method' => $method, 'exitCode' => $exitCode, 'output' => $output)))
+				->array($score->getUncompletedMethods())->isEqualTo(array(array('class' => get_class($test), 'method' => $method, 'exitCode' => $exitCode, 'output' => $output . $output)))
 			->if($adapter->stream_get_contents = serialize($score))
 			->and($engine->run($test))
 			->then
