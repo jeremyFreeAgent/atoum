@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\runner\php;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\observable,
 	mageekguy\atoum\report,
 	mageekguy\atoum\runner
@@ -13,9 +13,9 @@ abstract class version extends report\field
 {
 	protected $version = null;
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		parent::__construct(array(runner::runStart), $depedencies);
+		parent::__construct(array(runner::runStart), $dependencies);
 	}
 
 	public function getVersion()

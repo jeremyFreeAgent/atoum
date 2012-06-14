@@ -33,26 +33,26 @@ class builder extends atoum\script
 	protected $reportTitle = null;
 	protected $runnerConfigurationFiles = array();
 
-	public function __construct($name, atoum\depedencies $depedencies = null)
+	public function __construct($name, atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($name, $depedencies);
+		parent::__construct($name, $dependencies);
 
 		$this
-			->setVcs($this->depedencies['vcs\svn']())
-			->setSuperglobals($this->depedencies['superglobals']())
+			->setVcs($this->dependencies['vcs\svn']())
+			->setSuperglobals($this->dependencies['superglobals']())
 			->setUnitTestRunnerScript(self::defaultUnitTestRunnerScript)
 			->setPharGeneratorScript(self::defaultPharGeneratorScript)
 		;
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		parent::setDepedencies($depedencies);
+		parent::setDepedencies($dependencies);
 
-		$this->depedencies->lock();
-		$this->depedencies['vcs\svn'] = function() { return new builder\vcs\svn(); };
-		$this->depedencies['superglobals'] = function() { return new atoum\superglobals(); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['vcs\svn'] = function() { return new builder\vcs\svn(); };
+		$this->dependencies['superglobals'] = function() { return new atoum\superglobals(); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}

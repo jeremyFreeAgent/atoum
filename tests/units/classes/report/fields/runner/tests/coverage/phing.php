@@ -8,7 +8,7 @@ use
 	mageekguy\atoum\score,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields\runner\tests
@@ -37,9 +37,9 @@ class phing extends test
 				->variable($field->getCoverage())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
 				->boolean($field->missingCodeCoverageIsShowed())->isTrue()
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new tests\coverage\phing($titlePrompt = new prompt(), $classPrompt = new prompt(), $methodPrompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $depedencies, false))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new tests\coverage\phing($titlePrompt = new prompt(), $classPrompt = new prompt(), $methodPrompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $dependencies, false))
 			->then
 				->object($field->getTitlePrompt())->isIdenticalTo($titlePrompt)
 				->object($field->getClassPrompt())->isIdenticalTo($classPrompt)
@@ -150,14 +150,14 @@ class phing extends test
 	public function test__toString()
 	{
 		$this
-			->if($scoreCoverage = new score\coverage($depedencies = new depedencies()))
+			->if($scoreCoverage = new score\coverage($dependencies = new dependencies()))
 			->and($score = new \mock\mageekguy\atoum\score())
 			->and($score->getMockController()->getCoverage = function() use ($scoreCoverage) { return $scoreCoverage; })
 			->and($runner = new runner())
 			->and($runner->setScore($score))
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
 			->and($defaultField = new tests\coverage\phing())
-			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()
@@ -185,7 +185,7 @@ class phing extends test
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
 			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($className = uniqid())
 			->and($methodName = uniqid())
 			->and($scoreCoverage->addXdebugDataForTest($this, $xdebugData = array(
@@ -209,7 +209,7 @@ class phing extends test
 					)
 				)
 			->and($defaultField = new tests\coverage\phing())
-			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->and($customField = new tests\coverage\phing($titlePrompt = new prompt(uniqid()), $classPrompt = new prompt(uniqid()), $methodPrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $coverageColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($defaultField)->isEmpty()
 				->castToString($customField)->isEmpty()

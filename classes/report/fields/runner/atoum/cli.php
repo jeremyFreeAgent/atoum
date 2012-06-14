@@ -4,7 +4,7 @@ namespace mageekguy\atoum\report\fields\runner\atoum;
 
 use
 	mageekguy\atoum\report,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer
 ;
@@ -14,24 +14,24 @@ class cli extends report\fields\runner\atoum
 	protected $prompt = null;
 	protected $colorizer = null;
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
-			->setPrompt($this->depedencies['prompt']())
-			->setColorizer($this->depedencies['colorizer']())
+			->setPrompt($this->dependencies['prompt']())
+			->setColorizer($this->dependencies['colorizer']())
 		;
 	}
 
-	public function setDepedencies(depedencies $depedencies)
+	public function setDepedencies(dependencies $dependencies)
 	{
-		parent::setDepedencies($depedencies);
+		parent::setDepedencies($dependencies);
 
-		$this->depedencies->lock();
-		$this->depedencies['prompt'] = new prompt();
-		$this->depedencies['colorizer'] = new colorizer();
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['prompt'] = new prompt('> ');
+		$this->dependencies['colorizer'] = new colorizer();
+		$this->dependencies->unlock();
 
 		return $this;
 	}

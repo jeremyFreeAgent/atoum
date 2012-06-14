@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\runner\tests\coverage;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report
@@ -17,9 +17,9 @@ class cli extends report\fields\runner\tests\coverage
 	protected $titleColorizer = null;
 	protected $coverageColorizer = null;
 
-	public function __construct(prompt $titlePrompt = null, prompt $classPrompt = null, prompt $methodPrompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, depedencies $depedencies = null)
+	public function __construct(prompt $titlePrompt = null, prompt $classPrompt = null, prompt $methodPrompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
 			->setTitlePrompt($titlePrompt ?: new prompt())

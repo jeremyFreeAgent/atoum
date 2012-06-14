@@ -5,7 +5,7 @@ namespace mageekguy\atoum\tests\units\report\fields\runner\tests\uncompleted;
 use
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\test,
@@ -37,9 +37,9 @@ class cli extends test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getRunner())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->if($field = new field ($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(), $outputPrompt = new prompt(uniqid()), $outputColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->if($field = new field ($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(), $outputPrompt = new prompt(uniqid()), $outputColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getTitlePrompt())->isIdenticalTo($titlePrompt)
 				->object($field->getTitleColorizer())->isIdenticalTo($titleColorizer)
@@ -144,9 +144,9 @@ class cli extends test
 			->then
 				->object($field->setLocale($locale = new locale()))->isIdenticalTo($field)
 				->object($field->getLocale())->isIdenticalTo($locale)
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = new locale())
-			->and($field = new field(null, null, null, null, null, null, $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = new locale())
+			->and($field = new field(null, null, null, null, null, null, $dependencies))
 			->then
 				->object($field->setLocale($locale = new locale()))->isIdenticalTo($field)
 				->object($field->getLocale())->isIdenticalTo($locale)
@@ -172,12 +172,12 @@ class cli extends test
 			->and($score->getMockController()->getUncompletedMethods = array())
 			->and($runner = new runner())
 			->and($runner->setScore($score))
-			->and($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
 			->and($defaultField = new field())
 			->then
 				->castToString($defaultField)->isEmpty()
-			->if($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(uniqid(), uniqid()), $outputPrompt = new prompt(uniqid()), $outputColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(uniqid(), uniqid()), $outputPrompt = new prompt(uniqid()), $outputColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($customField)->isEmpty()
 			->if($defaultField->handleEvent(runner::runStart, $runner))
@@ -216,7 +216,7 @@ class cli extends test
 			->and($defaultField = new field())
 			->then
 				->castToString($defaultField)->isEmpty()
-			->if($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(uniqid(), uniqid()), $outputPrompt = new prompt(uniqid()), $outputColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(uniqid(), uniqid()), $outputPrompt = new prompt(uniqid()), $outputColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($customField)->isEmpty()
 			->if($defaultField->handleEvent(runner::runStart, $runner))

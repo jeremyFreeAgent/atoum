@@ -8,38 +8,38 @@ use
 
 class extension extends \recursiveFilterIterator
 {
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $acceptedExtensions = array();
 
-	public function __construct($mixed, array $acceptedExtensions, atoum\depedencies $depedencies = null)
+	public function __construct($mixed, array $acceptedExtensions, atoum\dependencies $dependencies = null)
 	{
 		$this
-			->setDepedencies($depedencies ?: new atoum\depedencies())
+			->setDepedencies($dependencies ?: new atoum\dependencies())
 			->setAcceptedExtensions($acceptedExtensions)
 		;
 
 		if ($mixed instanceof \recursiveIterator === false)
 		{
-			$mixed = $this->depedencies['directory\iterator']((string) $mixed);
+			$mixed = $this->dependencies['directory\iterator']((string) $mixed);
 		}
 
 		parent::__construct($mixed);
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['directory\iterator'] = function($path) { return new \recursiveDirectoryIterator($path); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['directory\iterator'] = function($path) { return new \recursiveDirectoryIterator($path); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setAcceptedExtensions(array $extensions)

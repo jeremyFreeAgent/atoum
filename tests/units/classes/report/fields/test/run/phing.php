@@ -5,7 +5,7 @@ namespace mageekguy\atoum\tests\units\report\fields\test\run;
 use
 	mageekguy\atoum\mock,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test,
 	mageekguy\atoum\test\adapter,
 	mageekguy\atoum\cli\prompt,
@@ -30,9 +30,9 @@ class phing extends test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getTestClass())->isNull()
 				->object($field->getLocale())->isEqualTo(new locale())
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($prompt = new prompt(), $colorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($prompt = new prompt(), $colorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getColorizer())->isIdenticalTo($colorizer)
@@ -152,9 +152,9 @@ class phing extends test
 			->if($defaultField->handleEvent(test::runStart, $test))
 			->then
 				->castToString($defaultField)->isEqualTo(sprintf('%s : ', $test->getClass()))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($customField = new field($prompt = new prompt(uniqid()), $colorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($customField = new field($prompt = new prompt(uniqid()), $colorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($customField)->isEqualTo($prompt . $colorizer->colorize($locale->_('There is currently no test running.')))
 			->if($customField->handleEvent(test::runStop, $test))

@@ -10,7 +10,7 @@ use
 
 class coverage implements \countable, \serializable
 {
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $classes = array();
 	protected $lines = array();
 	protected $methods = array();
@@ -18,9 +18,9 @@ class coverage implements \countable, \serializable
 	protected $excludedNamespaces = array();
 	protected $excludedDirectories = array();
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		$this->setDepedencies($depedencies ?: new atoum\depedencies());
+		$this->setDepedencies($dependencies ?: new atoum\dependencies());
 	}
 
 	public function serialize()
@@ -52,20 +52,20 @@ class coverage implements \countable, \serializable
 		return $this;
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function reset()
@@ -96,7 +96,7 @@ class coverage implements \countable, \serializable
 		{
 			try
 			{
-				$reflectedClass = $this->depedencies['reflection\class']($class);
+				$reflectedClass = $this->dependencies['reflection\class']($class);
 
 				if ($this->isExcluded($reflectedClass) === false)
 				{

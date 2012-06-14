@@ -57,15 +57,15 @@ class builder extends atoum\test
 				->variable($builder->getReportTitle())->isNull()
 				->object($builder->getVcs())->isInstanceOf('mageekguy\atoum\scripts\builder\vcs\svn')
 				->variable($builder->getTaggerEngine())->isNull()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['locale'] = $locale = new atoum\locale())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\adapter())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['writers\output'] = $stdOut = new atoum\writers\std\out())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['writers\error'] = $stdErr = new atoum\writers\std\err())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['superglobals'] = $superglobals = new atoum\superglobals())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['vcs\svn'] = $vcs = new atoum\scripts\builder\vcs\svn())
-			->and($builder = new scripts\builder($name = uniqid(), $depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['locale'] = $locale = new atoum\locale())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\adapter())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['writers\output'] = $stdOut = new atoum\writers\std\out())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['writers\error'] = $stdErr = new atoum\writers\std\err())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['superglobals'] = $superglobals = new atoum\superglobals())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['vcs\svn'] = $vcs = new atoum\scripts\builder\vcs\svn())
+			->and($builder = new scripts\builder($name = uniqid(), $dependencies))
 			->then
 				->string($builder->getName())->isEqualTo($name)
 				->object($builder->getLocale())->isIdenticalTo($locale)
@@ -94,8 +94,8 @@ class builder extends atoum\test
 		$this
 			->if($builder = new scripts\builder($name = uniqid()))
 			->then
-				->object($builder->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($builder)
-				->object($builderDepedencies = $builder->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\scripts\builder'])
+				->object($builder->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($builder)
+				->object($builderDepedencies = $builder->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\scripts\builder'])
 				->boolean(isset($builderDepedencies['locale']))->isTrue()
 				->boolean(isset($builderDepedencies['adapter']))->isTrue()
 				->boolean(isset($builderDepedencies['arguments\parser']))->isTrue()
@@ -338,9 +338,9 @@ class builder extends atoum\test
 	public function testCheckUnitTests()
 	{
 		$this
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mock\mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\test\adapter())
-			->and($builder = new \mock\mageekguy\atoum\scripts\builder(uniqid(), $depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mock\mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\test\adapter())
+			->and($builder = new \mock\mageekguy\atoum\scripts\builder(uniqid(), $dependencies))
 			->and($builder->disableUnitTestChecking())
 			->then
 				->boolean($builder->unitTestCheckingIsEnabled())->isFalse()
@@ -531,9 +531,9 @@ class builder extends atoum\test
 	public function testCreatePhar()
 	{
 		$this
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mock\mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\test\adapter())
-			->and($builder = new \mock\mageekguy\atoum\scripts\builder(uniqid(), $depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mock\mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\test\adapter())
+			->and($builder = new \mock\mageekguy\atoum\scripts\builder(uniqid(), $dependencies))
 			->and($builder
 				->setTaggerEngine($taggerEngine = new \mock\mageekguy\atoum\scripts\tagger\engine())
 				->disablePharCreation()
@@ -739,9 +739,9 @@ class builder extends atoum\test
 			->and($adapter->fwrite = function() {})
 			->and($adapter->fclose = function() {})
 			->and($adapter->unlink = function() {})
-			->and($depedencies = new atoum\depedencies())
-			->and($depedencies['mock\mageekguy\atoum\scripts\builder']['adapter'] = $adapter)
-			->and($builder = new \mock\mageekguy\atoum\scripts\builder(uniqid(), $depedencies))
+			->and($dependencies = new atoum\dependencies())
+			->and($dependencies['mock\mageekguy\atoum\scripts\builder']['adapter'] = $adapter)
+			->and($builder = new \mock\mageekguy\atoum\scripts\builder(uniqid(), $dependencies))
 			->and($builderController = $builder->getMockController())
 			->and($builderController->createPhar = function() {})
 			->and($builder->setRunFile($runFile = uniqid()))
@@ -761,10 +761,10 @@ class builder extends atoum\test
 	public function testWriteInErrorDirectory()
 	{
 		$this
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\test\adapter())
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\scripts\builder']['adapter'] = $adapter = new atoum\test\adapter())
 			->and($adapter->file_put_contents = function() {})
-			->and($builder = new scripts\builder(uniqid(), $depedencies))
+			->and($builder = new scripts\builder(uniqid(), $dependencies))
 			->then
 				->variable($builder->getErrorsDirectory())->isNull()
 				->object($builder->writeErrorInErrorsDirectory(uniqid()))->isIdenticalTo($builder)

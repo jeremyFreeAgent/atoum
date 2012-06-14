@@ -4,7 +4,7 @@ namespace mageekguy\atoum\report\fields\runner\exceptions;
 
 use
 	mageekguy\atoum\report,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer
 ;
@@ -18,9 +18,9 @@ class cli extends report\fields\runner\exceptions
 	protected $exceptionPrompt = null;
 	protected $exceptionColorizer = null;
 
-	public function __construct(prompt $titlePrompt = null, colorizer $titleColorizer = null, prompt $methodPrompt = null, colorizer $methodColorizer = null, prompt $exceptionPrompt = null, colorizer $exceptionColorizer = null, depedencies $depedencies = null)
+	public function __construct(prompt $titlePrompt = null, colorizer $titleColorizer = null, prompt $methodPrompt = null, colorizer $methodColorizer = null, prompt $exceptionPrompt = null, colorizer $exceptionColorizer = null, dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
 			->setTitlePrompt($titlePrompt ?: new prompt())

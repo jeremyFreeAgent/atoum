@@ -7,7 +7,7 @@ use
 	mageekguy\atoum\score,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields\runner\atoum\cli as field
@@ -27,7 +27,7 @@ class cli extends test
 		$this
 			->if($field = new field())
 			->then
-				->object($field->getPrompt())->isEqualTo(new prompt())
+				->object($field->getPrompt())->isEqualTo(new prompt('> '))
 				->object($field->getColorizer())->isEqualTo(new colorizer())
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getAuthor())->isNull()
@@ -35,11 +35,11 @@ class cli extends test
 				->variable($field->getVersion())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStart))
 			->if($fieldClass = $this->getTestedClassName())
-			->and($depedencies = new depedencies())
-			->and($depedencies[$fieldClass]['locale'] = $locale = new locale())
-			->and($depedencies[$fieldClass]['prompt'] = $prompt = new prompt())
-			->and($depedencies[$fieldClass]['colorizer'] = $colorizer = new colorizer())
-			->and($field = new field($depedencies))
+			->and($dependencies = new dependencies())
+			->and($dependencies[$fieldClass]['locale'] = $locale = new locale())
+			->and($dependencies[$fieldClass]['prompt'] = $prompt = new prompt())
+			->and($dependencies[$fieldClass]['colorizer'] = $colorizer = new colorizer())
+			->and($field = new field($dependencies))
 			->then
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->object($field->getPrompt())->isIdenticalTo($prompt)
@@ -56,10 +56,10 @@ class cli extends test
 		$this
 			->if($field = new field())
 			->then
-				->object($field->setDepedencies($depedencies = new depedencies()))->isIdenticalTo($field)
-				->boolean(isset($depedencies[$field]['locale']))->isTrue()
-				->boolean(isset($depedencies[$field]['prompt']))->isTrue()
-				->boolean(isset($depedencies[$field]['colorizer']))->isTrue()
+				->object($field->setDepedencies($dependencies = new dependencies()))->isIdenticalTo($field)
+				->boolean(isset($dependencies[$field]['locale']))->isTrue()
+				->boolean(isset($dependencies[$field]['prompt']))->isTrue()
+				->boolean(isset($dependencies[$field]['colorizer']))->isTrue()
 		;
 	}
 
@@ -123,11 +123,11 @@ class cli extends test
 			->then
 				->castToString($field)->isEqualTo($field->getPrompt() . $field->getColorizer()->colorize(sprintf($field->getLocale()->_('atoum version %s by %s (%s)'), $atoumVersion, \mageekguy\atoum\author, $atoumPath)) . PHP_EOL)
 			->if($fieldClass = $this->getTestedClassName())
-			->and($depedencies = new depedencies())
-			->and($depedencies[$fieldClass]['locale'] = $locale = new locale())
-			->and($depedencies[$fieldClass]['prompt'] = $prompt = new prompt())
-			->and($depedencies[$fieldClass]['colorizer'] = $colorizer = new colorizer())
-			->and($field = new field($depedencies))
+			->and($dependencies = new dependencies())
+			->and($dependencies[$fieldClass]['locale'] = $locale = new locale())
+			->and($dependencies[$fieldClass]['prompt'] = $prompt = new prompt())
+			->and($dependencies[$fieldClass]['colorizer'] = $colorizer = new colorizer())
+			->and($field = new field($dependencies))
 			->and($field->handleEvent(runner::runStop, $runner))
 			->then
 				->castToString($field)->isEmpty()

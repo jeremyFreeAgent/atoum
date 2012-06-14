@@ -12,16 +12,16 @@ use
 class controller extends test\adapter
 {
 	protected $mockClass = null;
-	protected $depedencies = null;
+	protected $dependencies = null;
 
 	protected static $controlNextNewMock = null;
 
 	private $disableMethodChecking = false;
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
 		$this
-			->setDepedencies($depedencies ?: new atoum\depedencies())
+			->setDepedencies($dependencies ?: new atoum\dependencies())
 			->controlNextNewMock()
 		;
 	}
@@ -58,20 +58,20 @@ class controller extends test\adapter
 		return $this;
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function disableMethodChecking()
@@ -104,7 +104,7 @@ class controller extends test\adapter
 		{
 			$this->mockClass = $mockClass;
 
-			$class = $this->depedencies['reflection\class']($this->mockClass);
+			$class = $this->dependencies['reflection\class']($this->mockClass);
 
 			$methods = array_filter($class->getMethods(\reflectionMethod::IS_PUBLIC), function ($value) {
 					try

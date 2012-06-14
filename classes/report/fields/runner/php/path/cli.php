@@ -4,7 +4,7 @@ namespace mageekguy\atoum\report\fields\runner\php\path;
 
 use
 	mageekguy\atoum\report,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer
 ;
@@ -15,15 +15,28 @@ class cli extends report\fields\runner\php\path
 	protected $titleColorizer = null;
 	protected $pathColorizer = null;
 
-	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $pathColorizer = null, depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
-			->setPrompt($prompt ?: new prompt())
-			->setTitleColorizer($titleColorizer ?: new colorizer())
-			->setPathColorizer($pathColorizer ?: new colorizer())
+			->setPrompt($this->dependencies['prompt']())
+			->setTitleColorizer($this->dependencies['colorizers\title']())
+			->setPathColorizer($this->dependencies['colorizers\path']())
 		;
+	}
+
+	public function setDepedencies(dependencies $dependencies)
+	{
+		parent::setDepedencies($dependencies);
+
+		$this->dependencies->lock();
+		$this->dependencies['prompt'] = new prompt();
+		$this->dependencies['colorizers\title'] = new colorizer();
+		$this->dependencies['colorizers\path'] = new colorizer();
+		$this->dependencies->unlock();
+
+		return $this;
 	}
 
 	public function setPrompt($prompt)

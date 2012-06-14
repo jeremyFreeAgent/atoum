@@ -26,8 +26,8 @@ class phing extends atoum\test
 				->boolean($report->memoryIsShowed())->isTrue()
 				->variable($report->getCodeCoverageReportPath())->isNull()
 				->variable($report->getCodeCoverageReportUrl())->isNull()
-				->object($report->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
-			->if($report = new reports\realtime\phing(false, false, false, false, false, $path = uniqid(), $url = uniqid(), $depedencies = new atoum\depedencies()))
+				->object($report->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
+			->if($report = new reports\realtime\phing(false, false, false, false, false, $path = uniqid(), $url = uniqid(), $dependencies = new atoum\dependencies()))
 			->then
 				->boolean($report->progressIsShowed())->isFalse()
 				->boolean($report->codeCoverageIsShowed())->isFalse()
@@ -36,7 +36,7 @@ class phing extends atoum\test
 				->boolean($report->memoryIsShowed())->isFalse()
 				->string($report->getCodeCoverageReportPath())->isEqualTo($path)
 				->string($report->getCodeCoverageReportUrl())->isEqualTo($url)
-				->object($report->getDepedencies())->isIdenticalTo($depedencies[$report])
+				->object($report->getDepedencies())->isIdenticalTo($dependencies[$report])
 		  ;
 	}
 }

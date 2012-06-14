@@ -4,7 +4,7 @@ namespace mageekguy\atoum\tests\units\report\fields\runner\coverage;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test,
 	mageekguy\atoum\mock,
 	mageekguy\atoum\locale,
@@ -42,9 +42,9 @@ class html extends atoum\test
 				->variable($field->getCoverage())->isNull()
 				->array($field->getSrcDirectories())->isEmpty()
 				->array($field->getEvents())->isEqualTo(array(atoum\runner::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new coverage\html($projectName = uniqid(), $destinationDirectory = uniqid(), $templatesDirectory = uniqid(), $prompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $urlPrompt = new prompt(), $urlColorizer = new colorizer(), $templateParser = new template\parser(), $adapter = new atoum\adapter(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new coverage\html($projectName = uniqid(), $destinationDirectory = uniqid(), $templatesDirectory = uniqid(), $prompt = new prompt(), $titleColorizer = new colorizer(), $coverageColorizer = new colorizer(), $urlPrompt = new prompt(), $urlColorizer = new colorizer(), $templateParser = new template\parser(), $adapter = new atoum\adapter(), $dependencies))
 			->then
 				->string($field->getProjectName())->isEqualTo($projectName)
 				->string($field->getDestinationDirectory())->isEqualTo($destinationDirectory)

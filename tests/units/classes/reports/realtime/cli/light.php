@@ -19,9 +19,9 @@ class light extends atoum\test
 		$this
 			->if($report = new reports\realtime\cli\light())
 			->then
-				->object($depedencies = $report->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
-				->boolean(isset($depedencies['locale']))->isTrue()
-				->boolean(isset($depedencies['adapter']))->isTrue()
+				->object($dependencies = $report->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
+				->boolean(isset($dependencies['locale']))->isTrue()
+				->boolean(isset($dependencies['adapter']))->isTrue()
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
 				->array($report->getFields())->isEqualTo(array(
@@ -64,14 +64,14 @@ class light extends atoum\test
 						)
 					)
 				)
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\reports\realtime\cli\light']['locale'] = $localeInjector = function() use (& $locale) { return $locale = new atoum\locale(); })
-			->and($depedencies['mageekguy\atoum\reports\realtime\cli\light']['adapter'] = $adapterInjector = function() use (& $adapter) { return $adapter = new atoum\adapter(); })
-			->and($report = new reports\realtime\cli\light($depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\reports\realtime\cli\light']['locale'] = $localeInjector = function() use (& $locale) { return $locale = new atoum\locale(); })
+			->and($dependencies['mageekguy\atoum\reports\realtime\cli\light']['adapter'] = $adapterInjector = function() use (& $adapter) { return $adapter = new atoum\adapter(); })
+			->and($report = new reports\realtime\cli\light($dependencies))
 			->then
-				->object($report->getDepedencies())->isIdenticalTo($depedencies[$report])
-				->object($depedencies['mageekguy\atoum\reports\realtime\cli\light']['locale'])->isIdenticalTo($localeInjector)
-				->object($depedencies['mageekguy\atoum\reports\realtime\cli\light']['adapter'])->isIdenticalTo($adapterInjector)
+				->object($report->getDepedencies())->isIdenticalTo($dependencies[$report])
+				->object($dependencies['mageekguy\atoum\reports\realtime\cli\light']['locale'])->isIdenticalTo($localeInjector)
+				->object($dependencies['mageekguy\atoum\reports\realtime\cli\light']['adapter'])->isIdenticalTo($adapterInjector)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->array($report->getFields())->isEqualTo(array(

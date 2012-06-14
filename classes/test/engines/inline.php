@@ -11,11 +11,11 @@ class inline extends test\engine
 {
 	protected $score = null;
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
-		$this->score = $this->depedencies['score']($this->depedencies);
+		$this->score = $this->dependencies['score']($this->dependencies);
 	}
 
 	public function isAsynchronous()

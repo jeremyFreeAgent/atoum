@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\test,
 	mageekguy\atoum\report,
 	mageekguy\atoum\exceptions,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\progressBar
 ;
 
@@ -14,9 +14,9 @@ class cli extends report\fields\test\event
 {
 	protected $progressBar = null;
 
-	public function __construct(progressBar $progressBar = null, depedencies $depedencies = null)
+	public function __construct(progressBar $progressBar = null, dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this->progressBar = $progressBar ?: new progressBar();
 	}

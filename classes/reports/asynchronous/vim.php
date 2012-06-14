@@ -13,20 +13,17 @@ use
 
 class vim extends reports\asynchronous
 {
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
-		$ps1 = $this->depedencies['ps1']();
-		$ps2 = $this->depedencies['ps2']();
-		$ps3 = $this->depedencies['ps3']();
+		$ps1 = $this->dependencies['ps1']();
+		$ps2 = $this->dependencies['ps2']();
+		$ps3 = $this->dependencies['ps3']();
 
 		$this
-			->addField(new runner\atoum\cli($this->depedencies))
-			->addField(new runner\php\path\cli(
-						$ps1
-					)
-				)
+			->addField(new runner\atoum\cli($this->dependencies))
+			->addField(new runner\php\path\cli($this->dependencies))
 			->addField(new runner\php\version\cli(
 						$ps1,
 						null,
@@ -105,15 +102,15 @@ class vim extends reports\asynchronous
 		;
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		parent::setDepedencies($depedencies);
+		parent::setDepedencies($dependencies);
 
-		$this->depedencies->lock();
-		$this->depedencies['ps1'] = function() { return new prompt('> '); };
-		$this->depedencies['ps2'] = function() { return new prompt('=> '); };
-		$this->depedencies['ps3'] = function() { return new prompt('==> '); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['ps1'] = function() { return new prompt('> '); };
+		$this->dependencies['ps2'] = function() { return new prompt('=> '); };
+		$this->dependencies['ps3'] = function() { return new prompt('==> '); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}

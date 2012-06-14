@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\test,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\tests\units,
@@ -37,9 +37,9 @@ class cli extends test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getRunner())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(), $exceptionPrompt = new prompt(uniqid()), $exceptionColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(), $exceptionPrompt = new prompt(uniqid()), $exceptionColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getTitlePrompt())->isIdenticalTo($titlePrompt)
 				->object($field->getTitleColorizer())->isIdenticalTo($titleColorizer)
@@ -201,9 +201,9 @@ class cli extends test
 					$firstOtherValue . PHP_EOL .
 					$secondOtherValue . PHP_EOL
 				)
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(uniqid(), uniqid()), $exceptionPrompt = new prompt(uniqid()), $exceptionColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $methodPrompt = new prompt(uniqid()), $methodColorizer = new colorizer(uniqid(), uniqid()), $exceptionPrompt = new prompt(uniqid()), $exceptionColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($field)->isEmpty()
 			->if($field->handleEvent(runner::runStart, $runner))

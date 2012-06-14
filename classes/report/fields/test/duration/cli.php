@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\test\duration;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report
@@ -15,9 +15,9 @@ class cli extends report\fields\test\duration
 	protected $titleColorizer = null;
 	protected $durationColorizer = null;
 
-	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $durationColorizer = null, depedencies $depedencies = null)
+	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $durationColorizer = null, dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
 			->setPrompt($prompt ?: new prompt())

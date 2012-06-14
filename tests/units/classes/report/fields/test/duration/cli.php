@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\mock,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\test,
@@ -35,9 +35,9 @@ class cli extends test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getValue())->isNull()
 				->array($field->getEvents())->isEqualTo(array(test::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getTitleColorizer())->isIdenticalTo($titleColorizer)
@@ -97,9 +97,9 @@ class cli extends test
 			->then
 				->object($field->setLocale($locale = new locale()))->isIdenticalTo($field)
 				->object($field->getLocale())->isIdenticalTo($locale)
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = new locale())
-			->and($field = new field(null, null, null, $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = new locale())
+			->and($field = new field(null, null, null, $dependencies))
 			->then
 				->object($field->setLocale($locale = new locale()))->isIdenticalTo($field)
 				->object($field->getLocale())->isIdenticalTo($locale)
@@ -137,10 +137,10 @@ class cli extends test
 			->and($testController->getTestedClassName = uniqid())
 			->and($testController->getScore = $score)
 			->and($test = new \mock\mageekguy\atoum\test(null, null, $adapter, null, null, $testController))
-			->and($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
 			->and($defaultField = new field())
-			->and($customField = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $depedencies))
+			->and($customField = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $dependencies))
 			->then
 				->castToString($defaultField)->isEqualTo('Test duration: unknown.' . PHP_EOL)
 				->castToString($customField)->isEqualTo(
@@ -182,7 +182,7 @@ class cli extends test
 					)
 			->if($score->getMockController()->getTotalDuration = $runningDuration = rand(2, PHP_INT_MAX))
 			->and($defaultField = new field())
-			->and($customField = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $depedencies))
+			->and($customField = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $dependencies))
 			->then
 				->castToString($defaultField)->isEqualTo('Test duration: unknown.' . PHP_EOL)
 				->castToString($customField)->isEqualTo(

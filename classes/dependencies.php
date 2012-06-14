@@ -2,10 +2,15 @@
 
 namespace mageekguy\atoum;
 
-class depedencies implements \arrayAccess, \serializable
+class dependencies implements \arrayAccess, \serializable
 {
 	protected $lock = false;
 	protected $injectors = array();
+
+	public function get($mixed)
+	{
+		return (isset($this[$mixed]) === false ? null : $this[$mixed]);
+	}
 
 	public function serialize()
 	{

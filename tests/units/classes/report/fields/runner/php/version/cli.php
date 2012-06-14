@@ -5,7 +5,7 @@ namespace mageekguy\atoum\tests\units\report\fields\runner\php\version;
 use
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\test,
@@ -34,9 +34,9 @@ class cli extends test
 				->object($field->getVersionColorizer())->isEqualTo(new colorizer())
 				->object($field->getLocale())->isEqualTo(new locale())
 				->array($field->getEvents())->isEqualTo(array(runner::runStart))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->if($field = new field($titlePrompt = new prompt(), $titleColorizer = new colorizer(), $versionPrompt = new prompt(), $versionColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->if($field = new field($titlePrompt = new prompt(), $titleColorizer = new colorizer(), $versionPrompt = new prompt(), $versionColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->object($field->getTitlePrompt())->isIdenticalTo($titlePrompt)
@@ -135,9 +135,9 @@ class cli extends test
 						$phpVersion .
 						PHP_EOL
 					)
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $versionPrompt = new prompt(uniqid()), $versionColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $versionPrompt = new prompt(uniqid()), $versionColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->and($customField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($customField)->isEqualTo(
@@ -163,7 +163,7 @@ class cli extends test
 					$phpVersionLine2 .
 					PHP_EOL
 				)
-			->if($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $versionPrompt = new prompt(uniqid()), $versionColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($customField = new field($titlePrompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $versionPrompt = new prompt(uniqid()), $versionColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->and($customField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($customField)->isEqualTo(

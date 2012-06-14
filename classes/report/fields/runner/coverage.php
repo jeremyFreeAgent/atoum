@@ -11,9 +11,9 @@ abstract class coverage extends report\field
 {
 	protected $coverage = null;
 
-	public function __construct(\mageekguy\atoum\depedencies $depedencies = null)
+	public function __construct(\mageekguy\atoum\dependencies $dependencies = null)
 	{
-		parent::__construct(array(runner::runStop), $depedencies);
+		parent::__construct(array(runner::runStop), $dependencies);
 	}
 
 	public function getCoverage()

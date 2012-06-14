@@ -21,7 +21,7 @@ class runner implements observable, adapter\aggregator
 	protected $score = null;
 	protected $adapter = null;
 	protected $locale = null;
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $includer = null;
 	protected $observers = null;
 	protected $reports = null;
@@ -37,48 +37,48 @@ class runner implements observable, adapter\aggregator
 	private $start = null;
 	private $stop = null;
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
 		$this
-			->setDepedencies($depedencies ?: new depedencies())
-			->setAdapter($this->depedencies['adapter']())
-			->setLocale($this->depedencies['locale']())
-			->setIncluder($this->depedencies['includer']())
-			->setScore($this->depedencies['score']($this->depedencies))
-			->setTestDirectoryIterator($this->depedencies['directory\iterator']())
+			->setDepedencies($dependencies ?: new dependencies())
+			->setAdapter($this->dependencies['adapter']())
+			->setLocale($this->dependencies['locale']())
+			->setIncluder($this->dependencies['includer']())
+			->setScore($this->dependencies['score']($this->dependencies))
+			->setTestDirectoryIterator($this->dependencies['directory\iterator']())
 		;
 
-		$runnerClass = $this->depedencies['reflection\class']($this);
+		$runnerClass = $this->dependencies['reflection\class']($this);
 
 		$this->path = $runnerClass->getFilename();
 		$this->class = $runnerClass->getName();
 
-		$this->observers = $this->depedencies['observers\storage']();
-		$this->reports = $this->depedencies['reports\storage']();
+		$this->observers = $this->dependencies['observers\storage']();
+		$this->reports = $this->dependencies['reports\storage']();
 	}
 
-	public function setDepedencies(depedencies $depedencies)
+	public function setDepedencies(dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['locale'] = function() { return new locale(); };
-		$this->depedencies['adapter'] = function() { return new adapter(); };
-		$this->depedencies['includer'] = function() { return new includer(); };
-		$this->depedencies['score'] = function() use ($depedencies) { return new score($depedencies); };
-		$this->depedencies['directory\iterator'] = function() { return new iterators\recursives\directory(); };
-		$this->depedencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
-		$this->depedencies['observers\storage'] = function() { return new \splObjectStorage(); };
-		$this->depedencies['reports\storage'] = function() { return new \splObjectStorage(); };
-		$this->depedencies['glob\iterator'] = function($path) { return new \globIterator($path); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['locale'] = function() { return new locale(); };
+		$this->dependencies['adapter'] = function() { return new adapter(); };
+		$this->dependencies['includer'] = function() { return new includer(); };
+		$this->dependencies['score'] = function() use ($dependencies) { return new score($dependencies); };
+		$this->dependencies['directory\iterator'] = function() { return new iterators\recursives\directory(); };
+		$this->dependencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
+		$this->dependencies['observers\storage'] = function() { return new \splObjectStorage(); };
+		$this->dependencies['reports\storage'] = function() { return new \splObjectStorage(); };
+		$this->dependencies['glob\iterator'] = function($path) { return new \globIterator($path); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setTestDirectoryIterator(iterators\recursives\directory $iterator)
@@ -247,7 +247,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($testClasses as $testClass)
 		{
-			$test = new $testClass($this->depedencies);
+			$test = new $testClass($this->dependencies);
 
 			if (self::isIgnored($test, $namespaces, $tags) === false)
 			{
@@ -411,7 +411,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($runTestClasses as $runTestClass)
 		{
-			$test = new $runTestClass($this->depedencies);
+			$test = new $runTestClass($this->dependencies);
 
 			if (self::isIgnored($test, $namespaces, $tags) === false && ($methods = self::getMethods($test, $runTestMethods, $tags)))
 			{
@@ -435,7 +435,7 @@ class runner implements observable, adapter\aggregator
 					->setLocale($this->locale)
 					->setAdapter($this->adapter)
 					->setIncluder($this->includer)
-					->setDepedencies($this->depedencies)
+					->setDepedencies($this->dependencies)
 					->setBootstrapFile($this->bootstrapFile)
 				;
 
@@ -506,7 +506,7 @@ class runner implements observable, adapter\aggregator
 	{
 		try
 		{
-			foreach ($this->depedencies['glob\iterator'](rtrim($pattern, DIRECTORY_SEPARATOR)) as $path)
+			foreach ($this->dependencies['glob\iterator'](rtrim($pattern, DIRECTORY_SEPARATOR)) as $path)
 			{
 				if ($path->isDir() === true)
 				{
@@ -533,11 +533,11 @@ class runner implements observable, adapter\aggregator
 
 	public function getDeclaredTestClasses($testBaseClass = null)
 	{
-		$depedencies = $this->depedencies;
+		$dependencies = $this->dependencies;
 		$testBaseClass = $testBaseClass ?: __NAMESPACE__ . '\test';
 
-		return array_filter($this->adapter->get_declared_classes(), function($class) use ($depedencies, $testBaseClass) {
-				$class = $depedencies['reflection\class']($class);
+		return array_filter($this->adapter->get_declared_classes(), function($class) use ($dependencies, $testBaseClass) {
+				$class = $dependencies['reflection\class']($class);
 				return ($class->isSubClassOf($testBaseClass) === true && $class->isAbstract() === false);
 			}
 		);

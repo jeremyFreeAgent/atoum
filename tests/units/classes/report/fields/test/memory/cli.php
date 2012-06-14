@@ -5,7 +5,7 @@ namespace mageekguy\atoum\tests\units\report\fields\test\memory;
 use
 	mageekguy\atoum\mock,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test,
 	mageekguy\atoum\test\adapter,
 	mageekguy\atoum\cli\prompt,
@@ -33,9 +33,9 @@ class cli extends test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getValue())->isNull()
 				->array($field->getEvents())->isEqualTo(array(test::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $memoryColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $memoryColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getTitleColorizer())->isIdenticalTo($titleColorizer)
@@ -119,10 +119,10 @@ class cli extends test
 			->and($testController->getTestedClassName = uniqid())
 			->and($test = new \mock\mageekguy\atoum\test(null, null, $adapter, null, null, $testController))
 			->and($test->getMockController()->getScore = $score)
-			->and($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
 			->and($defaultField = new field())
-			->and($customField = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $memoryColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->and($customField = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $memoryColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($defaultField)->isEqualTo($defaultField->getPrompt() . $defaultField->getLocale()->_('Memory usage: unknown.') . PHP_EOL)
 				->castToString($customField)->isEqualTo(

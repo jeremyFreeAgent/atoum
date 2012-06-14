@@ -17,15 +17,15 @@ class field extends atoum\test
 			->if($field = new \mock\mageekguy\atoum\report\field())
 			->then
 				->array($field->getEvents())->isEmpty()
-				->object($field->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
+				->object($field->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
 				->object($field->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->boolean($field->canHandleEvent(uniqid()))->isFalse()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mock\mageekguy\atoum\report\field']['locale'] = $locale = new atoum\locale())
-			->and($field = new \mock\mageekguy\atoum\report\field($events = array(uniqid(), uniqid(), uniqid()), $depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mock\mageekguy\atoum\report\field']['locale'] = $locale = new atoum\locale())
+			->and($field = new \mock\mageekguy\atoum\report\field($events = array(uniqid(), uniqid(), uniqid()), $dependencies))
 			->then
 				->array($field->getEvents())->isEqualTo($events)
-				->object($field->getDepedencies())->isIdenticalTo($depedencies[$field])
+				->object($field->getDepedencies())->isIdenticalTo($dependencies[$field])
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->boolean($field->canHandleEvent(uniqid()))->isFalse()
 		;
@@ -37,15 +37,15 @@ class field extends atoum\test
 			->if($field = new \mock\mageekguy\atoum\report\field())
 			->and($fieldClass = get_class($field))
 			->then
-				->object($field->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($field)
-				->object($fieldDepedencies = $field->getDepedencies())->isIdenticalTo($depedencies[$fieldClass])
+				->object($field->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($field)
+				->object($fieldDepedencies = $field->getDepedencies())->isIdenticalTo($dependencies[$fieldClass])
 				->boolean($fieldDepedencies->isLocked())->isFalse()
 				->boolean(isset($fieldDepedencies['locale']))->isTrue()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies[$fieldClass]['locale'] = $localeInjector = function() {})
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies[$fieldClass]['locale'] = $localeInjector = function() {})
 			->then
-				->object($field->setDepedencies($depedencies))->isIdenticalTo($field)
-				->object($fieldDepedencies = $field->getDepedencies())->isIdenticalTo($depedencies[$fieldClass])
+				->object($field->setDepedencies($dependencies))->isIdenticalTo($field)
+				->object($fieldDepedencies = $field->getDepedencies())->isIdenticalTo($dependencies[$fieldClass])
 				->boolean($fieldDepedencies->isLocked())->isFalse()
 				->object($fieldDepedencies['locale'])->isIdenticalTo($localeInjector)
 		;

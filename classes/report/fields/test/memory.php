@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\test;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\observable,
 	mageekguy\atoum\test,
 	mageekguy\atoum\report
@@ -13,9 +13,9 @@ abstract class memory extends report\field
 {
 	protected $value = null;
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		parent::__construct(array(test::runStop), $depedencies);
+		parent::__construct(array(test::runStop), $dependencies);
 	}
 
 	public function getValue()

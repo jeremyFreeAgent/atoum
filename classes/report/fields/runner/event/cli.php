@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\runner\event;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\report,
@@ -15,9 +15,9 @@ class cli extends report\fields\runner\event
 {
 	protected $progressBar = null;
 
-	public function __construct(progressBar $progressBar = null, depedencies $depedencies = null)
+	public function __construct(progressBar $progressBar = null, dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this->progressBar = $progressBar ?: new progressBar();
 	}

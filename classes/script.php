@@ -13,7 +13,7 @@ abstract class script implements atoum\adapter\aggregator
 	const padding = '   ';
 
 	protected $name = '';
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $locale = null;
 	protected $adapter = null;
 	protected $outputWriter = null;
@@ -22,17 +22,17 @@ abstract class script implements atoum\adapter\aggregator
 	private $help = array();
 	private $argumentsParser = null;
 
-	public function __construct($name, atoum\depedencies $depedencies = null)
+	public function __construct($name, atoum\dependencies $dependencies = null)
 	{
 		$this->name = (string) $name;
 
 		$this
-			->setDepedencies($depedencies ?: new atoum\depedencies())
-			->setLocale($this->depedencies['locale']())
-			->setAdapter($this->depedencies['adapter']())
-			->setArgumentsParser($this->depedencies['arguments\parser']())
-			->setOutputWriter($this->depedencies['writers\output']())
-			->setErrorWriter($this->depedencies['writers\error']())
+			->setDepedencies($dependencies ?: new atoum\dependencies())
+			->setLocale($this->dependencies['locale']())
+			->setAdapter($this->dependencies['adapter']())
+			->setArgumentsParser($this->dependencies['arguments\parser']())
+			->setOutputWriter($this->dependencies['writers\output']())
+			->setErrorWriter($this->dependencies['writers\error']())
 		;
 
 		if ($this->adapter->php_sapi_name() !== 'cli')
@@ -41,24 +41,24 @@ abstract class script implements atoum\adapter\aggregator
 	 	}
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['locale'] = function() { return new atoum\locale(); };
-		$this->depedencies['adapter'] = function() { return new atoum\adapter(); };
-		$this->depedencies['arguments\parser'] = function() { return new atoum\script\arguments\parser(); };
-		$this->depedencies['writers\output'] = function() { return new atoum\writers\std\out(); };
-		$this->depedencies['writers\error'] = function() { return new atoum\writers\std\err(); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['locale'] = function() { return new atoum\locale(); };
+		$this->dependencies['adapter'] = function() { return new atoum\adapter(); };
+		$this->dependencies['arguments\parser'] = function() { return new atoum\script\arguments\parser(); };
+		$this->dependencies['writers\output'] = function() { return new atoum\writers\std\out(); };
+		$this->dependencies['writers\error'] = function() { return new atoum\writers\std\err(); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setOutputWriter(atoum\writer $writer)

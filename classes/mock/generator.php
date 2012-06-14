@@ -11,32 +11,32 @@ class generator
 {
 	const defaultNamespace = 'mock';
 
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $shuntedMethods = array();
 	protected $overloadedMethods = array();
 
 	private $defaultNamespace = null;
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		$this->setDepedencies($depedencies ?: new atoum\depedencies());
+		$this->setDepedencies($dependencies ?: new atoum\dependencies());
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['adapter'] = function() { return new atoum\adapter(); };
-		$this->depedencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['adapter'] = function() { return new atoum\adapter(); };
+		$this->dependencies['reflection\class'] = function($class) { return new \reflectionClass($class); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setDefaultNamespace($namespace)
@@ -100,7 +100,7 @@ class generator
 				$mockClass = self::getClassName($class);
 			}
 
-			$adapter = $this->depedencies['adapter']();
+			$adapter = $this->dependencies['adapter']();
 
 			if ($adapter->class_exists($mockNamespace . '\\' . $mockClass, false) === true || $adapter->interface_exists($mockNamespace . '\\' . $mockClass, false) === true)
 			{
@@ -113,7 +113,7 @@ class generator
 			}
 			else
 			{
-				$reflectionClass = $this->depedencies['reflection\class']($class);
+				$reflectionClass = $this->dependencies['reflection\class']($class);
 
 				if ($reflectionClass->isFinal() === true)
 				{

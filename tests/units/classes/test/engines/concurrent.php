@@ -30,15 +30,15 @@ class concurrent extends atoum\test
 		$this
 			->if($engine = new engines\concurrent())
 			->then
-				->object($engine->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($engine)
-				->object($engineDepedencies = $engine->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\test\engines\concurrent'])
+				->object($engine->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($engine)
+				->object($engineDepedencies = $engine->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\test\engines\concurrent'])
 				->boolean(isset($engineDepedencies['score']))->isTrue()
 				->boolean(isset($engineDepedencies['adapter']))->isTrue()
-			->if($depedencies['mageekguy\atoum\test\engines\concurrent']['score'] = $scoreInjector = function() {})
-			->and($depedencies['mageekguy\atoum\test\engines\concurrent']['adapter'] = $adapterInjector = function() {})
+			->if($dependencies['mageekguy\atoum\test\engines\concurrent']['score'] = $scoreInjector = function() {})
+			->and($dependencies['mageekguy\atoum\test\engines\concurrent']['adapter'] = $adapterInjector = function() {})
 			->then
-				->object($engine->setDepedencies($depedencies))->isIdenticalTo($engine)
-				->object($engineDepedencies = $engine->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\test\engines\concurrent'])
+				->object($engine->setDepedencies($dependencies))->isIdenticalTo($engine)
+				->object($engineDepedencies = $engine->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\test\engines\concurrent'])
 				->object($engineDepedencies['score'])->isIdenticalTo($scoreInjector)
 				->object($engineDepedencies['adapter'])->isIdenticalTo($adapterInjector)
 		;
@@ -56,9 +56,9 @@ class concurrent extends atoum\test
 	public function testRun()
 	{
 		$this
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\test\engines\concurrent']['adapter'] = $adapter = new atoum\test\adapter())
-			->and($engine = new engines\concurrent($depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\test\engines\concurrent']['adapter'] = $adapter = new atoum\test\adapter())
+			->and($engine = new engines\concurrent($dependencies))
 			->then
 				->object($engine->run($test = new \mock\mageekguy\atoum\test()))->isIdenticalTo($engine)
 				->boolean($engine->isRunning())->isFalse()
@@ -111,9 +111,9 @@ class concurrent extends atoum\test
 			->if($engine = new engines\concurrent())
 			->then
 				->variable($engine->getScore())->isNull()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\test\engines\concurrent']['adapter'] = $adapter = new atoum\test\adapter())
-			->and($engine = new engines\concurrent($depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\test\engines\concurrent']['adapter'] = $adapter = new atoum\test\adapter())
+			->and($engine = new engines\concurrent($dependencies))
 			->and($engine->run($test = new \mock\mageekguy\atoum\test()))
 			->then
 				->variable($engine->getScore())->isNull()

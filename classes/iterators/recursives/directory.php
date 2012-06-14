@@ -9,30 +9,30 @@ use
 
 class directory implements \iteratorAggregate
 {
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $path = null;
 	protected $acceptDots = false;
 	protected $acceptedExtensions = array('php');
 
-	public function __construct($path = null, atoum\depedencies $depedencies = null)
+	public function __construct($path = null, atoum\dependencies $dependencies = null)
 	{
 		if ($path !== null)
 		{
 			$this->setPath($path);
 		}
 
-		$this->setDepedencies($depedencies ?: new atoum\depedencies());
+		$this->setDepedencies($dependencies ?: new atoum\dependencies());
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['directory\iterator'] = function($path) { return new \recursiveDirectoryIterator($path); };
-		$this->depedencies['filters\dot'] = function($iterator, $depedencies) { return new atoum\iterators\filters\recursives\dot($iterator, $depedencies); };
-		$this->depedencies['filters\extension'] = function($iterator, $extensions, $depedencies) { return new atoum\iterators\filters\recursives\extension($iterator, $extensions, $depedencies); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['directory\iterator'] = function($path) { return new \recursiveDirectoryIterator($path); };
+		$this->dependencies['filters\dot'] = function($iterator, $dependencies) { return new atoum\iterators\filters\recursives\dot($iterator, $dependencies); };
+		$this->dependencies['filters\extension'] = function($iterator, $extensions, $dependencies) { return new atoum\iterators\filters\recursives\extension($iterator, $extensions, $dependencies); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
@@ -46,7 +46,7 @@ class directory implements \iteratorAggregate
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function getPath()
@@ -65,16 +65,16 @@ class directory implements \iteratorAggregate
 			throw new exceptions\runtime('Path is undefined');
 		}
 
-		$iterator = $this->depedencies['directory\iterator']($this->path);
+		$iterator = $this->dependencies['directory\iterator']($this->path);
 
 		if ($this->acceptDots === false)
 		{
-			$iterator = $this->depedencies['filters\dot']($iterator, $this->depedencies);
+			$iterator = $this->dependencies['filters\dot']($iterator, $this->dependencies);
 		}
 
 		if (sizeof($this->acceptedExtensions) > 0)
 		{
-			$iterator = $this->depedencies['filters\extension']($iterator, $this->acceptedExtensions, $this->depedencies);
+			$iterator = $this->dependencies['filters\extension']($iterator, $this->acceptedExtensions, $this->dependencies);
 		}
 
 		return $iterator;

@@ -6,12 +6,12 @@ use
 	mageekguy\atoum\test,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\report,
-	mageekguy\atoum\depedencies
+	mageekguy\atoum\dependencies
 ;
 
 abstract class event extends report\fields\event
 {
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
 		parent::__construct(array(
 				runner::runStart,
@@ -22,7 +22,7 @@ abstract class event extends report\fields\event
 				test::success,
 				runner::runStop
 			),
-			$depedencies
+			$dependencies
 		);
 	}
 }

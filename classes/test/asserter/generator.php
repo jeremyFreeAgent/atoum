@@ -11,9 +11,9 @@ class generator extends asserter\generator
 {
 	protected $test = null;
 
-	public function __construct(atoum\test $test, atoum\depedencies $depedencies = null)
+	public function __construct(atoum\test $test, atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this->setTest($test);
 	}

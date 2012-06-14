@@ -24,23 +24,23 @@ class dot extends atoum\test
 			->if($filter = new recursives\dot($recursiveIterator = new \mock\recursiveDirectoryIterator(uniqid())))
 			->then
 				->object($filter->getInnerIterator())->isIdenticalTo($recursiveIterator)
-				->object($filterDepedencies = $filter->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
+				->object($filterDepedencies = $filter->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
 				->boolean(isset($filterDepedencies['directory\iterator']))->isTrue()
-			->if($filter = new recursives\dot($recursiveIterator = new \mock\recursiveDirectoryIterator(uniqid()), $depedencies = new atoum\depedencies()))
+			->if($filter = new recursives\dot($recursiveIterator = new \mock\recursiveDirectoryIterator(uniqid()), $dependencies = new atoum\dependencies()))
 			->then
 				->object($filter->getInnerIterator())->isIdenticalTo($recursiveIterator)
-				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\iterators\filters\recursives\dot'])
+				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\iterators\filters\recursives\dot'])
 				->boolean(isset($filterDepedencies['directory\iterator']))->isTrue()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\iterators\filters\recursives\dot']['directory\iterator'] = $directoryIteratorInjector = function($path) use (& $directoryIterator) { return $directoryIterator = new \mock\recursiveDirectoryIterator($path); })
-			->and($filter = new recursives\dot($recursiveIterator = new \mock\recursiveDirectoryIterator(uniqid()), $depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\iterators\filters\recursives\dot']['directory\iterator'] = $directoryIteratorInjector = function($path) use (& $directoryIterator) { return $directoryIterator = new \mock\recursiveDirectoryIterator($path); })
+			->and($filter = new recursives\dot($recursiveIterator = new \mock\recursiveDirectoryIterator(uniqid()), $dependencies))
 			->then
 				->object($filter->getInnerIterator())->isIdenticalTo($recursiveIterator)
-				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\iterators\filters\recursives\dot'])
+				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\iterators\filters\recursives\dot'])
 				->object($filterDepedencies['directory\iterator'])->isIdenticalTo($directoryIteratorInjector)
-			->if($filter = new recursives\dot($path = uniqid(), $depedencies))
+			->if($filter = new recursives\dot($path = uniqid(), $dependencies))
 			->then
-				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\iterators\filters\recursives\dot'])
+				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\iterators\filters\recursives\dot'])
 				->object($filterDepedencies['directory\iterator'])->isIdenticalTo($directoryIteratorInjector)
 				->object($filter->getInnerIterator())->isEqualTo($directoryIterator)
 		;
@@ -52,14 +52,14 @@ class dot extends atoum\test
 			->mockGenerator->shunt('__construct')
 			->if($filter = new recursives\dot($recursiveIterator = new \mock\recursiveDirectoryIterator(uniqid())))
 			->then
-				->object($filter->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($filter)
-				->object($filter->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\iterators\filters\recursives\dot'])
-				->boolean(isset($depedencies['mageekguy\atoum\iterators\filters\recursives\dot']['directory\iterator']))->isTrue()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\iterators\filters\recursives\dot']['directory\iterator'] = $directoryIteratorInjector = function($path) use (& $directoryIterator) { return $directoryIterator = new \mock\recursiveDirectoryIterator($path); })
+				->object($filter->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($filter)
+				->object($filter->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\iterators\filters\recursives\dot'])
+				->boolean(isset($dependencies['mageekguy\atoum\iterators\filters\recursives\dot']['directory\iterator']))->isTrue()
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\iterators\filters\recursives\dot']['directory\iterator'] = $directoryIteratorInjector = function($path) use (& $directoryIterator) { return $directoryIterator = new \mock\recursiveDirectoryIterator($path); })
 			->then
-				->object($filter->setDepedencies($depedencies))->isIdenticalTo($filter)
-				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\iterators\filters\recursives\dot'])
+				->object($filter->setDepedencies($dependencies))->isIdenticalTo($filter)
+				->object($filterDepedencies = $filter->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\iterators\filters\recursives\dot'])
 				->object($filterDepedencies['directory\iterator'])->isIdenticalTo($directoryIteratorInjector)
 		;
 	}

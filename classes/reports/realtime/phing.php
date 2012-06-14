@@ -21,9 +21,9 @@ class phing extends realtime
 	protected $codeCoverageReportPath = null;
 	protected $codeCoverageReportUrl = null;
 
-	public function __construct($showProgress = true, $showCodeCoverage = true, $showMissingCodeCoverage = true, $showDuration = true, $showMemory = true, $codeCoverageReportPath = null, $codeCoverageReportUrl = null, atoum\depedencies $depedencies = null)
+	public function __construct($showProgress = true, $showCodeCoverage = true, $showMissingCodeCoverage = true, $showDuration = true, $showMemory = true, $codeCoverageReportPath = null, $codeCoverageReportUrl = null, atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this->showProgress = ($showProgress == true);
 		$this->showCodeCoverage = ($showCodeCoverage == true);

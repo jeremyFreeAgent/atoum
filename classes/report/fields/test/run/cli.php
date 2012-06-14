@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report\fields\test\run;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report
@@ -14,9 +14,9 @@ class cli extends report\fields\test\run
 	protected $prompt = null;
 	protected $colorizer = null;
 
-	public function __construct(prompt $prompt = null, colorizer $colorizer = null, depedencies $depedencies = null)
+	public function __construct(prompt $prompt = null, colorizer $colorizer = null, dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
 			->setPrompt($prompt ?: new prompt())

@@ -5,7 +5,7 @@ namespace mageekguy\atoum\tests\units\report\fields\runner\result;
 use
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\test,
@@ -38,9 +38,9 @@ class cli extends test
 				->variable($field->getErrorNumber())->isNull()
 				->variable($field->getExceptionNumber())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->if($field = new field($prompt = new prompt(), $successColorizer = new colorizer(), $failureColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->if($field = new field($prompt = new prompt(), $successColorizer = new colorizer(), $failureColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->variable($field->getTestNumber())->isNull()
@@ -204,9 +204,9 @@ class cli extends test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale)
-			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
+			->and($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale)
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $dependencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -255,7 +255,7 @@ class cli extends test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $dependencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -304,7 +304,7 @@ class cli extends test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $dependencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()
@@ -354,7 +354,7 @@ class cli extends test
 			->and($successColorizerController->resetCalls())
 			->and($failureColorizerController->resetCalls())
 			->and($promptController->resetCalls())
-			->and($field = new field($prompt, $successColorizer, $failureColorizer, $depedencies))
+			->and($field = new field($prompt, $successColorizer, $failureColorizer, $dependencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $noTestRunningString . PHP_EOL)
 				->mock($locale)->call('_')->withArguments('No test running.')->once()

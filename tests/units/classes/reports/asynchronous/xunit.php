@@ -29,29 +29,29 @@ class xunit extends atoum\test
 			->if($report = new reports\xunit())
 			->then
 				->array($report->getFields(atoum\runner::runStart))->isEmpty()
-				->object($depedencies = $report->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
-				->boolean(isset($depedencies['locale']))->isTrue()
-				->boolean(isset($depedencies['adapter']))->isTrue()
+				->object($dependencies = $report->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
+				->boolean(isset($dependencies['locale']))->isTrue()
+				->boolean(isset($dependencies['adapter']))->isTrue()
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->extension_loaded = true)
-			->and($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\reports\asynchronous\xunit']['locale'] = $localeInjector = function() use (& $locale) { return $locale = new atoum\locale(); })
-			->and($depedencies['mageekguy\atoum\reports\asynchronous\xunit']['adapter'] = $adapterInjector = function() use ($adapter) { return $adapter; })
-			->and($report = new reports\xunit($depedencies))
+			->and($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\reports\asynchronous\xunit']['locale'] = $localeInjector = function() use (& $locale) { return $locale = new atoum\locale(); })
+			->and($dependencies['mageekguy\atoum\reports\asynchronous\xunit']['adapter'] = $adapterInjector = function() use ($adapter) { return $adapter; })
+			->and($report = new reports\xunit($dependencies))
 			->then
-				->object($report->getDepedencies())->isIdenticalTo($depedencies[$report])
-				->object($depedencies['mageekguy\atoum\reports\asynchronous\xunit']['locale'])->isIdenticalTo($localeInjector)
-				->object($depedencies['mageekguy\atoum\reports\asynchronous\xunit']['adapter'])->isIdenticalTo($adapterInjector)
+				->object($report->getDepedencies())->isIdenticalTo($dependencies[$report])
+				->object($dependencies['mageekguy\atoum\reports\asynchronous\xunit']['locale'])->isIdenticalTo($localeInjector)
+				->object($dependencies['mageekguy\atoum\reports\asynchronous\xunit']['adapter'])->isIdenticalTo($adapterInjector)
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
 				->array($report->getFields())->isEmpty()
 				->adapter($adapter)->call('extension_loaded')->withArguments('libxml')->once()
 			->if($adapter->extension_loaded = false)
 			->then
-				->exception(function() use ($depedencies) {
-								new reports\xunit($depedencies);
+				->exception(function() use ($dependencies) {
+								new reports\xunit($dependencies);
 							}
 						)
 				->isInstanceOf('mageekguy\atoum\exceptions\runtime')

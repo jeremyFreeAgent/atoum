@@ -14,9 +14,9 @@ class xunit extends atoum\reports\asynchronous
 
 	protected $score = null;
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		if ($this->adapter->extension_loaded('libxml') === false)
 		{

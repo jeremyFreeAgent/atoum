@@ -9,15 +9,15 @@ use
 
 class generator
 {
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $locale = null;
 	protected $aliases = array();
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
 		$this
-			->setDepedencies($depedencies ?: new atoum\depedencies())
-			->setLocale($this->depedencies['locale']())
+			->setDepedencies($dependencies ?: new atoum\dependencies())
+			->setLocale($this->dependencies['locale']())
 		;
 	}
 
@@ -36,20 +36,20 @@ class generator
 		return $this->getAsserterInstance($method, $arguments);
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['locale'] = function() { return new atoum\locale(); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['locale'] = function() { return new atoum\locale(); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setLocale(atoum\locale $locale)

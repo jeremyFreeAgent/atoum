@@ -16,9 +16,9 @@ class cli extends report\fields\runner\coverage
 	protected $titleColorizer = null;
 	protected $coverageColorizer = null;
 
-	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, atoum\depedencies $depedencies = null)
+	public function __construct(prompt $prompt = null, colorizer $titleColorizer = null, colorizer $coverageColorizer = null, atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$this
 			->setPrompt($prompt ?: new prompt())

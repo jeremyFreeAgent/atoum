@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\test,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields\runner\duration
@@ -32,9 +32,9 @@ class phing extends test
 				->object($field->getLocale())->isEqualTo(new locale())
 				->variable($field->getValue())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new duration\phing($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new duration\phing($prompt = new prompt(), $titleColorizer = new colorizer(), $durationColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getTitleColorizer())->isIdenticalTo($titleColorizer)
@@ -115,9 +115,9 @@ class phing extends test
 			->and($durationColorizer->getMockController()->colorize = $colorizedDuration = uniqid())
 			->and($locale = new \mock\mageekguy\atoum\locale())
 			->and($locale->getMockController()->_ = function($string) { return $string; })
-			->and($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale)
-			->and($field = new duration\phing($prompt, $titleColorizer, $durationColorizer, $depedencies))
+			->and($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale)
+			->and($field = new duration\phing($prompt, $titleColorizer, $durationColorizer, $dependencies))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedTitle . ': ' . $colorizedDuration . '.')
 				->mock($locale)
@@ -160,7 +160,7 @@ class phing extends test
 			->and($durationColorizer->getMockController()->resetCalls())
 			->and($locale->getMockController()->resetCalls())
 			->and($runner->getMockController()->getRunningDuration = $runningDuration = rand(2, PHP_INT_MAX))
-			->and($field = new duration\phing($prompt, $titleColorizer, $durationColorizer, $depedencies))
+			->and($field = new duration\phing($prompt, $titleColorizer, $durationColorizer, $dependencies))
 			->and($field->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($field)->isEqualTo($promptString . $colorizedTitle . ': ' . $colorizedDuration . '.')

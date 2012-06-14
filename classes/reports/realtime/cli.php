@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\reports\realtime;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\reports\realtime,
@@ -13,9 +13,9 @@ use
 
 class cli extends realtime
 {
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
 		$firstLevelPrompt = new prompt('> ');
 		$firstLevelColorizer = new colorizer('1;36');
@@ -47,11 +47,7 @@ class cli extends realtime
 		$uncompletedTestOutputPrompt->setColorizer($uncompletedTestColorizer);
 
 		$this
-			->addField(new runner\php\path\cli(
-						$firstLevelPrompt,
-						$firstLevelColorizer
-					)
-				)
+			->addField(new runner\php\path\cli($this->dependencies))
 			->addField(new runner\php\version\cli(
 						$firstLevelPrompt,
 						$firstLevelColorizer,
@@ -138,6 +134,19 @@ class cli extends realtime
 					)
 				)
 		;
+	}
+
+	public function setDepedencies(dependencies $dependencies)
+	{
+		parent::setDepedencies($dependencies);
+
+		$this->dependencies->lock();
+		$this->dependencies['ps1'] = function() { return new prompt('> '); };
+		$this->dependencies['ps2'] = function() { return new prompt('=> '); };
+		$this->dependencies['ps3'] = function() { return new prompt('==> '); };
+		$this->dependencies->unlock();
+
+		return $this;
 	}
 }
 

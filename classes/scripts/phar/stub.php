@@ -14,13 +14,13 @@ class stub extends scripts\runner
 	const scriptsExtension = '.php';
 	const updateUrl = 'http://downloads.atoum.org/update.php?version=%s';
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		parent::setDepedencies($depedencies);
+		parent::setDepedencies($dependencies);
 
-		$this->depedencies->lock();
-		$this->depedencies['phar'] = function($name) { return new \phar($name); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['phar'] = function($name) { return new \phar($name); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
@@ -79,7 +79,7 @@ class stub extends scripts\runner
 
 	public function extractTo($directory)
 	{
-		if (($versions = $this->getVersions($phar = $this->depedencies['phar']($this->getName()))) === null)
+		if (($versions = $this->getVersions($phar = $this->dependencies['phar']($this->getName()))) === null)
 		{
 			throw new exceptions\runtime('Unable to extract the PHAR to \'' . $directory . '\', the versions\'s file is invalid');
 		}
@@ -120,7 +120,7 @@ class stub extends scripts\runner
 
 	public function extractResourcesTo($directory)
 	{
-		if (($versions = $this->getVersions($phar = $this->depedencies['phar']($this->getName()))) === null)
+		if (($versions = $this->getVersions($phar = $this->dependencies['phar']($this->getName()))) === null)
 		{
 			throw new exceptions\runtime('Unable to extract resources from PHAR in \'' . $directory . '\', the versions\'s file is invalid');
 		}
@@ -192,7 +192,7 @@ class stub extends scripts\runner
 			throw new exceptions\runtime('Unable to update the PHAR, allow_url_fopen is not set, use \'-d allow_url_fopen=1\'');
 		}
 
-		if (($versions = $this->getVersions($currentPhar = $this->depedencies['phar']($this->getName()))) === null)
+		if (($versions = $this->getVersions($currentPhar = $this->dependencies['phar']($this->getName()))) === null)
 		{
 			throw new exceptions\runtime('Unable to update the PHAR, the versions\'s file is invalid');
 		}
@@ -265,7 +265,7 @@ class stub extends scripts\runner
 
 	public function listAvailableVersions()
 	{
-		$currentPhar = $this->depedencies['phar']($this->getName());
+		$currentPhar = $this->dependencies['phar']($this->getName());
 
 		if (isset($currentPhar['versions']) === false)
 		{
@@ -304,7 +304,7 @@ class stub extends scripts\runner
 
 		if ($phar === null)
 		{
-			$phar = $this->depedencies['phar']($this->getName());
+			$phar = $this->dependencies['phar']($this->getName());
 		}
 
 		if (($versions = $this->getVersions($phar)) === null)
@@ -337,7 +337,7 @@ class stub extends scripts\runner
 
 		if ($phar === null)
 		{
-			$phar = $this->depedencies['phar']($this->getName());
+			$phar = $this->dependencies['phar']($this->getName());
 		}
 
 		if (($versions = $this->getVersions($phar)) === null)

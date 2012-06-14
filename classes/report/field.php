@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\report;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\observable,
 	mageekguy\atoum\locale
 ;
@@ -12,31 +12,31 @@ abstract class field
 {
 	protected $events = array();
 	protected $locale = null;
-	protected $depedencies = null;
+	protected $dependencies = null;
 
-	public function __construct(array $events = array(), depedencies $depedencies = null)
+	public function __construct(array $events = array(), dependencies $dependencies = null)
 	{
 		$this
 			->setEvents($events)
-			->setDepedencies($depedencies ?: new depedencies())
-			->setLocale($this->depedencies['locale']())
+			->setDepedencies($dependencies ?: new dependencies())
+			->setLocale($this->dependencies['locale']())
 		;
 	}
 
-	public function setDepedencies(depedencies $depedencies)
+	public function setDepedencies(dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['locale'] = function() { return new locale(); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['locale'] = function() { return new locale(); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setLocale(locale $locale)

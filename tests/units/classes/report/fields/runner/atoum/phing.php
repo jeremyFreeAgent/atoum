@@ -3,7 +3,7 @@
 namespace mageekguy\atoum\tests\units\report\fields\runner\atoum;
 
 use
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\score,
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
@@ -35,9 +35,9 @@ class phing extends \mageekguy\atoum\test
 				->variable($field->getPath())->isNull()
 				->variable($field->getVersion())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStart))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new atoum\phing($prompt = new prompt(), $colorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new atoum\phing($prompt = new prompt(), $colorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 				->object($field->getColorizer())->isIdenticalTo($colorizer)

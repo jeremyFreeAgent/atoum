@@ -15,9 +15,9 @@ abstract class atoum extends report\field
 	protected $path = null;
 	protected $version = null;
 
-	public function __construct(\mageekguy\atoum\depedencies $depedencies = null)
+	public function __construct(\mageekguy\atoum\dependencies $dependencies = null)
 	{
-		parent::__construct(array(runner::runStart), $depedencies);
+		parent::__construct(array(runner::runStart), $dependencies);
 	}
 
 	public function getAuthor()

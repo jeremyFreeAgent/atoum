@@ -4,7 +4,7 @@ namespace mageekguy\atoum\report\fields\runner;
 
 use
 	mageekguy\atoum\runner,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\observable,
 	mageekguy\atoum\report\field
 ;
@@ -13,9 +13,9 @@ abstract class outputs extends field
 {
 	protected $runner = null;
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		parent::__construct(array(runner::runStop), $depedencies);
+		parent::__construct(array(runner::runStop), $dependencies);
 	}
 
 	public function getRunner()

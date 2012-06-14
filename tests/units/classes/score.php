@@ -15,8 +15,8 @@ class score extends atoum\test
 		$this
 			->if($score = new atoum\score())
 			->then
-				->object($depedencies = $score->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
-				->boolean(isset($depedencies['coverage']))->isTrue()
+				->object($dependencies = $score->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
+				->boolean(isset($dependencies['coverage']))->isTrue()
 				->variable($score->getPhpPath())->isNull()
 				->variable($score->getPhpVersion())->isNull()
 				->variable($score->getAtoumPath())->isNull()
@@ -32,9 +32,9 @@ class score extends atoum\test
 				->array($score->getMemoryUsages())->isEmpty()
 				->array($score->getUncompletedMethods())->isEmpty()
 				->object($score->getCoverage())->isEqualTo(new \mageekguy\atoum\score\coverage($score->getDepedencies()))
-			->if($score = new atoum\score($depedencies = new atoum\depedencies()))
+			->if($score = new atoum\score($dependencies = new atoum\dependencies()))
 			->then
-				->object($scoreDepedencies = $score->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\score'])
+				->object($scoreDepedencies = $score->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\score'])
 				->boolean(isset($scoreDepedencies['coverage']))->isTrue()
 				->variable($score->getPhpPath())->isNull()
 				->variable($score->getPhpVersion())->isNull()
@@ -51,12 +51,12 @@ class score extends atoum\test
 				->array($score->getMemoryUsages())->isEmpty()
 				->array($score->getUncompletedMethods())->isEmpty()
 				->object($score->getCoverage())->isEqualTo(new \mageekguy\atoum\score\coverage($score->getDepedencies()))
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\score']['coverage'] = $coverageInjector = function() use (& $coverage) { return $coverage = new \mageekguy\atoum\score\coverage(); })
-			->and($score = new atoum\score($depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\score']['coverage'] = $coverageInjector = function() use (& $coverage) { return $coverage = new \mageekguy\atoum\score\coverage(); })
+			->and($score = new atoum\score($dependencies))
 			->then
-				->object($score->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\score'])
-				->object($depedencies['mageekguy\atoum\score']['coverage'])->isIdenticalTo($coverageInjector)
+				->object($score->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\score'])
+				->object($dependencies['mageekguy\atoum\score']['coverage'])->isIdenticalTo($coverageInjector)
 				->variable($score->getPhpPath())->isNull()
 				->variable($score->getPhpVersion())->isNull()
 				->variable($score->getAtoumPath())->isNull()
@@ -79,14 +79,14 @@ class score extends atoum\test
 		$this
 			->if($score = new atoum\score())
 			->then
-				->object($score->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($score)
-				->object($scoreDepedencies = $score->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\score'])
+				->object($score->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($score)
+				->object($scoreDepedencies = $score->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\score'])
 				->boolean(isset($scoreDepedencies['coverage']))->isTrue()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\score']['coverage'] = $coverageInjector = function() {})
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\score']['coverage'] = $coverageInjector = function() {})
 			->then
-				->object($score->setDepedencies($depedencies))->isIdenticalTo($score)
-				->object($scoreDepedencies = $score->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\score'])
+				->object($score->setDepedencies($dependencies))->isIdenticalTo($score)
+				->object($scoreDepedencies = $score->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\score'])
 				->object($scoreDepedencies['coverage'])->isIdenticalTo($coverageInjector)
 		;
 	}

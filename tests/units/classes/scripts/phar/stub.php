@@ -22,24 +22,24 @@ class stub extends atoum\test
 		$this
 			->if($stub = new phar\stub(uniqid()))
 			->then
-				->object($stub->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($stub)
-				->object($stubDepedencies = $stub->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\scripts\phar\stub'])
+				->object($stub->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($stub)
+				->object($stubDepedencies = $stub->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\scripts\phar\stub'])
 				->boolean(isset($stubDepedencies['locale']))->isTrue()
 				->boolean(isset($stubDepedencies['adapter']))->isTrue()
 				->boolean(isset($stubDepedencies['arguments\parser']))->isTrue()
 				->boolean(isset($stubDepedencies['writers\output']))->isTrue()
 				->boolean(isset($stubDepedencies['writers\error']))->isTrue()
 				->boolean(isset($stubDepedencies['phar']))->isTrue()
-			->if($depedencies = new atoum\depedencies())
-			->and($depedencies['mageekguy\atoum\scripts\phar\stub']['locale'] = $localeInjector = function() {})
-			->and($depedencies['mageekguy\atoum\scripts\phar\stub']['adapter'] = $adapterInjector = function() {})
-			->and($depedencies['mageekguy\atoum\scripts\phar\stub']['arguments\parser'] = $argumentsParserInjector = function() {})
-			->and($depedencies['mageekguy\atoum\scripts\phar\stub']['writers\output'] = $outputWriterInjector = function() {})
-			->and($depedencies['mageekguy\atoum\scripts\phar\stub']['writers\error'] = $errorWriterInjector = function() {})
-			->and($depedencies['mageekguy\atoum\scripts\phar\stub']['phar'] = $pharInjector = function() {})
+			->if($dependencies = new atoum\dependencies())
+			->and($dependencies['mageekguy\atoum\scripts\phar\stub']['locale'] = $localeInjector = function() {})
+			->and($dependencies['mageekguy\atoum\scripts\phar\stub']['adapter'] = $adapterInjector = function() {})
+			->and($dependencies['mageekguy\atoum\scripts\phar\stub']['arguments\parser'] = $argumentsParserInjector = function() {})
+			->and($dependencies['mageekguy\atoum\scripts\phar\stub']['writers\output'] = $outputWriterInjector = function() {})
+			->and($dependencies['mageekguy\atoum\scripts\phar\stub']['writers\error'] = $errorWriterInjector = function() {})
+			->and($dependencies['mageekguy\atoum\scripts\phar\stub']['phar'] = $pharInjector = function() {})
 			->then
-				->object($stub->setDepedencies($depedencies))->isIdenticalTo($stub)
-				->object($stubDepedencies = $stub->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\scripts\phar\stub'])
+				->object($stub->setDepedencies($dependencies))->isIdenticalTo($stub)
+				->object($stubDepedencies = $stub->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\scripts\phar\stub'])
 				->object($stubDepedencies['locale'])->isIdenticalTo($localeInjector)
 				->object($stubDepedencies['adapter'])->isIdenticalTo($adapterInjector)
 				->object($stubDepedencies['arguments\parser'])->isIdenticalTo($argumentsParserInjector)
@@ -76,8 +76,8 @@ class stub extends atoum\test
 					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
 					->hasMessage('Unable to update the PHAR, allow_url_fopen is not set, use \'-d allow_url_fopen=1\'')
 			->if($adapter->ini_get = function($name) { return $name === 'phar.readonly' ? 0 : $name = 'allow_url_fopen' ? 1 : ini_get($name); })
-			->and($depedencies = $stub->getDepedencies())
-			->and($depedencies['phar'] = function($path) use (& $phar) {
+			->and($dependencies = $stub->getDepedencies())
+			->and($dependencies['phar'] = function($path) use (& $phar) {
 					$pharController = new atoum\mock\controller();
 					$pharController->__construct = function() {};
 					$pharController->offsetExists = true;

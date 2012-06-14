@@ -5,37 +5,37 @@ namespace mageekguy\atoum;
 class report implements observer, adapter\aggregator
 {
 	protected $title = null;
-	protected $depedencies = null;
+	protected $dependencies = null;
 	protected $locale = null;
 	protected $adapter = null;
 	protected $writers = array();
 	protected $fields = array();
 	protected $lastSetFields = array();
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
 		$this
-			->setDepedencies($depedencies ?: new depedencies())
-			->setLocale($this->depedencies['locale']())
-			->setAdapter($this->depedencies['adapter']())
+			->setDepedencies($dependencies ?: new dependencies())
+			->setLocale($this->dependencies['locale']())
+			->setAdapter($this->dependencies['adapter']())
 		;
 	}
 
-	public function setDepedencies(depedencies $depedencies)
+	public function setDepedencies(dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['locale'] = function() { return new locale(); };
-		$this->depedencies['adapter'] = function() { return new adapter(); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['locale'] = function() { return new locale(); };
+		$this->dependencies['adapter'] = function() { return new adapter(); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function setTitle($title)

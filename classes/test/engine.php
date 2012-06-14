@@ -8,27 +8,27 @@ use
 
 abstract class engine
 {
-	protected $depedencies = null;
+	protected $dependencies = null;
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		$this->setDepedencies($depedencies ?: new atoum\depedencies());
+		$this->setDepedencies($dependencies ?: new atoum\dependencies());
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['score'] = function($depedencies) { return new atoum\score($depedencies); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['score'] = function($dependencies) { return new atoum\score($dependencies); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public abstract function isAsynchronous();

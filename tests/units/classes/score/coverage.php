@@ -24,12 +24,12 @@ class coverage extends atoum\test
 			->then
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
-				->object($coverage->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+				->object($coverage->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->then
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
-				->object($coverage->getDepedencies())->isIdenticalTo($depedencies['mageekguy\atoum\score\coverage'])
+				->object($coverage->getDepedencies())->isIdenticalTo($dependencies['mageekguy\atoum\score\coverage'])
 		;
 	}
 
@@ -38,20 +38,20 @@ class coverage extends atoum\test
 		$this
 			->if($coverage = new score\coverage())
 			->then
-				->object($coverage->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($coverage)
-				->boolean(isset($depedencies['mageekguy\atoum\score\coverage']['reflection\class']))->isTrue()
-			->if($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $reflectionClassInjector = function() {})
+				->object($coverage->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($coverage)
+				->boolean(isset($dependencies['mageekguy\atoum\score\coverage']['reflection\class']))->isTrue()
+			->if($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $reflectionClassInjector = function() {})
 			->then
-				->object($coverage->setDepedencies($depedencies))->isIdenticalTo($coverage)
-				->boolean(isset($depedencies['mageekguy\atoum\score\coverage']['reflection\class']))->isTrue()
-				->object($depedencies['mageekguy\atoum\score\coverage']['reflection\class'])->isIdenticalTo($reflectionClassInjector)
+				->object($coverage->setDepedencies($dependencies))->isIdenticalTo($coverage)
+				->boolean(isset($dependencies['mageekguy\atoum\score\coverage']['reflection\class']))->isTrue()
+				->object($dependencies['mageekguy\atoum\score\coverage']['reflection\class'])->isIdenticalTo($reflectionClassInjector)
 		;
 	}
 
 	public function testAddXdebugDataForTest()
 	{
 		$this
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->then
 				->object($coverage->addXdebugDataForTest($this, array()))->isIdenticalTo($coverage)
 				->array($coverage->getClasses())->isEmpty()
@@ -70,7 +70,7 @@ class coverage extends atoum\test
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
 			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($classDirectory = uniqid())
 			->and($classFile = $classDirectory . DIRECTORY_SEPARATOR . uniqid())
 			->and($className = uniqid())
@@ -136,9 +136,9 @@ class coverage extends atoum\test
 				->object($coverage->addXdebugDataForTest($this, $xdebugData))->isIdenticalTo($coverage)
 				->array($coverage->getClasses())->isEmpty()
 				->array($coverage->getMethods())->isEmpty()
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->and($coverage->excludeDirectory($classDirectory))
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->then
 				->object($coverage->addXdebugDataForTest($this, array()))->isIdenticalTo($coverage)
 				->array($coverage->getClasses())->isEmpty()
@@ -152,8 +152,8 @@ class coverage extends atoum\test
 	public function testReset()
 	{
 		$this
-			->if($depedencies = new atoum\depedencies())
-			->and($coverage = new score\coverage($depedencies))
+			->if($dependencies = new atoum\dependencies())
+			->and($coverage = new score\coverage($dependencies))
 			->then
 				->array($coverage->getMethods())->isEmpty()
 				->object($coverage->reset())->isIdenticalTo($coverage)
@@ -172,7 +172,7 @@ class coverage extends atoum\test
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
 			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($classFile = uniqid())
 			->and($className = uniqid())
 			->and($methodName = uniqid())
@@ -242,12 +242,12 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($coverage = new score\coverage($depedencies = new atoum\depedencies()))
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($coverage = new score\coverage($dependencies = new atoum\dependencies()))
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->then
 				->object($coverage->merge($coverage))->isIdenticalTo($coverage)
 				->array($coverage->getMethods())->isEmpty()
-			->if($otherCoverage = new score\coverage($otherDepedencies = new atoum\depedencies()))
+			->if($otherCoverage = new score\coverage($otherDepedencies = new atoum\dependencies()))
 			->then
 				->object($coverage->merge($otherCoverage))->isIdenticalTo($coverage)
 				->array($coverage->getMethods())->isEmpty()
@@ -344,7 +344,7 @@ class coverage extends atoum\test
 	public function testCount()
 	{
 		$this
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->then
 				->sizeOf($coverage)->isZero()
 			->if($classController = new mock\controller())
@@ -361,7 +361,7 @@ class coverage extends atoum\test
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
 			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($classFile = uniqid())
 			->and($className = uniqid())
 			->and($methodName = uniqid())
@@ -392,7 +392,7 @@ class coverage extends atoum\test
 	public function testClasses()
 	{
 		$this
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->and($classController = new mock\controller())
 			->and($classController->__construct = function() {})
 			->and($classController->getName = function() use (& $className) { return $className; })
@@ -422,7 +422,7 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->array($coverage->getClasses())->isEqualTo(array($className => $classFile))
@@ -432,7 +432,7 @@ class coverage extends atoum\test
 	public function testGetValue()
 	{
 		$this
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->and($classController = new mock\controller())
 			->and($classController->__construct = function() {})
 			->and($classController->getName = function() use (& $className) { return $className; })
@@ -470,7 +470,7 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->float($coverage->getValue())->isEqualTo(0.0)
@@ -552,7 +552,7 @@ class coverage extends atoum\test
 	public function testGetValueForClass()
 	{
 		$this
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->then
 				->variable($coverage->getValueForClass(uniqid()))->isNull()
 			->if($classController = new mock\controller())
@@ -592,7 +592,7 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->variable($coverage->getValueForClass(uniqid()))->isNull()
@@ -678,7 +678,7 @@ class coverage extends atoum\test
 	public function testGetValueForMethod()
 	{
 		$this
-			->if($coverage = new score\coverage($depedencies = new atoum\depedencies()))
+			->if($coverage = new score\coverage($dependencies = new atoum\dependencies()))
 			->then
 				->variable($coverage->getValueForMethod(uniqid(), uniqid()))->isNull()
 			->if($classController = new mock\controller())
@@ -719,7 +719,7 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($depedencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
+			->and($dependencies['mageekguy\atoum\score\coverage']['reflection\class'] = $class)
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->variable($coverage->getValueForMethod(uniqid(), uniqid()))->isNull()

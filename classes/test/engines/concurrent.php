@@ -19,20 +19,20 @@ class concurrent extends test\engine
 	private $php = null;
 	private $pipes = array();
 
-	public function __construct(atoum\depedencies $depedencies = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		parent::__construct($depedencies);
+		parent::__construct($dependencies);
 
-		$this->adapter = $this->depedencies['adapter']();
+		$this->adapter = $this->dependencies['adapter']();
 	}
 
-	public function setDepedencies(atoum\depedencies $depedencies)
+	public function setDepedencies(atoum\dependencies $dependencies)
 	{
-		parent::setDepedencies($depedencies);
+		parent::setDepedencies($dependencies);
 
-		$this->depedencies->lock();
-		$this->depedencies['adapter'] = function() { return new atoum\adapter(); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['adapter'] = function() { return new atoum\adapter(); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
@@ -162,9 +162,11 @@ class concurrent extends test\engine
 
 				$score = @unserialize($this->stdOut);
 
+				$this->stdOut = '';
+
 				if ($score instanceof atoum\score === false)
 				{
-					$score = $this->depedencies['score']($this->depedencies);
+					$score = $this->dependencies['score']($this->dependencies);
 					$score->addUncompletedMethod($this->test->getClass(), $this->method, $phpStatus['exitcode'], $this->stdOut);
 				}
 
@@ -178,10 +180,9 @@ class concurrent extends test\engine
 					{
 						$score->addError($this->test->getPath(), null, $this->test->getClass(), $this->method, $error[1], $error[2], $error[3], $error[4]);
 					}
-				}
 
-				$this->stdOut = '';
-				$this->stdErr = '';
+					$this->stdErr = '';
+				}
 			}
 		}
 

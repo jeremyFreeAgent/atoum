@@ -20,10 +20,10 @@ class engine extends atoum\test
 		$this
 			->if($engine = new \mock\mageekguy\atoum\test\engine())
 			->then
-				->object($engine->getDepedencies())->isInstanceOf('mageekguy\atoum\depedencies')
-			->if($engine = new \mock\mageekguy\atoum\test\engine($depedencies = new atoum\depedencies()))
+				->object($engine->getDepedencies())->isInstanceOf('mageekguy\atoum\dependencies')
+			->if($engine = new \mock\mageekguy\atoum\test\engine($dependencies = new atoum\dependencies()))
 			->then
-				->object($engine->getDepedencies())->isIdenticalTo($depedencies[$engine])
+				->object($engine->getDepedencies())->isIdenticalTo($dependencies[$engine])
 		;
 	}
 
@@ -32,8 +32,8 @@ class engine extends atoum\test
 		$this
 			->if($engine = new \mock\mageekguy\atoum\test\engine())
 			->then
-				->object($engine->setDepedencies($depedencies = new atoum\depedencies()))->isIdenticalTo($engine)
-				->object($engine->getDepedencies())->isIdenticalTo($depedencies[$engine])
+				->object($engine->setDepedencies($dependencies = new atoum\dependencies()))->isIdenticalTo($engine)
+				->object($engine->getDepedencies())->isIdenticalTo($dependencies[$engine])
 		;
 	}
 }

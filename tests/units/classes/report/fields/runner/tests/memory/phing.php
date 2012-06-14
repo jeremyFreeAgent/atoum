@@ -5,7 +5,7 @@ namespace mageekguy\atoum\tests\units\report\fields\runner\tests\memory;
 use
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test,
 	mageekguy\atoum\tests\units,
 	mageekguy\atoum\cli\prompt,
@@ -35,9 +35,9 @@ class phing extends test
 				->variable($field->getValue())->isNull()
 				->variable($field->getTestNumber())->isNull()
 				->array($field->getEvents())->isEqualTo(array(runner::runStop))
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(), $memoryColorizer = new colorizer(), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(), $memoryColorizer = new colorizer(), $dependencies))
 			->then
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->object($field->getPrompt())->isIdenticalTo($prompt)
@@ -98,9 +98,9 @@ class phing extends test
 			->then
 				->object($field->setLocale($locale = new locale()))->isIdenticalTo($field)
 				->object($field->getLocale())->isIdenticalTo($locale)
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field(null, null, null, $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($field = new field(null, null, null, $dependencies))
 			->then
 				->object($field->setLocale($locale = new locale()))->isIdenticalTo($field)
 				->object($field->getLocale())->isIdenticalTo($locale)
@@ -140,9 +140,9 @@ class phing extends test
 				->castToString($defaultField)->isEqualTo(
 						$defaultField->getPrompt() . $defaultField->getTitleColorizer()->colorize($defaultField->getLocale()->__('Total test memory usage', 'Total tests memory usage', 0)) . ': ' . $defaultField->getMemoryColorizer()->colorize($defaultField->getLocale()->_('unknown')) . '.'
 					)
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($customField = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $memoryColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($customField = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $memoryColorizer = new colorizer(uniqid(), uniqid()), $dependencies))
 			->then
 				->castToString($customField)->isEqualTo(
 						$prompt . $titleColorizer->colorize($locale->__('Total test memory usage', 'Total tests memory usage', 0)) . ': ' . $memoryColorizer->colorize($locale->_('unknown')) . '.'

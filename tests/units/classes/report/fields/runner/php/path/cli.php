@@ -5,12 +5,13 @@ namespace mageekguy\atoum\tests\units\report\fields\runner\php\path;
 use
 	mageekguy\atoum\runner,
 	mageekguy\atoum\locale,
-	mageekguy\atoum\depedencies,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\test,
 	mageekguy\atoum\tests\units,
-	mageekguy\atoum\report\fields\runner\php\path\cli as field
+	mageekguy\atoum\report\fields\runner\php\path\cli as field,
+	mock\mageekguy\atoum as mock
 ;
 
 require_once __DIR__ . '/../../../../../../runner.php';
@@ -31,9 +32,13 @@ class cli extends test
 				->object($field->getTitleColorizer())->isEqualTo(new colorizer())
 				->object($field->getPathColorizer())->isEqualTo(new colorizer())
 				->object($field->getLocale())->isEqualTo(new locale())
-			->if($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
-			->and($field = new field($prompt = new prompt(), $titleColorizer = new colorizer(), $pathColorizer = new colorizer(), $depedencies))
+			->if($fieldClass = $this->getTestedClassName())
+			->and($dependencies = new dependencies())
+			->and($dependencies[$fieldClass]['locale'] = $locale = new locale())
+			->and($dependencies[$fieldClass]['prompt'] = $prompt = new prompt())
+			->and($dependencies[$fieldClass]['colorizers\title'] = $titleColorizer = new colorizer())
+			->and($dependencies[$fieldClass]['colorizers\path'] = $pathColorizer = new colorizer())
+			->and($field = new field($dependencies))
 			->then
 				->object($field->getLocale())->isIdenticalTo($locale)
 				->object($field->getPrompt())->isIdenticalTo($prompt)
@@ -49,9 +54,11 @@ class cli extends test
 			->then
 				->object($field->setPrompt($prompt = new prompt()))->isIdenticalTo($field)
 				->object($field->getPrompt())->isIdenticalTo($prompt)
-			->if($field = new field(new prompt()))
+			->if($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['prompt'] = new prompt())
+			->and($field = new field($dependencies))
 			->then
-				->object($field->setPrompt($prompt = new prompt()))->isIdenticalTo($field)
+				->object($field->setPrompt($prompt))->isIdenticalTo($field)
 				->object($field->getPrompt())->isIdenticalTo($prompt)
 		;
 	}
@@ -88,7 +95,7 @@ class cli extends test
 	{
 		$this
 			->if($field = new field())
-			->and($score = new \mock\mageekguy\atoum\score())
+			->and($score = new mock\score())
 			->and($score->getMockController()->getPhpPath = $phpPath = uniqid())
 			->then
 				->boolean($field->handleEvent(runner::runStop, $runner = new runner()))->isFalse()
@@ -102,19 +109,24 @@ class cli extends test
 	public function test__toString()
 	{
 		$this
-			->if($score = new \mock\mageekguy\atoum\score())
+			->if($score = new mock\score())
 			->and($score->getMockController()->getPhpPath = $phpPath = uniqid())
 			->and($defaultField = new field())
 			->then
 				->castToString($defaultField)->isEqualTo('PHP path: ' . PHP_EOL)
 			->if($runner = new runner())
 			->and($runner->setScore($score))
-			->and($depedencies = new depedencies())
-			->and($depedencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
+			->and($dependencies = new dependencies())
+			->and($dependencies[$this->getTestedClassName()]['locale'] = $locale = new locale())
 			->and($defaultField->handleEvent(runner::runStart, $runner))
 			->then
 				->castToString($defaultField)->isEqualTo('PHP path:' . ' ' . $phpPath . PHP_EOL)
-			->if($customField = new field($prompt = new prompt(uniqid()), $titleColorizer = new colorizer(uniqid(), uniqid()), $pathColorizer = new colorizer(uniqid(), uniqid()), $depedencies))
+			->if($fieldClass = $this->getTestedClassName())
+			->and($dependencies = new dependencies())
+			->and($dependencies[$fieldClass]['prompt'] = $prompt = new prompt())
+			->and($dependencies[$fieldClass]['colorizers\title'] = $titleColorizer = new colorizer())
+			->and($dependencies[$fieldClass]['colorizers\path'] = $pathColorizer = new colorizer())
+			->if($customField = new field($dependencies))
 			->then
 				->castToString($customField)->isEqualTo(
 					$prompt .

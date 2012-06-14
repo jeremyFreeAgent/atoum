@@ -10,7 +10,7 @@ use
 
 class score implements \serializable
 {
-	private $depedencies = null;
+	private $dependencies = null;
 	private $passAssertions = 0;
 	private $failAssertions = array();
 	private $exceptions = array();
@@ -32,21 +32,21 @@ class score implements \serializable
 
 	private static $failId = 0;
 
-	public function __construct(depedencies $depedencies = null)
+	public function __construct(dependencies $dependencies = null)
 	{
 		$this
-			->setDepedencies($depedencies ?: new depedencies())
-			->setCoverage($this->depedencies['coverage']($this->depedencies))
+			->setDepedencies($dependencies ?: new dependencies())
+			->setCoverage($this->dependencies['coverage']($this->dependencies))
 		;
 	}
 
-	public function setDepedencies(depedencies $depedencies)
+	public function setDepedencies(dependencies $dependencies)
 	{
-		$this->depedencies = $depedencies[$this];
+		$this->dependencies = $dependencies[$this];
 
-		$this->depedencies->lock();
-		$this->depedencies['coverage'] = function($depedencies) { return new score\coverage($depedencies); };
-		$this->depedencies->unlock();
+		$this->dependencies->lock();
+		$this->dependencies['coverage'] = function($dependencies) { return new score\coverage($dependencies); };
+		$this->dependencies->unlock();
 
 		return $this;
 	}
@@ -100,7 +100,7 @@ class score implements \serializable
 
 	public function getDepedencies()
 	{
-		return $this->depedencies;
+		return $this->dependencies;
 	}
 
 	public function reset()
