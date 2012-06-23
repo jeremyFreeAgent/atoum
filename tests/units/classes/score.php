@@ -3,17 +3,20 @@
 namespace mageekguy\atoum\tests\units;
 
 use
-	mageekguy\atoum
+	mageekguy\atoum,
+	mageekguy\atoum\test,
+	mageekguy\atoum\score\coverage,
+	mageekguy\atoum\score as testedClass
 ;
 
 require_once __DIR__ . '/../runner.php';
 
-class score extends atoum\test
+class score extends test
 {
 	public function test__construct()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->variable($score->getPhpPath())->isNull()
@@ -30,10 +33,10 @@ class score extends atoum\test
 				->array($score->getDurations())->isEmpty()
 				->array($score->getMemoryUsages())->isEmpty()
 				->array($score->getUncompletedMethods())->isEmpty()
-				->object($score->getCoverage())->isEqualTo(new \mageekguy\atoum\score\coverage($score->getFactory()))
+				->object($score->getCoverage())->isEqualTo(new coverage($score->getFactory()))
 			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\score\coverage'] = $coverage = new \mageekguy\atoum\score\coverage())
-			->and($score = new atoum\score($factory))
+			->and($factory['mageekguy\atoum\score\coverage'] = $coverage = new coverage())
+			->and($score = new testedClass($factory))
 			->then
 				->object($score->getFactory())->isIdenticalTo($factory)
 				->variable($score->getPhpPath())->isNull()
@@ -56,7 +59,7 @@ class score extends atoum\test
 	public function testAddException()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->addException($file = uniqid(), $line = rand(1, PHP_INT_MAX), $class = uniqid(), $method = uniqid(), $exception = new \exception()))->isIdenticalTo($score)
 				->array($score->getExceptions())->isEqualTo(array(
@@ -103,7 +106,7 @@ class score extends atoum\test
 	public function testAddPass()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->addPass())->isIdenticalTo($score)
 				->integer($score->getPassNumber())->isEqualTo(1)
@@ -115,7 +118,7 @@ class score extends atoum\test
 	public function testAddFail()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->integer($score->addFail($file = uniqid(), $line = rand(1, PHP_INT_MAX), $class = uniqid(), $method = uniqid(), $asserter = new atoum\asserters\integer(new atoum\asserter\generator()), $reason = uniqid()))->isGreaterThan(0)
 				->array($score->getFailAssertions())->isEqualTo(array(
@@ -164,7 +167,7 @@ class score extends atoum\test
 	public function testAddError()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getErrors())->isEmpty()
 				->integer($score->getErrorNumber())->isZero()
@@ -267,7 +270,7 @@ class score extends atoum\test
 	public function testAddOutput()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getOutputs())->isEmpty()
 				->integer($score->getOutputNumber())->isZero()
@@ -322,7 +325,7 @@ class score extends atoum\test
 	public function testAddDuration()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getDurations())->isEmpty()
 				->integer($score->getDurationNumber())->isZero()
@@ -417,7 +420,7 @@ class score extends atoum\test
 	public function testAddMemoryUsage()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getMemoryUsages())->isEmpty()
 				->object($score->addMemoryUsage($class = uniqid(), $method = uniqid(), $memoryUsage = rand(1, PHP_INT_MAX)))->isIdenticalTo($score)
@@ -506,7 +509,7 @@ class score extends atoum\test
 	public function testAddUncompletedTest()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getUncompletedMethods())->isEmpty()
 				->object($score->addUncompletedMethod($class = uniqid(), $method = uniqid(), $exitCode = rand(1, PHP_INT_MAX), $output = uniqid()))->isIdenticalTo($score)
@@ -541,7 +544,7 @@ class score extends atoum\test
 	public function testAddRuntimeException()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getRuntimeExceptions())->isEmpty()
 				->integer($score->getRuntimeExceptionNumber())->isZero()
@@ -564,7 +567,7 @@ class score extends atoum\test
 	public function testSetAtoumPath()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->setAtoumPath($path = uniqid()))->isIdenticalTo($score)
 				->string($score->getAtoumPath())->isEqualTo($path)
@@ -582,7 +585,7 @@ class score extends atoum\test
 	public function testSetAtoumVersion()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->setAtoumVersion($version = uniqid()))->isIdenticalTo($score)
 				->string($score->getAtoumVersion())->isEqualTo($version)
@@ -600,7 +603,7 @@ class score extends atoum\test
 	public function testSetPhpPath()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->setPhpPath($path = uniqid()))->isIdenticalTo($score)
 				->string($score->getPhpPath())->isEqualTo($path)
@@ -618,7 +621,7 @@ class score extends atoum\test
 	public function testSetPhpVersion()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->setPhpVersion(\PHP_VERSION_ID))->isIdenticalTo($score)
 				->string($score->getPhpVersion())->isEqualTo((string) \PHP_VERSION_ID)
@@ -634,7 +637,7 @@ class score extends atoum\test
 	public function testSetCase()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->setCase($case = uniqid()))->isIdenticalTo($score)
 				->string($score->getCase())->isEqualTo($case)
@@ -646,7 +649,7 @@ class score extends atoum\test
 	public function testSetDataSet()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->setDataSet($key = rand(1, PHP_INT_MAX), $dataProvider = uniqid()))->isIdenticalTo($score)
 				->integer($score->getDataSetKey())->isEqualTo($key)
@@ -657,9 +660,9 @@ class score extends atoum\test
 	public function testSetCoverage()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
-				->object($score->setCoverage($coverage = new atoum\score\coverage()))->isIdenticalTo($score)
+				->object($score->setCoverage($coverage = new coverage()))->isIdenticalTo($score)
 				->object($score->getCoverage())->isIdenticalTo($coverage)
 		;
 	}
@@ -667,7 +670,7 @@ class score extends atoum\test
 	public function testGetExceptionNumber()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->integer($score->getExceptionNumber())->isZero()
 			->if($score->addException(uniqid(), rand(1, PHP_INT_MAX), uniqid(), uniqid(), new \exception()))
@@ -682,7 +685,7 @@ class score extends atoum\test
 	public function testGetFailNumber()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->integer($score->getFailNumber())->isZero()
 			->if($score->addFail(uniqid(), rand(1, PHP_INT_MAX), uniqid(), uniqid(), new atoum\asserters\integer(new atoum\asserter\generator()), uniqid()))
@@ -697,7 +700,7 @@ class score extends atoum\test
 	public function testGetFailAssertions()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getFailAssertions())->isEmpty()
 			->if($score->addPass())
@@ -725,7 +728,7 @@ class score extends atoum\test
 	public function testGetPassAssertions()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->integer($score->getPassNumber())->isZero()
 			->if($score->addFail(uniqid(), rand(1, PHP_INT_MAX), uniqid(), uniqid(), new atoum\asserters\integer(new atoum\asserter\generator()), uniqid()))
@@ -740,7 +743,7 @@ class score extends atoum\test
 	public function testGetCoverage()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($coverage = $score->getCoverage())->isInstanceOf('mageekguy\atoum\score\coverage')
 				->object($coverage->getFactory())->isIdenticalTo($score->getFactory())
@@ -750,7 +753,7 @@ class score extends atoum\test
 	public function testGetMethodsWithFail()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getMethodsWithFail())->isEmpty()
 			->if($asserter = new atoum\asserters\integer(new atoum\asserter\generator()))
@@ -773,7 +776,7 @@ class score extends atoum\test
 	public function testGetMethodsWithError()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getMethodsWithError())->isEmpty()
 			->if($score->addError(uniqid(), rand(1, PHP_INT_MAX), $class = uniqid(), $classMethod = uniqid(), rand(1, PHP_INT_MAX), uniqid(), uniqid(), rand(1, PHP_INT_MAX)))
@@ -795,7 +798,7 @@ class score extends atoum\test
 	public function testGetMethodsWithException()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->array($score->getMethodsWithError())->isEmpty()
 			->if($score->addException(uniqid(), rand(1, PHP_INT_MAX), $class = uniqid(), $classMethod = uniqid(), new \exception()))
@@ -817,7 +820,7 @@ class score extends atoum\test
 	public function testUnsetCase()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->variable($score->getCase())->isNull()
 				->object($score->unsetCase())->isIdenticalTo($score)
@@ -833,7 +836,7 @@ class score extends atoum\test
 	public function testUnsetDataSet()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->object($score->unsetDataSet())->isIdenticalTo($score)
 				->variable($score->getDataSetKey())->isNull()
@@ -849,7 +852,7 @@ class score extends atoum\test
 	public function testReset()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->variable($score->getPhpPath())->isNull()
 				->variable($score->getPhpVersion())->isNull()
@@ -917,8 +920,8 @@ class score extends atoum\test
 	public function testMerge()
 	{
 		$this
-			->if($score = new atoum\score())
-			->and($otherScore = new atoum\score())
+			->if($score = new testedClass())
+			->and($otherScore = new testedClass())
 			->then
 				->integer($score->getPassNumber())->isZero()
 				->array($score->getFailAssertions())->isEmpty()
@@ -1002,7 +1005,7 @@ class score extends atoum\test
 	public function testErrorExists()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->then
 				->variable($score->errorExists(uniqid()))->isNull()
 				->variable($score->errorExists(uniqid(), rand(1, PHP_INT_MAX)))->isNull()
@@ -1064,7 +1067,7 @@ class score extends atoum\test
 	public function testDeleteError()
 	{
 		$this
-			->if($score = new atoum\score())
+			->if($score = new testedClass())
 			->exception(function() use ($score, & $key) { $score->deleteError($key = rand(- PHP_INT_MAX, PHP_INT_MAX)); })
 				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
 				->hasMessage('Error key \'' . $key . '\' does not exist')
