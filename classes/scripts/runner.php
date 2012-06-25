@@ -34,6 +34,7 @@ class runner extends atoum\script
 		$this->dependencies['runner'] = $this->dependencies['runner'] ?: function ($dependencies) { return new atoum\runner(); };
 		$this->dependencies['configurator'] = $this->dependencies['configurator'] ?: function($dependencies) { return new atoum\configurator($dependencies->script); };
 		$this->dependencies['report\default'] = $this->dependencies['report\default'] ?: function($dependencies) { return new atoum\reports\realtime\cli(); };
+		$this->dependencies['report\light'] = $this->dependencies['report\light'] ?: function($dependencies) { return new atoum\reports\realtime\cli\light(); };
 		$this->dependencies['cli'] = $this->dependencies['cli'] ?: function($dependencies) { return new atoum\cli(); };
 		$this->dependencies['reflection\class'] = $this->dependencies['reflection\class'] ?: function($dependencies) { return new \reflectionClass($dependencies->class); };
 
@@ -675,8 +676,10 @@ class runner extends atoum\script
 								throw new exceptions\logic\invalidArgument(sprintf($script->getLocale()->_('Bad usage of %s, do php %s --help for more informations'), $argument, $script->getName()));
 							}
 
-							$report = $script->getFactory()->build('mageekguy\atoum\reports\realtime\cli\light', array($script->getFactory()));
-							$report->addWriter($script->getFactory()->build('mageekguy\atoum\writers\std\out'));
+							$dependencies = $script->getDependencies();
+
+							$report = $dependencies['report\light']();
+							$report->addWriter($script->getOutputWriter());
 
 							$script->getRunner()->addReport($report);
 						},
