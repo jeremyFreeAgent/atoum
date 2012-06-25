@@ -26,16 +26,21 @@ class runner extends atoum\script
 
 	protected static $autorunner = null;
 
-	public function __construct($name, atoum\factory $factory = null)
+	public function setDependencies(atoum\dependencies $dependencies)
 	{
-		parent::__construct($name, $factory);
+		parent::setDependencies($dependencies);
 
-		$this
-			->setIncluder($this->factory['atoum\includer']())
-			->setRunner($this->factory['atoum\runner']($this->factory))
+		$this->dependencies['includer'] = $this->dependencies['includer'] ?: function ($dependencies) { return new atoum\includer(); };
+		$this->dependencies['runner'] = $this->dependencies['runner'] ?: function ($dependencies) { return new atoum\runner(); };
+		$this->dependencies['configurator'] = $this->dependencies['configurator'] ?: function($dependencies) { return new atoum\configurator($dependencies->script); };
+		$this->dependencies['report\default'] = $this->dependencies['report\default'] ?: function($dependencies) { return new atoum\reports\realtime\cli(); };
+		$this->dependencies['cli'] = $this->dependencies['cli'] ?: function($dependencies) { return new atoum\cli(); };
+		$this->dependencies['reflection\class'] = $this->dependencies['reflection\class'] ?: function($dependencies) { return new \reflectionClass($dependencies->class); };
+
+		return $this
+			->setIncluder($this->dependencies['includer']())
+			->setRunner($this->dependencies['runner']())
 		;
-
-		$this->factory['atoum\includer'] = $this->includer;
 	}
 
 	public function isRunningFromCli()
@@ -107,8 +112,8 @@ class runner extends atoum\script
 				{
 					if ($this->runner->hasReports() === false)
 					{
-						$report = $this->factory['mageekguy\atoum\reports\realtime\cli']($this->factory);
-						$report->addWriter($this->factory['mageekguy\atoum\writers\std\out']());
+						$report = $this->dependencies['report\default']();
+						$report->addWriter($this->getOutputWriter());
 
 						$this->runner->addReport($report);
 					}
@@ -174,7 +179,9 @@ class runner extends atoum\script
 
 	public function useConfigFile($path)
 	{
-		$script = $this->factory['atoum\configurator']($this);
+		$this->dependencies['configurator']->script = $this;
+
+		$script = $this->dependencies['configurator']();
 
 		$runner = $this->runner;
 
@@ -692,7 +699,7 @@ class runner extends atoum\script
 	{
 		$arguments = ' --disable-loop-mode';
 
-		$cli = $this->factory['mageekguy\atoum\cli']();
+		$cli = $this->dependencies['cli']();
 
 		if ($cli->isTerminal() === true)
 		{
@@ -749,7 +756,8 @@ class runner extends atoum\script
 
 				foreach ($declaredTestClasses as $declaredTestClass)
 				{
-					$declaredTestClass = $this->factory['reflectionClass']($declaredTestClass);
+					$this->dependencies['reflection\class']->class = $declaredTestClass;
+					$declaredTestClass = $this->dependencies['reflection\class']();
 
 					$file = $declaredTestClass->getFilename();
 

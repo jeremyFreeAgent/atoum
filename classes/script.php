@@ -13,6 +13,7 @@ abstract class script implements atoum\adapter\aggregator
 	const padding = '   ';
 
 	protected $name = '';
+	protected $dependencies = null;
 	protected $factory = null;
 	protected $locale = null;
 	protected $adapter = null;
@@ -22,21 +23,11 @@ abstract class script implements atoum\adapter\aggregator
 	private $help = array();
 	private $argumentsParser = null;
 
-	public function __construct($name, atoum\factory $factory = null)
+	public function __construct($name, atoum\dependencies $dependencies = null)
 	{
 		$this->name = (string) $name;
 
-		$this
-			->setFactory($factory ?: new atoum\factory())
-			->setLocale($this->factory['atoum\locale']())
-			->setAdapter($this->factory['atoum\adapter']())
-			->setArgumentsParser($this->factory['atoum\script\arguments\parser']())
-			->setOutputWriter($this->factory['atoum\writers\std\out']())
-			->setErrorWriter($this->factory['atoum\writers\std\err']())
-		;
-
-		$this->factory['atoum\locale'] = $this->locale;
-		$this->factory['atoum\adapter'] = $this->adapter;
+		$this->setDependencies($dependencies ?: new atoum\dependencies());
 
 		if ($this->adapter->php_sapi_name() !== 'cli')
 		{
@@ -44,16 +35,27 @@ abstract class script implements atoum\adapter\aggregator
 	 	}
 	}
 
-	public function setFactory(atoum\factory $factory)
+	public function setDependencies(atoum\dependencies $dependencies)
 	{
-		$this->factory = $factory->import('mageekguy\atoum');
+		$this->dependencies = $dependencies;
+		$this->dependencies['locale'] = $this->dependencies['locale'] ?: new atoum\locale();
+		$this->dependencies['adapter'] = $this->dependencies['adapter'] ?: new atoum\adapter();
+		$this->dependencies['arguments\parser'] = $this->dependencies['arguments\parser'] ?: new atoum\script\arguments\parser();
+		$this->dependencies['std\out'] = $this->dependencies['std\out'] ?: new atoum\writers\std\out();
+		$this->dependencies['std\err'] = $this->dependencies['std\err'] ?: new atoum\writers\std\err();
 
-		return $this;
+		return $this
+			->setLocale($this->dependencies['locale']())
+			->setAdapter($this->dependencies['adapter']())
+			->setArgumentsParser($this->dependencies['arguments\parser']())
+			->setOutputWriter($this->dependencies['std\out']())
+			->setErrorWriter($this->dependencies['std\err']())
+		;
 	}
 
-	public function getFactory()
+	public function getDependencies()
 	{
-		return $this->factory;
+		return $this->dependencies;
 	}
 
 	public function setOutputWriter(atoum\writer $writer)
