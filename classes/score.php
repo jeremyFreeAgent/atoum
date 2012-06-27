@@ -3,15 +3,18 @@
 namespace mageekguy\atoum;
 
 use
-	mageekguy\atoum,
-	mageekguy\atoum\test,
+	mageekguy\atoum\asserter,
 	mageekguy\atoum\exceptions
 ;
 
 class score
 {
 	private $factory = null;
-	private $passAssertions = 0;
+	private $phpPath = null;
+	private $phpVersion = null;
+	private $atoumPath = null;
+	private $atoumVersion = null;
+	private $passNumber = 0;
 	private $failAssertions = array();
 	private $exceptions = array();
 	private $runtimeExceptions = array();
@@ -19,16 +22,11 @@ class score
 	private $outputs = array();
 	private $durations = array();
 	private $memoryUsages = array();
-	private $coverage = null;
 	private $uncompletedMethods = array();
+	private $coverage = null;
 	private $case = null;
 	private $dataSetKey = null;
 	private $dataSetProvider = null;
-	private $phpPath = null;
-	private $phpVersion = null;
-	private $atoumPath = null;
-	private $atoumVersion = null;
-	private $incomptedTests = array();
 
 	private static $failId = 0;
 
@@ -58,13 +56,16 @@ class score
 		$this->phpVersion = null;
 		$this->atoumPath = null;
 		$this->atoumVersion = null;
-		$this->passAssertions = 0;
+		$this->passNumber = 0;
 		$this->failAssertions = array();
 		$this->exceptions = array();
+		$this->runtimeExceptions = array();
 		$this->errors = array();
 		$this->outputs = array();
 		$this->durations = array();
 		$this->memoryUsages = array();
+		$this->uncompletedMethods = array();
+		$this->coverage->reset();
 
 		return $this;
 	}
@@ -126,7 +127,7 @@ class score
 
 	public function addPass()
 	{
-		$this->passAssertions++;
+		$this->passNumber++;
 
 		return $this;
 	}
@@ -165,7 +166,7 @@ class score
 		return $this;
 	}
 
-	public function addRuntimeException(test\exceptions\runtime $exception)
+	public function addRuntimeException(exceptions\runtime $exception)
 	{
 		$this->runtimeExceptions[] = $exception;
 
@@ -249,15 +250,16 @@ class score
 
 	public function merge(score $score)
 	{
-		$this->passAssertions += $score->passAssertions;
+		$this->passNumber += $score->passNumber;
 		$this->failAssertions = array_merge($this->failAssertions, $score->failAssertions);
 		$this->exceptions = array_merge($this->exceptions, $score->exceptions);
+		$this->runtimeExceptions = array_merge($this->runtimeExceptions, $score->runtimeExceptions);
 		$this->errors = array_merge($this->errors, $score->errors);
 		$this->outputs = array_merge($this->outputs, $score->outputs);
 		$this->durations = array_merge($this->durations, $score->durations);
 		$this->memoryUsages = array_merge($this->memoryUsages, $score->memoryUsages);
-		$this->coverage->merge($score->coverage);
 		$this->uncompletedMethods = array_merge($this->uncompletedMethods, $score->uncompletedMethods);
+		$this->coverage->merge($score->coverage);
 
 		return $this;
 	}
@@ -353,12 +355,12 @@ class score
 
 	public function getAssertionNumber()
 	{
-		return ($this->passAssertions + sizeof($this->failAssertions));
+		return ($this->passNumber + sizeof($this->failAssertions));
 	}
 
 	public function getPassNumber()
 	{
-		return ($this->getAssertionNumber() - sizeof($this->getFailAssertions()));
+		return $this->passNumber;
 	}
 
 	public function getExceptionNumber()
@@ -394,6 +396,11 @@ class score
 	public function getCoverage()
 	{
 		return $this->coverage;
+	}
+
+	public function getCoverageContainer()
+	{
+		return $this->coverage->getContainer();
 	}
 
 	public function getUncompletedMethods()
@@ -497,11 +504,32 @@ class score
 		return $this;
 	}
 
-	public function failExists(atoum\asserter\exception $exception)
+	public function failExists(asserter\exception $exception)
 	{
 		$id = $exception->getCode();
 
 		return (sizeof(array_filter($this->failAssertions, function($assertion) use ($id) { return ($assertion['id'] === $id); })) > 0);
+	}
+
+	public function getContainer()
+	{
+		return $this->factory['mageekguy\atoum\score\container']($this);
+	}
+
+	public function mergeContainer(score\container $container)
+	{
+		$this->passNumber += $container->getPassNumber();
+		$this->failAssertions = array_merge($this->failAssertions, $container->getFailAssertions());
+		$this->exceptions = array_merge($this->exceptions, $container->getExceptions());
+		$this->runtimeExceptions = array_merge($this->runtimeExceptions, $container->getRuntimeExceptions());
+		$this->errors = array_merge($this->errors, $container->getErrors());
+		$this->outputs = array_merge($this->outputs, $container->getOutputs());
+		$this->durations = array_merge($this->durations, $container->getDurations());
+		$this->memoryUsages = array_merge($this->memoryUsages, $container->getMemoryUsages());
+		$this->uncompletedMethods = array_merge($this->uncompletedMethods, $container->getUncompletedMethods());
+		$this->coverage->mergeContainer($container->getCoverage());
+
+		return $this;
 	}
 
 	private static function getMethods(array $array)

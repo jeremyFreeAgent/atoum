@@ -140,9 +140,17 @@ class coverage extends atoum\test
 			->if($factory = new atoum\factory())
 			->and($coverage = new score\coverage($factory))
 			->then
+				->array($coverage->getClasses())->isEmpty()
 				->array($coverage->getMethods())->isEmpty()
+				->array($coverage->getExcludedClasses())->isEmpty()
+				->array($coverage->getExcludedNamespaces())->isEmpty()
+				->array($coverage->getExcludedDirectories())->isEmpty()
 				->object($coverage->reset())->isIdenticalTo($coverage)
+				->array($coverage->getClasses())->isEmpty()
 				->array($coverage->getMethods())->isEmpty()
+				->array($coverage->getExcludedClasses())->isEmpty()
+				->array($coverage->getExcludedNamespaces())->isEmpty()
+				->array($coverage->getExcludedDirectories())->isEmpty()
 			->if($classController = new mock\controller())
 			->and($classController->__construct = function() {})
 			->and($classController->getName = function() use (& $className) { return $className; })
@@ -181,10 +189,21 @@ class coverage extends atoum\test
 				)
 			)
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
+			->and($coverage->excludeClass(uniqid()))
+			->and($coverage->excludeNamespace(uniqid()))
+			->and($coverage->excludeDirectory(uniqid()))
 			->then
+				->array($coverage->getClasses())->isNotEmpty()
 				->array($coverage->getMethods())->isNotEmpty()
+				->array($coverage->getExcludedClasses())->isNotEmpty()
+				->array($coverage->getExcludedNamespaces())->isNotEmpty()
+				->array($coverage->getExcludedDirectories())->isNotEmpty()
 				->object($coverage->reset())->isIdenticalTo($coverage)
+				->array($coverage->getClasses())->isEmpty()
 				->array($coverage->getMethods())->isEmpty()
+				->array($coverage->getExcludedClasses())->isEmpty()
+				->array($coverage->getExcludedNamespaces())->isEmpty()
+				->array($coverage->getExcludedDirectories())->isEmpty()
 		;
 	}
 
@@ -204,7 +223,9 @@ class coverage extends atoum\test
 			->and($methodController->getDeclaringClass = function() use ($class) { return $class; })
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
-			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
+			->and($method = new \mock\reflectionMethod(uniqid(), uniqid(), $methodController))
+			->and($classController->getMethod = function() use ($method) { return $method; })
+			->and($classController->getMethods = array($method))
 			->and($classFile = uniqid())
 			->and($className = uniqid())
 			->and($methodName = uniqid())
@@ -323,6 +344,54 @@ class coverage extends atoum\test
 						)
 					)
 				)
+			->if($classController = new mock\controller())
+			->and($classController->__construct = function() {})
+			->and($classController->getName = function() use (& $className) { return $className; })
+			->and($classController->getFileName = function() use (& $classFile) { return $classFile; })
+			->and($class = new \mock\reflectionClass(uniqid(), $classController))
+			->and($methodController = new mock\controller())
+			->and($methodController->__construct = function() {})
+			->and($methodController->getName = function() use (& $methodName) { return $methodName; })
+			->and($methodController->isAbstract = false)
+			->and($methodController->getFileName = function() use (& $classFile) { return $classFile; })
+			->and($methodController->getDeclaringClass = function() use ($class) { return $class; })
+			->and($methodController->getStartLine = 6)
+			->and($methodController->getEndLine = 8)
+			->and($method = new \mock\reflectionMethod(uniqid(), uniqid(), $methodController))
+			->and($classController->getMethod = function() use ($method) { return $method; })
+			->and($classController->getMethods = array($method))
+			->and($classFile = uniqid())
+			->and($className = uniqid())
+			->and($methodName = uniqid())
+			->and($xdebugData = array(
+				  $classFile =>
+					 array(
+						5 => -2,
+						6 => -1,
+						7 => 1,
+						8 => -2,
+						9 =>-2
+					),
+				  uniqid() =>
+					 array(
+						5 => 2,
+						6 => 3,
+						7 => 4,
+						8 => 3,
+						9 => 2
+					)
+				)
+			)
+			->and($coverage = new score\coverage($factory = new atoum\factory()))
+			->and($coverage->excludeClass($className))
+			->and($factory['reflectionClass'] = $class)
+			->and($otherCoverage = new score\coverage($otherFactory = new atoum\factory()))
+			->and($otherFactory['reflectionClass'] = $class)
+			->and($otherCoverage->addXdebugDataForTest($this, $xdebugData))
+			->then
+				->array($otherCoverage->getMethods())->isNotEmpty()
+				->object($coverage->merge($otherCoverage))->isIdenticalTo($coverage)
+				->array($coverage->getMethods())->isEmpty()
 		;
 	}
 
@@ -874,6 +943,170 @@ class coverage extends atoum\test
 				->boolean($coverage->isInExcludedDirectories(uniqid()))->isFalse()
 				->boolean($coverage->isInExcludedDirectories($directory . DIRECTORY_SEPARATOR . uniqid()))->isTrue()
 				->boolean($coverage->isInExcludedDirectories($directory . uniqid() . DIRECTORY_SEPARATOR . uniqid()))->isFalse()
+		;
+	}
+
+	public function testGetContainer()
+	{
+		$this
+			->if($coverage = new score\coverage())
+			->then
+				->object($coverage->getContainer())->isEqualTo(new score\coverage\container($coverage))
+		;
+	}
+
+	public function testMergeContainer()
+	{
+		$this
+			->if($coverage = new score\coverage($factory = new atoum\factory()))
+			->then
+				->object($coverage->mergeContainer(new score\coverage\container(new score\coverage())))->isIdenticalTo($coverage)
+				->array($coverage->getMethods())->isEmpty()
+			->if($factory['reflectionClass'] = function($aClassName) use (& $className, & $methodName, & $otherClassName1, & $otherMethodName1, & $otherClassName2, & $otherMethodName2) {
+					$classController = new mock\controller();
+					$classController->__construct = function() {};
+					$classController->getName = $aClassName;
+					$classController->getFileName = uniqid();
+
+					$class = new \mock\reflectionClass($aClassName, $classController);
+
+					$methodController = new mock\controller();
+					$methodController->__construct = function() {};
+					$methodController->getDeclaringClass = $class;
+
+					switch ($aClassName)
+					{
+						case $className:
+							$methodController->getName = $methodName;
+							break;
+
+						case $otherClassName1:
+							$methodController->getName = $otherMethodName1;
+							break;
+
+						case $otherClassName2:
+							$methodController->getName = $otherMethodName2;
+							break;
+					}
+
+					$classController->getMethod = new \mock\reflectionMethod(uniqid(), uniqid(), $methodController);
+
+					return $class;
+				}
+			)
+			->if($mergedCoverage = new \mock\mageekguy\atoum\score\coverage())
+			->and($mergedCoverage->getMockController()->getClasses = $classes = array(
+					$className = uniqid() => $classFile = uniqid()
+				)
+			)
+			->and($mergedCoverage->getMockController()->getMethods = $methods = array(
+					$className => array(
+						$methodName = uniqid() => array(
+							6 => -1,
+							7 => 1,
+							8 => -2
+						)
+					)
+				)
+			)
+			->then
+				->object($coverage->mergeContainer($mergedCoverage->getContainer()))->isIdenticalTo($coverage)
+				->array($coverage->getClasses())->isEqualTo($classes)
+				->array($coverage->getMethods())->isEqualTo($methods)
+				->object($coverage->mergeContainer($mergedCoverage->getContainer()))->isIdenticalTo($coverage)
+				->array($coverage->getClasses())->isEqualTo($classes)
+				->array($coverage->getMethods())->isEqualTo($methods)
+			->if($otherMergedCoverage = new \mock\mageekguy\atoum\score\coverage())
+			->and($otherMergedCoverage->getMockController()->getClasses = $otherClasses = array(
+					$otherClassName1 = uniqid() => $otherClassFile1 = uniqid(),
+					$otherClassName2 = uniqid() => $otherClassFile2 =  uniqid()
+				)
+			)
+			->and($otherMergedCoverage->getMockController()->getMethods = $otherMethods = array(
+					$otherClassName1 => array(
+						$otherMethodName1 = uniqid() => array(
+							61 => -1,
+							62 => 1,
+							63 => -2
+						)
+					),
+					$otherClassName2 => array(
+						$otherMethodName2 = uniqid() => array(
+							31 => -1,
+							32 => 1,
+							33 => -2
+						)
+					)
+				)
+			)
+			->then
+				->object($coverage->mergeContainer($otherMergedCoverage->getContainer()))->isIdenticalTo($coverage)
+				->array($coverage->getClasses())->isEqualTo(array(
+						$className => $classFile,
+						$otherClassName1 => $otherClassFile1,
+						$otherClassName2 => $otherClassFile2
+					)
+				)
+				->array($coverage->getMethods())->isEqualTo(array(
+						$className => array(
+							$methodName => array(
+								6 => -1,
+								7 => 1,
+								8 => -2
+							)
+						),
+						$otherClassName1 => array(
+							$otherMethodName1 => array(
+								61 => -1,
+								62 => 1,
+								63 => -2
+							)
+						),
+						$otherClassName2 => array(
+							$otherMethodName2 => array(
+								31 => -1,
+								32 => 1,
+								33 => -2
+							)
+						)
+					)
+				)
+			->if($mergedCoverage->getMockController()->getMethods = $methods = array(
+					$className => array(
+						$methodName => array(
+							6 => 1,
+							7 => 1,
+							8 => 1
+						)
+					)
+				)
+			)
+			->then
+				->object($coverage->mergeContainer($mergedCoverage->getContainer()))->isIdenticalTo($coverage)
+				->array($coverage->getMethods())->isEqualTo(array(
+						$className => array(
+							$methodName => array(
+								6 => 1,
+								7 => 1,
+								8 => 1
+							)
+						),
+						$otherClassName1 => array(
+							$otherMethodName1 => array(
+								61 => -1,
+								62 => 1,
+								63 => -2
+							)
+						),
+						$otherClassName2 => array(
+							$otherMethodName2 => array(
+								31 => -1,
+								32 => 1,
+								33 => -2
+							)
+						)
+					)
+				)
 		;
 	}
 }
