@@ -32,50 +32,12 @@ class request
 		}
 	}
 
-	public function encode()
-	{
-		return self::begin() . $this->encodeHeaders() . $this->encodeContent();
-	}
-
 	public function sendWithClient(client $client)
 	{
-		return $client->sendData($this->encode());
+		$begin = new records\begin();
+		$params = new records\params($this->headers);
+		$stdin = new records\streams\stdin($this->content);
+
+		return $client->sendData($begin . $params . $stdin);
 	}
-
-	protected function encodeHeaders()
-	{
-		$encodedHeaders = '';
-
-		foreach($this->headers as $name => $value)
-		{
-			$encodedHeaders .= self::encodeLength($name) . self::encodeLength($value) . $name . $value;
-		}
-
-		return self::encodeString(4, $encodedHeaders);
-	}
-
-	protected function encodeContent()
-	{
-		return self::encodeString(5, $this->content);
-	}
-
-	protected static function begin()
-	{
-		return self::encodeString(1, sprintf('%c%c%c%c%c%c%c%c', 0, 1, 1, 0, 0, 0, 0, 0));
-	}
-
-	protected static function encodeLength($string)
-	{
-		$length = strlen($string);
-
-		return ($length < 0x80 ? sprintf('%c', $length) : sprintf('%c%c%c%c', ($length >> 24) | 0x80, ($length >> 16) & 0xff, ($length >> 8) & 0xff, $length & 0xff));
-	}
-
-	protected static function encodeString($type, $string, $id = 1)
-	{
-		$length = strlen($string);
-
-		return sprintf('%c%c%c%c%c%c%c%c%s', 1, $type, ($id >> 8) & 0xff, $id & 0xff, ($length >> 8) & 0xff, $length & 0xff, 0, 0, $string);
-	}
-
 }
