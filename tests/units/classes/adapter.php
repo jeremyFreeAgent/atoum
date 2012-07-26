@@ -10,6 +10,21 @@ require_once __DIR__ . '/../runner.php';
 
 class adapter extends atoum\test
 {
+	/** @engine inline */
+	public function testFpm()
+	{
+		$client = new atoum\fpm\client('127.0.0.1', '9000');
+
+		$request = new atoum\fpm\request();
+		$request->REQUEST_METHOD = 'GET';
+		$request->SCRIPT_FILENAME = __DIR__ . DIRECTORY_SEPARATOR . 'cli.php';
+
+		$response = atoum\fpm\client\response::getFromClient($request->sendWithClient($client));
+
+		var_dump($response->getHeaders(), $response->getOutput(), $response->getErrors());
+	}
+
+	/*
 	public function test__construct()
 	{
 		$this
@@ -27,4 +42,5 @@ class adapter extends atoum\test
 				->string($adapter->md5($hash = uniqid()))->isEqualTo(md5($hash))
 		;
 	}
+	*/
 }
