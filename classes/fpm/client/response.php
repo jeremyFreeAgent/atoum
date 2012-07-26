@@ -30,7 +30,6 @@ class response
 	public static function getFromClient(fpm\client $client)
 	{
 		$response = new self();
-
 		$response->headers = array();
 		$response->output = '';
 		$response->errors = '';
