@@ -8,23 +8,10 @@ use
 
 class client
 {
-	const begin = 1;
-	const end = 3;
-	const parameters = 4;
-	const stdin = 5;
-	const stdout = 6;
-	const stderr = 7;
-	const noMultiplex = 1;
-	const overloaded = 2;
-	const unknownRole = 3;
-
 	protected $host = '';
 	protected $port = 0;
 	protected $timeout = 30;
 	protected $socket = null;
-	protected $headers = array();
-	protected $stdout = '';
-	protected $stderr = '';
 
 	public function __construct($host, $port, $timeout = 30)
 	{
@@ -33,152 +20,55 @@ class client
 		$this->timeout = (int) $timeout;
 	}
 
-	public function sendRequest(array $headers, $content = '')
+	public function __destruct()
 	{
-		$this->headers = array();
-		$this->stdout = '';
-		$this->stderr = '';
+		$this->closeConnection();
+	}
 
-		$this->socket = stream_socket_client('tcp://' . $this->host . ':' . $this->port, $errorCode, $errorMessage, $this->timeout);
-
-		if ($this->socket === false)
+	public function openConnection()
+	{
+		if ($this->socket === null)
 		{
-			throw new client\exception($errorMessage, $errorCode);
-		}
+			$this->socket = stream_socket_client('tcp://' . $this->host . ':' . $this->port, $errorCode, $errorMessage, $this->timeout);
 
-		if (stream_set_blocking($this->socket, 1) === false)
-		{
-			throw new client\exception('Unable to set blocking mode');
-		}
-
-		$chr0 = chr(0);
-		$chr1 = chr(1);
-
-		$request = self::pack(self::begin, $chr0 . str_repeat($chr1, 2) . str_repeat($chr0, 5)) . self::pack(self::parameters, self::packPairs($headers)) . self::pack(self::stdin, (string) $content);
-
-		if (fwrite($this->socket, $request) === false)
-		{
-			throw new client\exception('Unable to send request to \'' . $this->host . '\' on port ' . $this->port);
-		}
-
-		do
-		{
-			if (sizeof($response = $this->unpackResponse()) <= 0)
+			if ($this->socket === false)
 			{
-				throw new client\exception('Bad request');
+				throw new client\exception($errorMessage, $errorCode);
 			}
 
-			switch ($response['type'])
+			if (stream_set_blocking($this->socket, 1) === false)
 			{
-				case self::stdout:
-					$this->stdout .= $response['content'];
-					break;
-
-				case self::stderr:
-					$this->stderr .= $response['content'];
-					break;
+				throw new client\exception('Unable to set blocking mode');
 			}
-		}
-		while ($response['type'] != self::end);
-
-		fclose($this->socket);
-
-		switch(ord($response['content'][4]))
-		{
-			case self::noMultiplex:
-				throw new client\exception('');
-
-			case self::overloaded:
-				throw new client\exception('');
-
-			case self::unknownRole:
-				throw new client\exception('');
-		}
-
-		list($headers, $this->stdout) = explode("\r\n\r\n", $this->stdout);
-
-		foreach (explode("\r\n", $headers) as $header)
-		{
-			list($key, $value) = explode(':', $header);
-
-			$this->headers[strtolower(trim($key))] = trim($value);
 		}
 
 		return $this;
 	}
 
-	public function getHeaders()
+	public function closeConnection()
 	{
-		return $this->headers;
-	}
-
-	public function getStdout()
-	{
-		return $this->stdout;
-	}
-
-	public function getStderr()
-	{
-		return $this->stderr;
-	}
-
-	protected function unpackResponse()
-	{
-		$response = array();
-
-		if (($pack = fread($this->socket, 8)) != '')
+		if ($this->socket !== null)
 		{
-			$response = array(
-				'version' => ord($pack[0]),
-				'type' => ord($pack[1]),
-				'id' => (ord($pack[2]) << 8) + ord($pack[3]),
-				'length' => (ord($pack[4]) << 8) + ord($pack[5]),
-				'padding' => ord($pack[6]),
-				'reserver' => ord($pack[7]),
-				'content' => ''
-			);
+			fclose($this->socket);
 
-			$length = $response['length'] + $response['padding'];
-
-			if($length > 0)
-			{
-				$response['content'] = fread($this->socket, $length);
-			}
+			$this->socket = null;
 		}
 
-		return $response;
+		return $this;
 	}
 
-	protected static function pack($type, $content, $id = 1)
+	public function sendData($data)
 	{
-		$length = strlen($content);
-
-		return chr(1) .
-			chr($type) .
-			chr(($id >> 8) & 0xff) .
-			chr( $id & 0xff) .
-			chr(($length >> 8) & 0xff) .
-			chr( $length & 0xff) .
-			str_repeat(chr(0), 2) .
-			$content;
-	}
-
-	protected static function packPairs(array $pairs)
-	{
-		$pack = '';
-
-		foreach($pairs as $key => $value)
+		if (fwrite($this->openConnection()->socket, $data) === false)
 		{
-			$pack .= self::packValue($key) . self::packValue($value) . $key . $value;
+			throw new client\exception('Unable to send request to \'' . $this->host . '\' on port ' . $this->port);
 		}
 
-		return $pack;
+		return $this;
 	}
 
-	protected static function packValue($value)
+	public function receiveData($length)
 	{
-		$length = strlen((string) $value);
-
-		return ($length < 0x80 ? chr($length) : chr(($length >> 24) | 0x80) . chr(($length >> 16) & 0xff) . chr(($length >> 8) & 0xff) . chr($length & 0xff));
+		return fread($this->socket, $length);
 	}
 }
