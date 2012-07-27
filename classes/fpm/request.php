@@ -71,14 +71,9 @@ class request
 		return $this;
 	}
 
-	public function __invoke(client $client, array $params = array(), $stdin = '')
+	public function __invoke(client $client)
 	{
-		foreach ($params as $name => $value)
-		{
-			$this[$name] = $value;
-		}
-
-		return $this->setStdin($stdin)->sendWithClient($client);
+		return $this->sendWithClient($client);
 	}
 
 	public function setStdin($stdin)
