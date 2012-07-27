@@ -4,9 +4,14 @@ namespace mageekguy\atoum\fpm;
 
 class response
 {
-	protected $headers;
-	protected $output;
-	protected $errors;
+	protected $headers = array();
+	protected $output = '';
+	protected $errors = '';
+
+	public function __invoke(client $client)
+	{
+		return $this->getFromClient($client)->getOutput();
+	}
 
 	public function getHeaders()
 	{
@@ -23,10 +28,8 @@ class response
 		return $this->errors;
 	}
 
-	public static function getFromClient(client $client)
+	public function getFromClient(client $client)
 	{
-		$response = new self();
-
 		do
 		{
 			if (($data = $client->receiveData(8)) != '')
@@ -39,12 +42,12 @@ class response
 				{
 					case records\streams\stdout::type:
 						$record = new records\streams\stdout($content, ord($data[2] << 8) + ord($data[3]));
-						$response->output .= $record->getContentData();
+						$this->output .= $record->getContentData();
 						break;
 
 					case records\streams\stderr::type:
 						$record = new records\streams\stderr($content, ord($data[2] << 8) + ord($data[3]));
-						$response->errors .= $record->getContentData();
+						$this->errors .= $record->getContentData();
 						break;
 
 					case records\end::type:
@@ -58,15 +61,15 @@ class response
 		}
 		while ($record instanceof records\end === false);
 
-		list($headers, $response->output) = explode("\r\n\r\n", $response->output);
+		list($headers, $this->output) = explode("\r\n\r\n", $this->output);
 
 		foreach (explode("\r\n", $headers) as $header)
 		{
 			list($key, $value) = explode(':', $header);
 
-			$response->headers[strtolower(trim($key))] = trim($value);
+			$this->headers[strtolower(trim($key))] = trim($value);
 		}
 
-		return $response;
+		return $this;
 	}
 }
