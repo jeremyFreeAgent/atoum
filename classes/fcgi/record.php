@@ -30,9 +30,11 @@ abstract class record implements \countable
 			throw new exceptions\logic\invalidArgument('Request ID length must be less than or equal to 65535');
 		}
 
-		$this->type = $type;
-		$this->requestId = (int) $requestId;
-		$this->contentData = (string) $contentData;
+		$this
+			->setRequestId($requestId)
+			->setContentData($contentData)
+			->type = $type
+		;
 	}
 
 	public function __toString()
@@ -55,9 +57,23 @@ abstract class record implements \countable
 		return $this->requestId;
 	}
 
+	public function setRequestId($requestId)
+	{
+		$this->requestId = (string) $requestId;
+
+		return $this;
+	}
+
 	public function getContentData()
 	{
 		return $this->contentData;
+	}
+
+	public function setContentData($contentData)
+	{
+		$this->contentData = (string) $contentData;
+
+		return $this;
 	}
 
 	public function encode()
@@ -78,6 +94,11 @@ abstract class record implements \countable
 	public function isEndOfRequest()
 	{
 		return false;
+	}
+
+	public function sendWithClient(client $client)
+	{
+		return $client->sendData((string) $this);
 	}
 
 	public function addToResponse(response $response)

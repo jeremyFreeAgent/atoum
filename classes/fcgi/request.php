@@ -4,38 +4,24 @@ namespace mageekguy\atoum\fcgi;
 
 class request
 {
-	protected $params = array();
-	protected $stdin = '';
+	protected $params = null;
+	protected $stdin = null;
+
+	public function __construct()
+	{
+		$this->params = new records\params();
+		$this->stdin = new records\stdin();
+	}
 
 	public function __set($name, $value)
 	{
-		switch ($name = self::cleanParamName($name))
+		if (strtoupper($name) === 'STDIN')
 		{
-			case 'AUTH_TYPE':
-			case 'CONTENT_LENGTH':
-			case 'CONTENT_TYPE':
-			case 'GATEWAY_INTERFACE':
-			case 'HTTP_*':
-			case 'PATH_INFO':
-			case 'PATH_TRANSLATED':
-			case 'QUERY_STRING':
-			case 'REMOTE_ADDR':
-			case 'REMOTE_HOST':
-			case 'REMOTE_IDENT':
-			case 'REMOTE_USER':
-			case 'REQUEST_METHOD':
-			case 'SCRIPT_NAME':
-			case 'SCRIPT_FILENAME':
-			case 'SERVER_NAME':
-			case 'SERVER_PORT':
-			case 'SERVER_PROTOCOL':
-			case 'SERVER_SOFTWARE':
-				$this->params[$name] = trim($value);
-				break;
-
-			case 'STDIN':
-				$this->setStdin($value);
-				break;
+			$this->setStdin($value);
+		}
+		else
+		{
+			$this->params->{$name} = $value;
 		}
 
 		return $this;
@@ -43,29 +29,23 @@ class request
 
 	public function __get($name)
 	{
-		$name = self::cleanParamName($name);
-
-		return ($name == 'STDIN' ? $this->stdin : (isset($this->params[$name]) === false ? null : $this->params[$name]));
+		return (strtoupper($name) === 'STDIN' ? $this->stdin->getContentData() : $this->params->{$name});
 	}
 
 	public function __isset($name)
 	{
-		$name = self::cleanParamName($name);
-
-		return ($name == 'STDIN' ? $this->stdin != '' : (isset($this->params[self::cleanParamName($name)]) === true));
+		return (strtoupper($name) === 'STDIN' ? $this->stdin->getContentData() != '' : isset($this->params->{$name}));
 	}
 
 	public function __unset($name)
 	{
-		$name = self::cleanParamName($name);
-
-		if ($name == 'STDIN')
+		if (strtoupper($name) === 'STDIN')
 		{
-			$this->stdin = '';
+			$this->setStdin('');
 		}
-		else if (isset($this->params[$name = self::cleanParamName($name)]) === true)
+		else
 		{
-			unset($this->params[$name]);
+			unset($this->params->{$name});
 		}
 
 		return $this;
@@ -78,30 +58,29 @@ class request
 
 	public function setStdin($stdin)
 	{
-		$this->stdin = (string) $stdin;
+		$this->stdin->setContentData($stdin);
 
 		return $this;
 	}
 
 	public function sendWithClient(client $client)
 	{
-		$data = (string) new records\begin();
+		$begin = new records\begin();
+		$begin->sendWithClient($client);
 
 		if (sizeof($this->params) > 0)
 		{
-			$data .= new records\params($this->params);
-			$data .= new records\params();
+			$endOfParams = new records\params();
+			$endOfParams->sendWithClient($this->params->sendWithClient($client));
 		}
 
-		if ($this->stdin != '')
+		if (sizeof($this->stdin) > 0)
 		{
-			$data .= new records\stdin($this->stdin);
-			$data .= new records\stdin();
+			$endOfStdin = new records\stdin();
+			$endOfStdin->sendWithClient($this->stdin->sendWithClient($client));
 		}
 
-		$response = new response();
-
-		return $response($client->sendData($data));
+		return new response($client);
 	}
 
 	private static function cleanParamName($name)

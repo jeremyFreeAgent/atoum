@@ -8,6 +8,14 @@ class response
 	protected $output = '';
 	protected $errors = '';
 
+	public function __construct(client $client = null)
+	{
+		if ($client !== null)
+		{
+			$this($client);
+		}
+	}
+
 	public function __invoke(client $client)
 	{
 		return $this->getFromClient($client)->getOutput();

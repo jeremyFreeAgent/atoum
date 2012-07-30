@@ -3,7 +3,8 @@
 namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\fcgi
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\exceptions
 ;
 
 class params extends fcgi\record
@@ -18,8 +19,33 @@ class params extends fcgi\record
 
 		foreach ($values as $name => $value)
 		{
-			$this->addValue($name, $value);
+			$this->setValue($name, $value);
 		}
+	}
+
+	public function __set($name, $value)
+	{
+		return $this->setValue($name, $value);
+	}
+
+	public function __get($name)
+	{
+		return (isset($this->values[$name = self::cleanValueName($name)]) === false ? null : $this->values[$name]);
+	}
+
+	public function __isset($name)
+	{
+		return (isset($this->values[self::cleanValueName($name)]) === true);
+	}
+
+	public function __unset($name)
+	{
+		if (isset($this->values[$name = self::cleanValueName($name)]) === true)
+		{
+			unset($this->values[$name]);
+		}
+
+		return $this;
 	}
 
 	public function count()
@@ -32,12 +58,17 @@ class params extends fcgi\record
 		return $this->values;
 	}
 
-	public function addValue($name, $value)
+	public function setValue($name, $value)
 	{
-		$this->values[trim((string) $name)] = trim((string) $value);
+		$this->values[self::cleanValueName($name)] = trim($value);
 
 		return $this;
  	}
+
+	public function getValue($name)
+	{
+		return (isset($this->values[$name = self::cleanValueName($name)]) === false ? null : $this->values[$name]);
+	}
 
 	public function encode()
 	{
@@ -51,14 +82,41 @@ class params extends fcgi\record
 		return ($this->contentData = '' ? '' : parent::encode());
 	}
 
-	public static function isRecord($data)
-	{
-	}
-
 	protected static function encodeLength($string)
 	{
 		$length = strlen($string);
 
 		return ($length < 128 ? sprintf('%c', $length) : sprintf('%c%c%c%c', ($length >> 24) | 0x80, ($length >> 16) & 0xff, ($length >> 8) & 0xff, $length & 0xff));
+	}
+
+	private static function cleanValueName($name)
+	{
+		$cleanName = strtoupper(trim($name));
+
+		switch ($cleanName)
+		{
+			case 'AUTH_TYPE':
+			case 'CONTENT_LENGTH':
+			case 'CONTENT_TYPE':
+			case 'GATEWAY_INTERFACE':
+			case 'PATH_INFO':
+			case 'PATH_TRANSLATED':
+			case 'QUERY_STRING':
+			case 'REMOTE_ADDR':
+			case 'REMOTE_HOST':
+			case 'REMOTE_IDENT':
+			case 'REMOTE_USER':
+			case 'REQUEST_METHOD':
+			case 'SCRIPT_NAME':
+			case 'SCRIPT_FILENAME':
+			case 'SERVER_NAME':
+			case 'SERVER_PORT':
+			case 'SERVER_PROTOCOL':
+			case 'SERVER_SOFTWARE':
+				return $cleanName;
+
+			default:
+				throw new exceptions\logic\invalidArgument('Value \'' . $name . '\' is unknown');
+		}
 	}
 }
