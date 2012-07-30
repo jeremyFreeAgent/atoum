@@ -40,7 +40,7 @@ class params extends atoum\test
 		$this
 			->if($record = new testedClass())
 			->then
-				->castTostring($record)->isEqualTo("\001\004\000\001\000\000\000\000")
+				->castToString($record)->isEqualTo("\001\004\000\001\000\000\000\000")
 			->if($record->addValue($name = uniqid(), $value = uniqid()))
 			->then
 				->castToString($record)->isEqualTo("\001\004\000\001\000\034\000\000\r\r" . $name . $value)
