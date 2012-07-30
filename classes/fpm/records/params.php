@@ -8,21 +8,28 @@ use
 
 class params extends fpm\record
 {
-	protected $pairs = array();
+	const type = 4;
 
-	public function __construct(array $pairs = array())
+	protected $values = array();
+
+	public function __construct(array $values = array(), $requestId = 1)
 	{
-		parent::__construct(4);
+		parent::__construct(self::type, $requestId);
 
-		foreach ($pairs as $name => $value)
+		foreach ($values as $name => $value)
 		{
-			$this->addPair($name, $value);
+			$this->addValue($name, $value);
 		}
 	}
 
-	public function addPair($name, $value)
+	public function getValues()
 	{
-		$this->pairs[trim((string) $name)] = trim((string) $value);
+		return $this->values;
+	}
+
+	public function addValue($name, $value)
+	{
+		$this->values[trim((string) $name)] = trim((string) $value);
 
 		return $this;
  	}
@@ -31,7 +38,7 @@ class params extends fpm\record
 	{
 		$this->contentData = '';
 
-		foreach($this->pairs as $name => $value)
+		foreach($this->values as $name => $value)
 		{
 			$this->contentData .= self::encodeLength($name) . self::encodeLength($value) . $name . $value;
 		}
@@ -39,10 +46,14 @@ class params extends fpm\record
 		return ($this->contentData = '' ? '' : parent::encode());
 	}
 
+	public static function isRecord($data)
+	{
+	}
+
 	protected static function encodeLength($string)
 	{
 		$length = strlen($string);
 
-		return ($length < 0x80 ? sprintf('%c', $length) : sprintf('%c%c%c%c', ($length >> 24) | 0x80, ($length >> 16) & 0xff, ($length >> 8) & 0xff, $length & 0xff));
+		return ($length < 128 ? sprintf('%c', $length) : sprintf('%c%c%c%c', ($length >> 24) | 0x80, ($length >> 16) & 0xff, ($length >> 8) & 0xff, $length & 0xff));
 	}
 }
