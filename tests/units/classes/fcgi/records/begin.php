@@ -1,11 +1,11 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fpm\records;
+namespace mageekguy\atoum\tests\units\fcgi\records;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fpm,
-	mageekguy\atoum\fpm\records\begin as testedClass
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\fcgi\records\begin as testedClass
 ;
 
 require_once __DIR__ . '/../../../runner.php';
@@ -19,7 +19,7 @@ class begin extends atoum\test
 			->string(testedClass::responder)->isEqualTo(1)
 			->string(testedClass::authorizer)->isEqualTo(2)
 			->string(testedClass::filter)->isEqualTo(3)
-			->testedClass->isSubClassOf('mageekguy\atoum\fpm\record')
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
 

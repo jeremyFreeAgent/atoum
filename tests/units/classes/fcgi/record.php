@@ -1,11 +1,11 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fpm;
+namespace mageekguy\atoum\tests\units\fcgi;
 
 use
 	mageekguy\atoum,
-	mock\mageekguy\atoum\fpm,
-	mock\mageekguy\atoum\fpm\record as testedClass
+	mock\mageekguy\atoum\fcgi,
+	mock\mageekguy\atoum\fcgi\record as testedClass
 ;
 
 require_once __DIR__ . '/../../runner.php';
@@ -15,8 +15,8 @@ class record extends atoum\test
 	public function testClass()
 	{
 		$this
-			->integer(fpm\record::version)->isEqualTo(1)
-			->integer(fpm\record::maxContentLength)->isEqualTo(65535)
+			->integer(fcgi\record::version)->isEqualTo(1)
+			->integer(fcgi\record::maxContentLength)->isEqualTo(65535)
 			->testedClass->hasInterface('countable')
 		;
 	}
@@ -53,10 +53,10 @@ class record extends atoum\test
 		$this
 			->if($record = new testedClass($type = rand(- 128, 127)))
 			->then
-				->castToString($record)->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fpm\record::version, $type, 0, 0, 0, 0, 0, 0, '', ''))
+				->castToString($record)->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, 0, 0, 0, 0, 0, 0, '', ''))
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
 			->then
-				->castToString($record)->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fpm\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))
+				->castToString($record)->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))
 		;
 	}
 
@@ -65,10 +65,10 @@ class record extends atoum\test
 		$this
 			->if($record = new testedClass($type = rand(- 128, 127)))
 			->then
-				->string($record->encode())->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fpm\record::version, $type, 0, 0, 0, 0, 0, 0, '', ''))
+				->string($record->encode())->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, 0, 0, 0, 0, 0, 0, '', ''))
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
 			->then
-				->string($record->encode())->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fpm\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))
+				->string($record->encode())->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = str_repeat('0', 65536)))
 			->then
 				->exception(function() use ($record) { $record->encode(); })
@@ -91,7 +91,7 @@ class record extends atoum\test
 		$this
 			->if($record = new testedClass(rand(- 128, 127)))
 			->then
-				->object($record->addToResponse($response = new fpm\response()))->isIdenticalTo($response)
+				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
 		;
 	}
 }

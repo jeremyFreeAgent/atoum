@@ -1,11 +1,11 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fpm\records;
+namespace mageekguy\atoum\tests\units\fcgi\records;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fpm,
-	mageekguy\atoum\fpm\records\stderr as testedClass
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\fcgi\records\stderr as testedClass
 ;
 
 require_once __DIR__ . '/../../../runner.php';
@@ -16,7 +16,7 @@ class stderr extends atoum\test
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(7)
-			->testedClass->isSubClassOf('mageekguy\atoum\fpm\record')
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
 
@@ -45,7 +45,7 @@ class stderr extends atoum\test
 		$this
 			->if($record = new testedClass($contentData = uniqid(), rand(1, 128)))
 			->then
-				->object($record->addToResponse($response = new fpm\response()))->isIdenticalTo($response)
+				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
 				->string($response->getErrors())->isEqualTo($contentData)
 			->if($otherRecord = new testedClass($otherContentData = uniqid(), rand(1, 128)))
 			->then

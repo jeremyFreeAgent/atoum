@@ -1,11 +1,11 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fpm\records;
+namespace mageekguy\atoum\tests\units\fcgi\records;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fpm,
-	mageekguy\atoum\fpm\records\params as testedClass
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\fcgi\records\params as testedClass
 ;
 
 require __DIR__ . '/../../../runner.php';
@@ -16,7 +16,7 @@ class params extends atoum\test
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(4)
-			->testedClass->isSubClassOf('mageekguy\atoum\fpm\record')
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
 

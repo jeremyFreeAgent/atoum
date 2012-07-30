@@ -1,6 +1,6 @@
 <?php
 
-namespace mageekguy\atoum\fpm;
+namespace mageekguy\atoum\fcgi;
 
 class request
 {

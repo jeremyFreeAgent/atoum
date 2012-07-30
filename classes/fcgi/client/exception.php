@@ -1,6 +1,6 @@
 <?php
 
-namespace mageekguy\atoum\fpm\client;
+namespace mageekguy\atoum\fcgi\client;
 
 use
 	mageekguy\atoum

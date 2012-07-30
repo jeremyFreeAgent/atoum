@@ -1,10 +1,10 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fpm\records;
+namespace mageekguy\atoum\tests\units\fcgi\records;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fpm\records\end as testedClass
+	mageekguy\atoum\fcgi\records\end as testedClass
 ;
 
 require_once __DIR__ . '/../../../runner.php';
@@ -19,7 +19,7 @@ class end extends atoum\test
 			->integer(testedClass::canNotMultiplexConnection)->isEqualTo(1)
 			->integer(testedClass::serverIsOverloaded)->isEqualTo(2)
 			->integer(testedClass::unknownRole)->isEqualTo(3)
-			->testedClass->isSubClassOf('mageekguy\atoum\fpm\record')
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
 

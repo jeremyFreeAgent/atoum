@@ -1,12 +1,12 @@
 <?php
 
-namespace mageekguy\atoum\fpm\records;
+namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\fpm
+	mageekguy\atoum\fcgi
 ;
 
-class stderr extends fpm\record
+class stderr extends fcgi\record
 {
 	const type = '7';
 
@@ -15,7 +15,7 @@ class stderr extends fpm\record
 		parent::__construct(self::type, $requestId, $stderr);
 	}
 
-	public function addToResponse(fpm\response $response)
+	public function addToResponse(fcgi\response $response)
 	{
 		return $response->addToErrors($this->getContentData());
 	}

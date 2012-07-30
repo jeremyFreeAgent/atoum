@@ -1,12 +1,12 @@
 <?php
 
-namespace mageekguy\atoum\fpm\records;
+namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\fpm
+	mageekguy\atoum\fcgi
 ;
 
-class end extends fpm\record
+class end extends fcgi\record
 {
 	const type = 3;
 	const requestComplete = 0;

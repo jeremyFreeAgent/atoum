@@ -1,10 +1,10 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fpm\records;
+namespace mageekguy\atoum\tests\units\fcgi\records;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fpm\records\stdin as testedClass
+	mageekguy\atoum\fcgi\records\stdin as testedClass
 ;
 
 require_once __DIR__ . '/../../../runner.php';
@@ -15,7 +15,7 @@ class stdin extends atoum\test
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(5)
-			->testedClass->isSubclassOf('mageekguy\atoum\fpm\record')
+			->testedClass->isSubclassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
 

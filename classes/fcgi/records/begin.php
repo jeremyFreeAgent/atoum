@@ -1,13 +1,13 @@
 <?php
 
-namespace mageekguy\atoum\fpm\records;
+namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\fpm,
+	mageekguy\atoum\fcgi,
 	mageekguy\atoum\exceptions
 ;
 
-class begin extends fpm\record
+class begin extends fcgi\record
 {
 	const type = '1';
 	const responder = '1';

@@ -1,12 +1,12 @@
 <?php
 
-namespace mageekguy\atoum\fpm\records;
+namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\fpm
+	mageekguy\atoum\fcgi
 ;
 
-class stdout extends fpm\record
+class stdout extends fcgi\record
 {
 	const type = '6';
 
@@ -15,7 +15,7 @@ class stdout extends fpm\record
 		parent::__construct(self::type, $requestId, $stdout);
 	}
 
-	public function addToResponse(fpm\response $response)
+	public function addToResponse(fcgi\response $response)
 	{
 		return $response->addToOutput($this->getContentData());
 	}
