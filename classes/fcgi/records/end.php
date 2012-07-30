@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\fcgi
 ;
 
-class end extends fcgi\record
+class end extends fcgi\records\response
 {
 	const type = 3;
 	const requestComplete = 0;

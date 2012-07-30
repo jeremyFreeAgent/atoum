@@ -2,6 +2,10 @@
 
 namespace mageekguy\atoum\fcgi;
 
+use
+	mageekguy\atoum\fcgi\records
+;
+
 class response
 {
 	protected $headers = array();
@@ -63,7 +67,7 @@ class response
 	{
 		$this->reset();
 
-		while (($record = record::getFromClient($client)) && $record !== null && $record->isEndOfRequest() === false)
+		while (($record = records\response::getFromClient($client)) && $record !== null && $record->isEndOfRequest() === false)
 		{
 			$record->addToResponse($this);
 		}

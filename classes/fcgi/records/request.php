@@ -1,0 +1,51 @@
+<?php
+
+namespace mageekguy\atoum\fcgi\records;
+
+use
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\exceptions
+;
+
+abstract class request extends fcgi\record
+{
+	public function __toString()
+	{
+		return $this->encode();
+	}
+
+	public function setRequestId($requestId)
+	{
+		return parent::setRequestId($requestId);
+	}
+
+	public function setContentData($contentData)
+	{
+		return parent::setContentData($contentData);
+	}
+
+	public function encode()
+	{
+		$contentLength = strlen($this->contentData);
+
+		if ($contentLength > self::maxContentLength)
+		{
+			throw new exceptions\runtime('Content length must be less than or equal to 65535');
+		}
+
+		list($requestIdB0, $requestIdB1) = self::encodeValue($this->requestId);
+		list($contentLengthB0, $contentLengthB1) = self::encodeValue($contentLength);
+
+		return sprintf('%c%c%c%c%c%c%c%c%s%s', self::version, $this->type, $requestIdB0, $requestIdB1, $contentLengthB0, $contentLengthB1, 0, 0, $this->contentData, '');
+	}
+
+	public function sendWithClient(fcgi\client $client)
+	{
+		return $client->sendData((string) $this);
+	}
+
+	protected static function encodeValue($value)
+	{
+		return array(($value >> 8) & 0xff, $value & 0xff);
+	}
+}

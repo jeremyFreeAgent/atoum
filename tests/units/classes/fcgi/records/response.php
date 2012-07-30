@@ -1,16 +1,16 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fcgi;
+namespace mageekguy\atoum\tests\units\fcgi\records;
 
 use
 	mageekguy\atoum,
 	mock\mageekguy\atoum\fcgi,
-	mock\mageekguy\atoum\fcgi\record as testedClass
+	mock\mageekguy\atoum\fcgi\records\response as testedClass
 ;
 
 require_once __DIR__ . '/../../runner.php';
 
-class record extends atoum\test
+class response extends atoum\test
 {
 	public function testClass()
 	{
@@ -45,6 +45,24 @@ class record extends atoum\test
 			->exception(function() { new testedClass(rand(- 128, 127), str_repeat('0', 65536)); })
 				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
 				->hasMessage('Request ID length must be less than or equal to 65535')
+		;
+	}
+
+	public function testIsEndOfRequest()
+	{
+		$this
+			->if($record = new testedClass(rand(- 128, 127)))
+			->then
+				->boolean($record->isEndOfRequest())->isFalse()
+		;
+	}
+
+	public function testAddRoResponse()
+	{
+		$this
+			->if($record = new testedClass(rand(- 128, 127)))
+			->then
+				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
 		;
 	}
 }

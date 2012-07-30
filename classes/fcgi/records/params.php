@@ -7,7 +7,7 @@ use
 	mageekguy\atoum\exceptions
 ;
 
-class params extends fcgi\record
+class params extends fcgi\records\request
 {
 	const type = '4';
 

@@ -1,0 +1,77 @@
+<?php
+
+namespace mageekguy\atoum\tests\units\fcgi\records;
+
+use
+	mageekguy\atoum,
+	mock\mageekguy\atoum\fcgi,
+	mock\mageekguy\atoum\fcgi\records\request as testedClass
+;
+
+require_once __DIR__ . '/../../runner.php';
+
+class request extends atoum\test
+{
+	public function testClass()
+	{
+		$this
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
+		;
+	}
+
+	public function test__construct()
+	{
+		$this
+			->if($record = new testedClass($type = rand(- 128, 127)))
+			->then
+				->string($record->getType())->isEqualTo($type)
+				->integer($record->getRequestId())->isZero(0)
+				->string($record->getContentData())->isEmpty()
+				->sizeOf($record)->isZero()
+			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
+			->then
+				->string($record->getType())->isEqualTo($type)
+				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getContentData())->isEqualTo($contentData)
+				->sizeOf($record)->isEqualTo(strlen($contentData))
+			->exception(function() { new testedClass(rand(128, PHP_INT_MAX)); })
+				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
+				->hasMessage('Type must be greater than or equal to -128 and less than or equal to 127')
+			->exception(function() { new testedClass(rand(- PHP_INT_MAX, -128)); })
+				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
+				->hasMessage('Type must be greater than or equal to -128 and less than or equal to 127')
+			->exception(function() { new testedClass(rand(- 128, 127), str_repeat('0', 65536)); })
+				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
+				->hasMessage('Request ID length must be less than or equal to 65535')
+		;
+	}
+
+	public function test__toString()
+	{
+		$this
+			->if($record = new testedClass($type = rand(- 128, 127)))
+			->then
+				->castToString($record)->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, 0, 0, 0, 0, 0, 0, '', ''))
+			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
+			->then
+				->castToString($record)->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))
+		;
+	}
+
+	public function testEncode()
+	{
+		$this
+			->if($record = new testedClass($type = rand(- 128, 127)))
+			->then
+				->string($record->encode())->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, 0, 0, 0, 0, 0, 0, '', ''))
+			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
+			->then
+				->string($record->encode())->isEqualTo(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))
+			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = str_repeat('0', 65536)))
+			->then
+				->exception(function() use ($record) { $record->encode(); })
+					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
+					->hasMessage('Content length must be less than or equal to 65535')
+		;
+	}
+}

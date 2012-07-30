@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\fcgi
 ;
 
-class stderr extends fcgi\record
+class stderr extends fcgi\records\response
 {
 	const type = '7';
 

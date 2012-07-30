@@ -620,7 +620,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	public function isIgnored()
 	{
-		return (sizeof($this) <=0 || $this->ignore === true);
+		return (sizeof($this) <= 0 || $this->ignore === true);
 	}
 
 	public function ignoreMethod($methodName, $boolean)

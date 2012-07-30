@@ -19,7 +19,7 @@ class begin extends atoum\test
 			->string(testedClass::responder)->isEqualTo(1)
 			->string(testedClass::authorizer)->isEqualTo(2)
 			->string(testedClass::filter)->isEqualTo(3)
-			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\records\request')
 		;
 	}
 

@@ -39,13 +39,4 @@ class stdin extends atoum\test
 				->string($record->getContentData())->isEqualTo($contentData)
 		;
 	}
-
-	public function testIsEndOfRequest()
-	{
-		$this
-			->if($record = new testedClass($contentData = uniqid()))
-			->then
-				->boolean($record->isEndOfRequest())->isFalse()
-		;
-	}
 }

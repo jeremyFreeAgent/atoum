@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\fcgi
 ;
 
-class stdin extends fcgi\record
+class stdin extends fcgi\records\request
 {
 	const type = '5';
 

@@ -6,7 +6,7 @@ use
 	mageekguy\atoum\fcgi
 ;
 
-class stdout extends fcgi\record
+class stdout extends fcgi\records\response
 {
 	const type = '6';
 
