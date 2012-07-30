@@ -17,6 +17,7 @@ class record extends atoum\test
 		$this
 			->integer(fpm\record::version)->isEqualTo(1)
 			->integer(fpm\record::maxContentLength)->isEqualTo(65535)
+			->testedClass->hasInterface('countable')
 		;
 	}
 
@@ -25,14 +26,16 @@ class record extends atoum\test
 		$this
 			->if($record = new testedClass($type = rand(- 128, 127)))
 			->then
-				->integer($record->getType())->isEqualTo($type)
+				->string($record->getType())->isEqualTo($type)
 				->integer($record->getRequestId())->isZero()
 				->string($record->getContentData())->isEmpty()
+				->sizeOf($record)->isZero()
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
 			->then
-				->integer($record->getType())->isEqualTo($type)
+				->string($record->getType())->isEqualTo($type)
 				->integer($record->getRequestId())->isEqualTo($requestId)
 				->string($record->getContentData())->isEqualTo($contentData)
+				->sizeOf($record)->isEqualTo(strlen($contentData))
 			->exception(function() { new testedClass(rand(128, PHP_INT_MAX)); })
 				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
 				->hasMessage('Type must be greater than or equal to -128 and less than or equal to 127')
@@ -71,6 +74,24 @@ class record extends atoum\test
 				->exception(function() use ($record) { $record->encode(); })
 					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
 					->hasMessage('Content length must be less than or equal to 65535')
+		;
+	}
+
+	public function testIsEndOfRequest()
+	{
+		$this
+			->if($record = new testedClass(rand(- 128, 127)))
+			->then
+				->boolean($record->isEndOfRequest())->isFalse()
+		;
+	}
+
+	public function testAddRoResponse()
+	{
+		$this
+			->if($record = new testedClass(rand(- 128, 127)))
+			->then
+				->object($record->addToResponse($response = new fpm\response()))->isIdenticalTo($response)
 		;
 	}
 }

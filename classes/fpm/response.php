@@ -32,42 +32,60 @@ class response
 		return $this->output;
 	}
 
+	public function addToOutput($data)
+	{
+		$this->output .= $data;
+
+		return $this;
+	}
+
 	public function getErrors()
 	{
 		return $this->errors;
+	}
+
+	public function addToErrors($data)
+	{
+		$this->errors .= $data;
+
+		return $this;
 	}
 
 	public function getFromClient(client $client)
 	{
 		$this->reset();
 
-		while (($record = record::getFromClient($client)) !== null)
+		while (($record = record::getFromClient($client)) && $record !== null && $record->isEndOfRequest() === false)
 		{
-			switch ($record->getType())
-			{
-				case records\streams\stdout::type:
-					$this->output .= $record->getContentData();
-					break;
-
-				case records\streams\stderr::type:
-					$this->errors .= $record->getContentData();
-					break;
-
-				case records\end::type:
-					break 2;
-			}
+			$record->addToResponse($this);
 		}
 
-		if ($this->output !== '')
+		switch (true)
 		{
-			list($headers, $this->output) = explode("\r\n\r\n", $this->output);
+			case $record === null:
+				break;
 
-			foreach (explode("\r\n", $headers) as $header)
-			{
-				list($key, $value) = explode(':', $header);
+			case $record->serverCanNotMultiplexConnection():
+				break;
 
-				$this->headers[strtolower(trim($key))] = trim($value);
-			}
+			case $record->serverIsOverloaded():
+				break;
+
+			case $record->roleIsUnknown():
+				break;
+
+			default:
+				if ($this->output !== '')
+				{
+					list($headers, $this->output) = explode("\r\n\r\n", $this->output);
+
+					foreach (explode("\r\n", $headers) as $header)
+					{
+						list($key, $value) = explode(':', $header);
+
+						$this->headers[strtolower(trim($key))] = trim($value);
+					}
+				}
 		}
 
 		return $this;

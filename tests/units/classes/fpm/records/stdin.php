@@ -1,0 +1,51 @@
+<?php
+
+namespace mageekguy\atoum\tests\units\fpm\records;
+
+use
+	mageekguy\atoum,
+	mageekguy\atoum\fpm\records\stdin as testedClass
+;
+
+require_once __DIR__ . '/../../../runner.php';
+
+class stdin extends atoum\test
+{
+	public function testClass()
+	{
+		$this
+			->string(testedClass::type)->isEqualTo(5)
+			->testedClass->isSubclassOf('mageekguy\atoum\fpm\record')
+		;
+	}
+
+	public function test__construct()
+	{
+		$this
+			->if($record = new testedClass())
+			->then
+				->string($record->getType())->isEqualTo(testedClass::type)
+				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getContentData())->isEmpty()
+			->if($record = new testedClass($contentData = uniqid()))
+			->then
+				->string($record->getType())->isEqualTo(testedClass::type)
+				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getContentData())->isEqualTo($contentData)
+			->if($record = new testedClass($contentData = uniqid(), $requestId = rand(2, 128)))
+			->then
+				->string($record->getType())->isEqualTo(testedClass::type)
+				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getContentData())->isEqualTo($contentData)
+		;
+	}
+
+	public function testIsEndOfRequest()
+	{
+		$this
+			->if($record = new testedClass($contentData = uniqid()))
+			->then
+				->boolean($record->isEndOfRequest())->isFalse()
+		;
+	}
+}

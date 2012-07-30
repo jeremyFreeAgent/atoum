@@ -15,7 +15,8 @@ class params extends atoum\test
 	public function testClass()
 	{
 		$this
-			->integer(testedClass::type)->isEqualTo(4)
+			->string(testedClass::type)->isEqualTo(4)
+			->testedClass->isSubClassOf('mageekguy\atoum\fpm\record')
 		;
 	}
 
@@ -24,14 +25,16 @@ class params extends atoum\test
 		$this
 			->if($record = new testedClass())
 			->then
-				->integer($record->getType())->isEqualTo(testedClass::type)
+				->string($record->getType())->isEqualTo(testedClass::type)
 				->integer($record->getRequestId())->isEqualTo(1)
 				->array($record->getValues())->isEmpty()
+				->sizeOf($record)->isZero()
 			->if($record = new testedClass($values = array(uniqid() => uniqid())))
 			->then
-				->integer($record->getType())->isEqualTo(testedClass::type)
+				->string($record->getType())->isEqualTo(testedClass::type)
 				->integer($record->getRequestId())->isEqualTo(1)
 				->array($record->getValues())->isEqualTo($values)
+				->sizeOf($record)->isEqualTo(sizeof($values))
 		;
 	}
 
@@ -47,6 +50,21 @@ class params extends atoum\test
 			->if($record->addValue($otherName = uniqid(), $otherValue = uniqid()))
 			->then
 				->castToString($record)->isEqualTo("\001\004\000\001\0008\000\000\r\r" . $name . $value . "\r\r" . $otherName . $otherValue)
+		;
+	}
+
+	public function testCount()
+	{
+		$this
+			->if($record = new testedClass())
+			->then
+				->sizeOf($record)->isZero()
+			->if($record->addValue(uniqid(), uniqid()))
+			->then
+				->sizeOf($record)->isEqualTo(1)
+			->if($record->addValue(uniqid(), uniqid()))
+			->then
+				->sizeOf($record)->isEqualTo(2)
 		;
 	}
 

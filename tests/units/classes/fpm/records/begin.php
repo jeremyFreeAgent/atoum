@@ -15,10 +15,11 @@ class begin extends atoum\test
 	public function testClass()
 	{
 		$this
-			->integer(testedClass::type)->isEqualTo(1)
-			->integer(testedClass::responder)->isEqualTo(1)
-			->integer(testedClass::authorizer)->isEqualTo(2)
-			->integer(testedClass::filter)->isEqualTo(3)
+			->string(testedClass::type)->isEqualTo(1)
+			->string(testedClass::responder)->isEqualTo(1)
+			->string(testedClass::authorizer)->isEqualTo(2)
+			->string(testedClass::filter)->isEqualTo(3)
+			->testedClass->isSubClassOf('mageekguy\atoum\fpm\record')
 		;
 	}
 
@@ -27,29 +28,29 @@ class begin extends atoum\test
 		$this
 			->if($record = new testedClass())
 			->then
-				->integer($record->getRole())->isEqualTo(testedClass::responder)
+				->string($record->getRole())->isEqualTo(testedClass::responder)
 				->integer($record->getRequestId())->isEqualTo(1)
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->if($record = new testedClass(testedClass::responder))
 			->then
-				->integer($record->getRole())->isEqualTo(testedClass::responder)
+				->string($record->getRole())->isEqualTo(testedClass::responder)
 				->integer($record->getRequestId())->isEqualTo(1)
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->if($record = new testedClass(testedClass::authorizer))
 			->then
-				->integer($record->getRole())->isEqualTo(testedClass::authorizer)
+				->string($record->getRole())->isEqualTo(testedClass::authorizer)
 				->integer($record->getRequestId())->isEqualTo(1)
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->if($record = new testedClass(testedClass::filter))
 			->then
-				->integer($record->getRole())->isEqualTo(testedClass::filter)
+				->string($record->getRole())->isEqualTo(testedClass::filter)
 				->integer($record->getRequestId())->isEqualTo(1)
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->exception(function() { new testedClass(rand(4, PHP_INT_MAX)); })
 				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
 				->hasMessage('Role is invalid')
 			->if($record = new testedClass(testedClass::responder, $requestId = rand(2, PHP_INT_MAX), true))
-				->integer($record->getRole())->isEqualTo(testedClass::responder)
+				->string($record->getRole())->isEqualTo(testedClass::responder)
 				->integer($record->getRequestId())->isEqualTo($requestId)
 				->boolean($record->connectionIsPersistent())->isTrue()
 		;

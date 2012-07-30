@@ -85,15 +85,23 @@ class request
 
 	public function sendWithClient(client $client)
 	{
-		$begin = new records\begin();
-		$params = new records\params($this->params);
-		$endOfParams = new records\params();
-		$stdin = new records\streams\stdin($this->stdin);
-		$endOfStdin = new records\streams\stdin('');
+		$data = (string) new records\begin();
+
+		if (sizeof($this->params) > 0)
+		{
+			$data .= new records\params($this->params);
+			$data .= new records\params();
+		}
+
+		if ($this->stdin != '')
+		{
+			$data .= new records\stdin($this->stdin);
+			$data .= new records\stdin();
+		}
 
 		$response = new response();
 
-		return $response($client->sendData($begin . $params . $endOfParams . $stdin . $endOfStdin));
+		return $response($client->sendData($data));
 	}
 
 	private static function cleanParamName($name)

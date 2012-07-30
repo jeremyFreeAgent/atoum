@@ -8,7 +8,7 @@ use
 
 class params extends fpm\record
 {
-	const type = 4;
+	const type = '4';
 
 	protected $values = array();
 
@@ -20,6 +20,11 @@ class params extends fpm\record
 		{
 			$this->addValue($name, $value);
 		}
+	}
+
+	public function count()
+	{
+		return sizeof($this->values);
 	}
 
 	public function getValues()

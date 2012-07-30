@@ -9,12 +9,12 @@ use
 
 class begin extends fpm\record
 {
-	const type = 1;
-	const responder = 1;
-	const authorizer = 2;
-	const filter = 3;
+	const type = '1';
+	const responder = '1';
+	const authorizer = '2';
+	const filter = '3';
 
-	protected $role = 1;
+	protected $role = '1';
 	protected $persistentConnection = 0;
 
 	public function __construct($role = self::responder, $requestId = 1, $persistentConnection = 0)
@@ -26,7 +26,7 @@ class begin extends fpm\record
 			case self::filter:
 				parent::__construct(self::type, $requestId);
 
-				$this->role = $role;
+				$this->role = (string) $role;
 				$this->persistentConnection = (boolean) $persistentConnection;
 				break;
 

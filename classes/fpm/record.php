@@ -3,10 +3,11 @@
 namespace mageekguy\atoum\fpm;
 
 use
+	mageekguy\atoum,
 	mageekguy\atoum\exceptions
 ;
 
-abstract class record
+abstract class record implements \countable
 {
 	const version = 1;
 	const maxContentLength = 65535;
@@ -17,7 +18,7 @@ abstract class record
 
 	public function __construct($type, $requestId = 0, $contentData = '')
 	{
-		$type = (int) $type;
+		$type = (string) $type;
 
 		if ($type < -128 || $type > 127)
 		{
@@ -37,6 +38,11 @@ abstract class record
 	public function __toString()
 	{
 		return $this->encode();
+	}
+
+	public function count()
+	{
+		return strlen($this->contentData);
 	}
 
 	public function getType()
@@ -69,6 +75,16 @@ abstract class record
 		return sprintf('%c%c%c%c%c%c%c%c%s%s', self::version, $this->type, $requestIdB0, $requestIdB1, $contentLengthB0, $contentLengthB1, 0, 0, $this->contentData, '');
 	}
 
+	public function isEndOfRequest()
+	{
+		return false;
+	}
+
+	public function addToResponse(response $response)
+	{
+		return $response;
+	}
+
 	public static function getFromClient(client $client)
 	{
 		$recordProperties = self::getProperties($client->receiveData(8));
@@ -87,14 +103,16 @@ abstract class record
 
 			switch ($recordProperties['type'])
 			{
-				case records\streams\stdout::type:
-					return new records\streams\stdout($contentData, $recordProperties['requestId']);
+				case records\stdout::type:
+					return new records\stdout($contentData, $recordProperties['requestId']);
 
-				case records\streams\stderr::type:
-					return new records\streams\stderr($contentData, $recordProperties['requestId']);
+				case records\stderr::type:
+					return new records\stderr($contentData, $recordProperties['requestId']);
 
 				case records\end::type:
 					return new records\end($contentData, $recordProperties['requestId']);
+
+				default:
 			}
 		}
 
