@@ -23,6 +23,15 @@ class client extends atoum\test
 		;
 	}
 
+	public function test__toString()
+	{
+		$this
+			->if($client = new testedClass())
+			->then
+				->castToString($client)->isEqualTo('tcp://127.0.0.1:9000')
+		;
+	}
+
 	public function testSetAdapter()
 	{
 		$this

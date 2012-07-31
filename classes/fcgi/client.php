@@ -29,6 +29,16 @@ class client
 		$this->closeConnection();
 	}
 
+	public function __toString()
+	{
+		return 'tcp://' . $this->host . ':' . $this->port;
+	}
+
+	public function __invoke(records\request $request)
+	{
+		return $this->sendData($request->encode());
+	}
+
 	public function getHost()
 	{
 		return $this->host;
@@ -55,7 +65,7 @@ class client
 	{
 		if ($this->socket === null)
 		{
-			$socket = @$this->adapter->invoke('stream_socket_client', array('tcp://' . $this->host . ':' . $this->port, & $errorCode, & $errorMessage, $this->timeout));
+			$socket = @$this->adapter->invoke('stream_socket_client', array((string) $this, & $errorCode, & $errorMessage, $this->timeout));
 
 			if ($socket === false)
 			{

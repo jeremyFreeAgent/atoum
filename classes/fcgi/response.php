@@ -3,6 +3,7 @@
 namespace mageekguy\atoum\fcgi;
 
 use
+	mageekguy\atoum\exceptions,
 	mageekguy\atoum\fcgi\records
 ;
 
@@ -75,16 +76,16 @@ class response
 		switch (true)
 		{
 			case $record === null:
-				break;
+				throw new exceptions\runtime('Unable to get data from server \'' . $client . '\'');
 
 			case $record->serverCanNotMultiplexConnection():
-				break;
+				throw new exceptions\runtime('Server \'' . $client . '\' can not multiplex connection');
 
 			case $record->serverIsOverloaded():
-				break;
+				throw new exceptions\runtime('Server \'' . $client . '\' is overloaded');
 
 			case $record->roleIsUnknown():
-				break;
+				throw new exceptions\runtime('Role is unknown for server \'' . $client . '\'');
 
 			default:
 				if ($this->output !== '')
@@ -95,7 +96,7 @@ class response
 					{
 						list($key, $value) = explode(':', $header);
 
-						$this->headers[strtolower(trim($key))] = trim($value);
+						$this->headers[trim($key)] = trim($value);
 					}
 				}
 		}

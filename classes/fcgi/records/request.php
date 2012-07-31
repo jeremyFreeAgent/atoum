@@ -19,6 +19,11 @@ abstract class request extends fcgi\record
 		return $this->encode();
 	}
 
+	public function __invoke(fcgi\client $client)
+	{
+		return $this->sendWithClient($client);
+	}
+
 	public function setRequestId($requestId)
 	{
 		return parent::setRequestId($requestId);

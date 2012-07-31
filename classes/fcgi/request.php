@@ -79,25 +79,28 @@ class request
 
 	public function sendWithClient(client $client)
 	{
+		$response = null;
+
 		if (sizeof($this->params) > 0 || sizeof($this->stdin) > 0)
 		{
-			$begin = new requests\begin();
-			$begin->sendWithClient($client);
+			$client(new requests\begin());
 
 			if (sizeof($this->params) > 0)
 			{
-				$endOfParams = new requests\params();
-				$endOfParams->sendWithClient($this->params->sendWithClient($client));
+				$client($this->params);
+				$client(new requests\params());
 			}
 
 			if (sizeof($this->stdin) > 0)
 			{
-				$endOfStdin = new requests\stdin();
-				$endOfStdin->sendWithClient($this->stdin->sendWithClient($client));
+				$client($this->stdin);
+				$client(new requests\stdin());
 			}
+
+			$response = new response($client);
 		}
 
-		return new response($client);
+		return $response;
 	}
 
 	private static function cleanName($name)
