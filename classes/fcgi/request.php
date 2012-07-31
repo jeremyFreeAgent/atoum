@@ -19,7 +19,7 @@ class request
 
 	public function __set($name, $value)
 	{
-		if (strtoupper($name) === 'STDIN')
+		if (self::cleanName($name) === 'STDIN')
 		{
 			$this->setStdin($value);
 		}
@@ -38,12 +38,12 @@ class request
 
 	public function __isset($name)
 	{
-		return (strtoupper($name) === 'STDIN' ? $this->stdin->getContentData() != '' : isset($this->params->{$name}));
+		return (self::cleanName($name) === 'STDIN' ? sizeof($this->stdin) > 0 : isset($this->params->{$name}));
 	}
 
 	public function __unset($name)
 	{
-		if (strtoupper($name) === 'STDIN')
+		if (self::cleanName($name) === 'STDIN')
 		{
 			$this->setStdin('');
 		}
@@ -67,27 +67,40 @@ class request
 		return $this;
 	}
 
+	public function getStdin()
+	{
+		return $this->stdin->getContentData();
+	}
+
+	public function getParams()
+	{
+		return $this->params->getValues();
+	}
+
 	public function sendWithClient(client $client)
 	{
-		$begin = new requests\begin();
-		$begin->sendWithClient($client);
-
-		if (sizeof($this->params) > 0)
+		if (sizeof($this->params) > 0 || sizeof($this->stdin) > 0)
 		{
-			$endOfParams = new requests\params();
-			$endOfParams->sendWithClient($this->params->sendWithClient($client));
-		}
+			$begin = new requests\begin();
+			$begin->sendWithClient($client);
 
-		if (sizeof($this->stdin) > 0)
-		{
-			$endOfStdin = new requests\stdin();
-			$endOfStdin->sendWithClient($this->stdin->sendWithClient($client));
+			if (sizeof($this->params) > 0)
+			{
+				$endOfParams = new requests\params();
+				$endOfParams->sendWithClient($this->params->sendWithClient($client));
+			}
+
+			if (sizeof($this->stdin) > 0)
+			{
+				$endOfStdin = new requests\stdin();
+				$endOfStdin->sendWithClient($this->stdin->sendWithClient($client));
+			}
 		}
 
 		return new response($client);
 	}
 
-	private static function cleanParamName($name)
+	private static function cleanName($name)
 	{
 		return strtoupper(trim($name));
 	}

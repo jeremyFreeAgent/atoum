@@ -14,18 +14,14 @@ class end extends fcgi\records\response
 	const serverIsOverloaded = 2;
 	const unknownRole = 3;
 
-	protected $protocolStatus = 0;
-
 	public function __construct($contentData, $requestId)
 	{
 		parent::__construct(self::type, $requestId, $contentData);
-
-		$this->protocolStatus = ord($contentData[4]);
 	}
 
 	public function getProtocolStatus()
 	{
-		return $this->protocolStatus;
+		return ord($this->contentData[4]);
 	}
 
 	public function isEndOfRequest()
@@ -35,21 +31,21 @@ class end extends fcgi\records\response
 
 	public function requestIsSuccessfullyCompleted()
 	{
-		return ($this->protocolStatus === self::requestComplete);
+		return ($this->getProtocolStatus() === self::requestComplete);
 	}
 
 	public function serverCanNotMultiplexConnection()
 	{
-		return ($this->protocolStatus === self::canNotMultiplexConnection);
+		return ($this->getProtocolStatus() === self::canNotMultiplexConnection);
 	}
 
 	public function serverIsOverloaded()
 	{
-		return ($this->protocolStatus === self::serverIsOverloaded);
+		return ($this->getProtocolStatus() === self::serverIsOverloaded);
 	}
 
 	public function roleIsUnknown()
 	{
-		return ($this->protocolStatus === self::unknownRole);
+		return ($this->getProtocolStatus() === self::unknownRole);
 	}
 }

@@ -80,4 +80,58 @@ class end extends atoum\test
 				->boolean($record->requestIsSuccessfullyCompleted())->isFalse()
 		;
 	}
+
+	public function testServerIsOverloaded()
+	{
+		$this
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::requestComplete) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverIsOverloaded())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::canNotMultiplexConnection) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverIsOverloaded())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::serverIsOverloaded) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverIsOverloaded())->isTrue()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::unknownRole) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverIsOverloaded())->isFalse()
+		;
+	}
+
+	public function testServerCanNotMultiplexConnection()
+	{
+		$this
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::requestComplete) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverCanNotMultiplexConnection())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::canNotMultiplexConnection) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverCanNotMultiplexConnection())->isTrue()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::serverIsOverloaded) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverCanNotMultiplexConnection())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::unknownRole) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->serverCanNotMultiplexConnection())->isFalse()
+		;
+	}
+
+	public function testRoleIsUnknown()
+	{
+		$this
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::requestComplete) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->roleIsUnknown())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::canNotMultiplexConnection) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->roleIsUnknown())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::serverIsOverloaded) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->roleIsUnknown())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::unknownRole) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->roleIsUnknown())->isTrue()
+		;
+	}
 }
