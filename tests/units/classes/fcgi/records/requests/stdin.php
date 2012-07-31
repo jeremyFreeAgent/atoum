@@ -1,13 +1,13 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fcgi\records;
+namespace mageekguy\atoum\tests\units\fcgi\records\requests;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fcgi\records\stdin as testedClass
+	mageekguy\atoum\fcgi\records\requests\stdin as testedClass
 ;
 
-require_once __DIR__ . '/../../../runner.php';
+require_once __DIR__ . '/../../../../runner.php';
 
 class stdin extends atoum\test
 {

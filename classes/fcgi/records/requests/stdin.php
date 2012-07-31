@@ -1,6 +1,6 @@
 <?php
 
-namespace mageekguy\atoum\fcgi\records;
+namespace mageekguy\atoum\fcgi\records\requests;
 
 use
 	mageekguy\atoum\fcgi

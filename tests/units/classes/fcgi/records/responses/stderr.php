@@ -1,21 +1,21 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fcgi\records;
+namespace mageekguy\atoum\tests\units\fcgi\records\responses;
 
 use
 	mageekguy\atoum,
 	mageekguy\atoum\fcgi,
-	mageekguy\atoum\fcgi\records\stdout as testedClass
+	mageekguy\atoum\fcgi\records\responses\stderr as testedClass
 ;
 
-require_once __DIR__ . '/../../../runner.php';
+require_once __DIR__ . '/../../../../runner.php';
 
-class stdout extends atoum\test
+class stderr extends atoum\test
 {
 	public function testClass()
 	{
 		$this
-			->string(testedClass::type)->isEqualTo(6)
+			->string(testedClass::type)->isEqualTo(7)
 			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
@@ -46,13 +46,13 @@ class stdout extends atoum\test
 			->if($record = new testedClass($contentData = uniqid(), rand(1, 128)))
 			->then
 				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
-				->string($response->getOutput())->isEqualTo($contentData)
+				->string($response->getErrors())->isEqualTo($contentData)
 			->if($otherRecord = new testedClass($otherContentData = uniqid(), rand(1, 128)))
 			->then
 				->object($otherRecord->addToResponse($response))->isIdenticalTo($response)
-				->string($response->getOutput())->isEqualTo($contentData . $otherContentData)
+				->string($response->getErrors())->isEqualTo($contentData . $otherContentData)
 				->object($record->addToResponse($response))->isIdenticalTo($response)
-				->string($response->getOutput())->isEqualTo($contentData . $otherContentData . $contentData)
+				->string($response->getErrors())->isEqualTo($contentData . $otherContentData . $contentData)
 		;
 	}
 }

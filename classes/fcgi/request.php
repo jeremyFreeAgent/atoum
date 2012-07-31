@@ -2,6 +2,10 @@
 
 namespace mageekguy\atoum\fcgi;
 
+use
+	mageekguy\atoum\fcgi\records\requests
+;
+
 class request
 {
 	protected $params = null;
@@ -9,8 +13,8 @@ class request
 
 	public function __construct()
 	{
-		$this->params = new records\params();
-		$this->stdin = new records\stdin();
+		$this->params = new requests\params();
+		$this->stdin = new requests\stdin();
 	}
 
 	public function __set($name, $value)
@@ -65,18 +69,18 @@ class request
 
 	public function sendWithClient(client $client)
 	{
-		$begin = new records\begin();
+		$begin = new requests\begin();
 		$begin->sendWithClient($client);
 
 		if (sizeof($this->params) > 0)
 		{
-			$endOfParams = new records\params();
+			$endOfParams = new requests\params();
 			$endOfParams->sendWithClient($this->params->sendWithClient($client));
 		}
 
 		if (sizeof($this->stdin) > 0)
 		{
-			$endOfStdin = new records\stdin();
+			$endOfStdin = new requests\stdin();
 			$endOfStdin->sendWithClient($this->stdin->sendWithClient($client));
 		}
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fcgi\records;
+namespace mageekguy\atoum\tests\units\fcgi\records\responses;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\fcgi\records\end as testedClass
+	mageekguy\atoum\fcgi\records\responses\end as testedClass
 ;
 
-require_once __DIR__ . '/../../../runner.php';
+require_once __DIR__ . '/../../../../runner.php';
 
 class end extends atoum\test
 {

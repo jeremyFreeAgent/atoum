@@ -3,7 +3,8 @@
 namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\fcgi
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\fcgi\records\responses
 ;
 
 abstract class response extends fcgi\record
@@ -36,14 +37,14 @@ abstract class response extends fcgi\record
 
 			switch ($recordProperties['type'])
 			{
-				case stdout::type:
-					return new stdout($contentData, $recordProperties['requestId']);
+				case responses\stdout::type:
+					return new responses\stdout($contentData, $recordProperties['requestId']);
 
-				case stderr::type:
-					return new stderr($contentData, $recordProperties['requestId']);
+				case responses\stderr::type:
+					return new responses\stderr($contentData, $recordProperties['requestId']);
 
-				case end::type:
-					return new end($contentData, $recordProperties['requestId']);
+				case responses\end::type:
+					return new responses\end($contentData, $recordProperties['requestId']);
 
 				default:
 			}

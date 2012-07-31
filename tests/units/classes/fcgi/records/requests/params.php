@@ -1,14 +1,14 @@
 <?php
 
-namespace mageekguy\atoum\tests\units\fcgi\records;
+namespace mageekguy\atoum\tests\units\fcgi\records\requests;
 
 use
 	mageekguy\atoum,
 	mageekguy\atoum\fcgi,
-	mageekguy\atoum\fcgi\records\params as testedClass
+	mageekguy\atoum\fcgi\records\requests\params as testedClass
 ;
 
-require __DIR__ . '/../../../runner.php';
+require_once __DIR__ . '/../../../../runner.php';
 
 class params extends atoum\test
 {
