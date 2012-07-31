@@ -18,7 +18,7 @@ class end extends fcgi\records\response
 
 	public function __construct($contentData, $requestId)
 	{
-		parent::__construct(self::type, $requestId);
+		parent::__construct(self::type, $requestId, $contentData);
 
 		$this->protocolStatus = ord($contentData[4]);
 	}

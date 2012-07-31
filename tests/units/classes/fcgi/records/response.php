@@ -8,7 +8,7 @@ use
 	mock\mageekguy\atoum\fcgi\records\response as testedClass
 ;
 
-require_once __DIR__ . '/../../runner.php';
+require_once __DIR__ . '/../../../runner.php';
 
 class response extends atoum\test
 {
@@ -27,13 +27,13 @@ class response extends atoum\test
 			->if($record = new testedClass($type = rand(- 128, 127)))
 			->then
 				->string($record->getType())->isEqualTo($type)
-				->integer($record->getRequestId())->isZero()
+				->string($record->getRequestId())->isEqualTo('0')
 				->string($record->getContentData())->isEmpty()
 				->sizeOf($record)->isZero()
-			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
+			->if($record = new testedClass($type = rand(- 128, 127), $requestId = uniqid(), $contentData = uniqid()))
 			->then
 				->string($record->getType())->isEqualTo($type)
-				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getRequestId())->isEqualTo($requestId)
 				->string($record->getContentData())->isEqualTo($contentData)
 				->sizeOf($record)->isEqualTo(strlen($contentData))
 			->exception(function() { new testedClass(rand(128, PHP_INT_MAX)); })
@@ -63,6 +63,58 @@ class response extends atoum\test
 			->if($record = new testedClass(rand(- 128, 127)))
 			->then
 				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
+		;
+	}
+
+	public function testGetFromClient()
+	{
+		$this
+			->if($client = new \mock\mageekguy\atoum\fcgi\client())
+			->and($client->getMockController()->receiveData = false)
+			->then
+				->variable(testedClass::getFromClient($client))->isNull()
+				->mock($client)->call('receiveData')->withArguments(8)->once()
+			->if($client->getMockController()->resetCalls()->receiveData = 'xxxxxx')
+			->then
+				->variable(testedClass::getFromClient($client))->isNull()
+				->mock($client)->call('receiveData')->withArguments(8)->once()
+			->if($client->getMockController()->resetCalls()->receiveData = 'xxxxxxx')
+			->then
+				->variable(testedClass::getFromClient($client))->isNull()
+				->mock($client)->call('receiveData')->withArguments(8)->once()
+			->if($client->getMockController()->resetCalls())
+			->and($client->getMockController()->receiveData[1] = "\001\006\000\001\000b\006\000")
+			->and($client->getMockController()->receiveData[2] = ($contentData = "X-Powered-By: PHP/5.4.5\r\nContent-type: text/html\r\n\r\narray(1) {\n  [\"query\"]=>\n  string(4) \"1234\"\n}\n") . "\000\000\000\000\000\000")
+			->then
+				->object($stdout = testedClass::getFromClient($client))->isInstanceOf('mageekguy\atoum\fcgi\records\responses\stdout')
+				->string($stdout->getContentData())->isEqualTo($contentData)
+				->mock($client)
+					->call('receiveData')
+						->withArguments(8)->once()
+						->withArguments(strlen($contentData) + 6)->once()
+			->if($client->getMockController()->resetCalls())
+			->and($client->getMockController()->receiveData[1] = "\001\007\000\001\000b\006\000")
+			->and($client->getMockController()->receiveData[2] = ($contentData = "X-Powered-By: PHP/5.4.5\r\nContent-type: text/html\r\n\r\narray(1) {\n  [\"query\"]=>\n  string(4) \"1234\"\n}\n") . "\000\000\000\000\000\000")
+			->then
+				->object($stdout = testedClass::getFromClient($client))->isInstanceOf('mageekguy\atoum\fcgi\records\responses\stderr')
+				->string($stdout->getContentData())->isEqualTo($contentData)
+				->mock($client)
+					->call('receiveData')
+						->withArguments(8)->once()
+						->withArguments(strlen($contentData) + 6)->once()
+			->if($client->getMockController()->resetCalls())
+			->and($client->getMockController()->receiveData[1] = "\001\003\000\001\000b\000\000")
+			->and($client->getMockController()->receiveData[2] = $contentData = "\000\000\000\000\000\000\000\000")
+			->then
+				->object($end = testedClass::getFromClient($client))->isInstanceOf('mageekguy\atoum\fcgi\records\responses\end')
+				->string($end->getContentData())->isEqualTo($contentData)
+				->mock($client)->call('receiveData')->withArguments(8)->once()
+			->if($client->getMockController()->resetCalls())
+			->and($client->getMockController()->receiveData[1] = "\001\009\000\001\000b\000\000")
+			->then
+				->exception(function() use ($client) { testedClass::getFromClient($client); })
+					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
+					->hasMessage('Type \'' . ord("\009") . '\' is unknown')
 		;
 	}
 }

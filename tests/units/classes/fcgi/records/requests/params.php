@@ -15,9 +15,14 @@ class params extends atoum\test
 	public function testClass()
 	{
 		$this
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\records\request')
+		;
+	}
+
+	public function testClassConstants()
+	{
+		$this
 			->string(testedClass::type)->isEqualTo(4)
-			->testedClass
-				->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
 
@@ -27,13 +32,13 @@ class params extends atoum\test
 			->if($record = new testedClass())
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->array($record->getValues())->isEmpty()
 				->sizeOf($record)->isZero()
 			->if($record = new testedClass($values = array('CONTENT_LENGTH' => uniqid())))
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->array($record->getValues())->isEqualTo($values)
 				->sizeOf($record)->isEqualTo(sizeof($values))
 		;
@@ -67,6 +72,32 @@ class params extends atoum\test
 		;
 	}
 
+	public function test__isset()
+	{
+		$this
+			->if($record = new testedClass())
+			->then
+				->boolean(isset($record->PATH_TRANSLATED))->isFalse()
+			->if($record->PATH_TRANSLATED = uniqid())
+			->then
+				->boolean(isset($record->PATH_TRANSLATED))->isTrue()
+		;
+	}
+
+	public function test__unset()
+	{
+		$this
+			->if($record = new testedClass())
+			->when(function() use ($record) { unset($record->PATH_TRANSLATED); })
+			->then
+				->boolean(isset($record->PATH_TRANSLATED))->isFalse()
+			->if($record->PATH_TRANSLATED = uniqid())
+			->when(function() use ($record) { unset($record->PATH_TRANSLATED); })
+			->then
+				->boolean(isset($record->PATH_TRANSLATED))->isFalse()
+		;
+	}
+
 	public function test__toString()
 	{
 		$this
@@ -82,7 +113,7 @@ class params extends atoum\test
 		;
 	}
 
-	public function testAddValue()
+	public function testSetValue()
 	{
 		$this
 			->if($record = new testedClass())
@@ -204,6 +235,53 @@ class params extends atoum\test
 			->exception(function() use ($record, & $name) { $record->setValue($name = uniqid(), uniqid()); })
 				->isInstanceof('mageekguy\atoum\exceptions\logic\invalidArgument')
 				->hasMessage('Value \'' . $name . '\' is unknown')
+		;
+	}
+
+	public function testGetValue()
+	{
+		$this
+			->if($record = new testedClass())
+			->then
+				->variable($record->getValue('CONTENT_LENGTH'))->isNull()
+				->variable($record->getValue('content_length'))->isNull()
+			->if($record->CONTENT_LENGTH = $value = uniqid())
+			->then
+				->variable($record->getValue('CONTENT_LENGTH'))->isEqualTo($value)
+				->variable($record->getValue('content_length'))->isEqualTo($value)
+		;
+	}
+
+	public function testValueIsSet()
+	{
+		$this
+			->if($record = new testedClass())
+			->then
+				->boolean($record->valueIsSet('PATH_TRANSLATED'))->isFalse()
+				->boolean($record->valueIsSet('path_translated'))->isFalse()
+			->if($record->PATH_TRANSLATED = uniqid())
+			->then
+				->boolean($record->valueIsSet('PATH_TRANSLATED'))->isTrue()
+				->boolean($record->valueIsSet('path_translated'))->isTrue()
+		;
+	}
+
+	public function testUnsetValue()
+	{
+		$this
+			->if($record = new testedClass())
+			->then
+				->object($record->unsetValue('PATH_TRANSLATED'))->isIdenticalTo($record)
+				->boolean($record->valueIsSet('PATH_TRANSLATED'))->isFalse()
+				->object($record->unsetValue('path_translated'))->isIdenticalTo($record)
+				->boolean($record->valueIsSet('path_translated'))->isFalse()
+			->if($record->PATH_TRANSLATED = uniqid())
+			->then
+				->object($record->unsetValue('PATH_TRANSLATED'))->isIdenticalTo($record)
+				->boolean($record->valueIsSet('PATH_TRANSLATED'))->isFalse()
+			->if($record->PATH_TRANSLATED = uniqid())
+				->object($record->unsetValue('path_translated'))->isIdenticalTo($record)
+				->boolean($record->valueIsSet('path_translated'))->isFalse()
 		;
 	}
 

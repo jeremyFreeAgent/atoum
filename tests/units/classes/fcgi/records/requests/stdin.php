@@ -25,17 +25,17 @@ class stdin extends atoum\test
 			->if($record = new testedClass())
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->string($record->getContentData())->isEmpty()
 			->if($record = new testedClass($contentData = uniqid()))
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->string($record->getContentData())->isEqualTo($contentData)
-			->if($record = new testedClass($contentData = uniqid(), $requestId = rand(2, 128)))
+			->if($record = new testedClass($contentData = uniqid(), $requestId = uniqid()))
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
-				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getRequestId())->isEqualTo($requestId)
 				->string($record->getContentData())->isEqualTo($contentData)
 		;
 	}

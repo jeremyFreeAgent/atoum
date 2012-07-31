@@ -16,10 +16,8 @@ abstract class record implements \countable
 	protected $requestId = 0;
 	protected $contentData = '';
 
-	public function __construct($type, $requestId = 0, $contentData = '')
+	public function __construct($type, $requestId = '0', $contentData = '')
 	{
-		$type = (string) $type;
-
 		if ($type < -128 || $type > 127)
 		{
 			throw new exceptions\logic\invalidArgument('Type must be greater than or equal to -128 and less than or equal to 127');
@@ -33,7 +31,7 @@ abstract class record implements \countable
 		$this
 			->setRequestId($requestId)
 			->setContentData($contentData)
-			->type = $type
+			->type = (string) $type
 		;
 	}
 
@@ -59,7 +57,7 @@ abstract class record implements \countable
 
 	protected function setRequestId($requestId)
 	{
-		$this->requestId = (int) $requestId;
+		$this->requestId = (string) $requestId;
 
 		return $this;
 	}

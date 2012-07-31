@@ -29,29 +29,29 @@ class begin extends atoum\test
 			->if($record = new testedClass())
 			->then
 				->string($record->getRole())->isEqualTo(testedClass::responder)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->if($record = new testedClass(testedClass::responder))
 			->then
 				->string($record->getRole())->isEqualTo(testedClass::responder)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->if($record = new testedClass(testedClass::authorizer))
 			->then
 				->string($record->getRole())->isEqualTo(testedClass::authorizer)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->if($record = new testedClass(testedClass::filter))
 			->then
 				->string($record->getRole())->isEqualTo(testedClass::filter)
-				->integer($record->getRequestId())->isEqualTo(1)
+				->string($record->getRequestId())->isEqualTo('1')
 				->boolean($record->connectionIsPersistent())->isFalse()
 			->exception(function() { new testedClass(rand(4, PHP_INT_MAX)); })
 				->isInstanceOf('mageekguy\atoum\exceptions\logic\invalidArgument')
 				->hasMessage('Role is invalid')
-			->if($record = new testedClass(testedClass::responder, $requestId = rand(2, PHP_INT_MAX), true))
+			->if($record = new testedClass(testedClass::responder, $requestId = uniqid(), true))
 				->string($record->getRole())->isEqualTo(testedClass::responder)
-				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getRequestId())->isEqualTo($requestId)
 				->boolean($record->connectionIsPersistent())->isTrue()
 		;
 	}

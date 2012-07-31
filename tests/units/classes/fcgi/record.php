@@ -27,13 +27,13 @@ class record extends atoum\test
 			->if($record = new testedClass($type = rand(- 128, 127)))
 			->then
 				->string($record->getType())->isEqualTo($type)
-				->integer($record->getRequestId())->isZero()
+				->string($record->getRequestId())->isEqualTo('0')
 				->string($record->getContentData())->isEmpty()
 				->sizeOf($record)->isZero()
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
 			->then
 				->string($record->getType())->isEqualTo($type)
-				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getRequestId())->isEqualTo($requestId)
 				->string($record->getContentData())->isEqualTo($contentData)
 				->sizeOf($record)->isEqualTo(strlen($contentData))
 			->exception(function() { new testedClass(rand(128, PHP_INT_MAX)); })

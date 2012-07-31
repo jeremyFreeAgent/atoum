@@ -3,6 +3,7 @@
 namespace mageekguy\atoum\fcgi\records;
 
 use
+	mageekguy\atoum\exceptions,
 	mageekguy\atoum\fcgi,
 	mageekguy\atoum\fcgi\records\responses
 ;
@@ -47,6 +48,7 @@ abstract class response extends fcgi\record
 					return new responses\end($contentData, $recordProperties['requestId']);
 
 				default:
+					throw new exceptions\runtime('Type \'' . $recordProperties['type'] . '\' is unknown');
 			}
 		}
 
@@ -57,19 +59,24 @@ abstract class response extends fcgi\record
 	{
 		$properties = null;
 
-		if (ord($data[0]) == self::version)
+		$data = (string) $data;
+
+		if (strlen($data) >= 7)
 		{
-			$properties = array(
-				'type' => ord($data[1]),
-				'requestId' => self::decodeValue($data[2], $data[3])
-			);
-
-			$contentLength = self::decodeValue($data[4], $data[5]);
-
-			if ($contentLength > 0)
+			if (ord($data[0]) == self::version)
 			{
-				$properties['contentLength'] = $contentLength;
-				$properties['paddingLength'] = ord($data[6]);
+				$properties = array(
+					'type' => ord($data[1]),
+					'requestId' => self::decodeValue($data[2], $data[3])
+				);
+
+				$contentLength = self::decodeValue($data[4], $data[5]);
+
+				if ($contentLength > 0)
+				{
+					$properties['contentLength'] = $contentLength;
+					$properties['paddingLength'] = ord($data[6]);
+				}
 			}
 		}
 

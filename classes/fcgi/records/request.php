@@ -9,6 +9,11 @@ use
 
 abstract class request extends fcgi\record
 {
+	public function __construct($type, $requestId = 1, $contentData = '')
+	{
+		parent::__construct($type, $requestId, $contentData);
+	}
+
 	public function __toString()
 	{
 		return $this->encode();

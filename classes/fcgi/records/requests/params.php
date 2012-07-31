@@ -25,7 +25,9 @@ class params extends fcgi\records\request
 
 	public function __set($name, $value)
 	{
-		return $this->setValue($name, $value);
+		$this->values[self::cleanValueName($name)] = trim($value);
+
+		return $this;
 	}
 
 	public function __get($name)
@@ -35,7 +37,7 @@ class params extends fcgi\records\request
 
 	public function __isset($name)
 	{
-		return (isset($this->values[self::cleanValueName($name)]) === true);
+		return isset($this->values[self::cleanValueName($name)]);
 	}
 
 	public function __unset($name)
@@ -60,14 +62,22 @@ class params extends fcgi\records\request
 
 	public function setValue($name, $value)
 	{
-		$this->values[self::cleanValueName($name)] = trim($value);
-
-		return $this;
+		return $this->__set($name, $value);
  	}
 
 	public function getValue($name)
 	{
-		return (isset($this->values[$name = self::cleanValueName($name)]) === false ? null : $this->values[$name]);
+		return $this->__get($name);
+	}
+
+	public function valueIsSet($name)
+	{
+		return $this->__isset($name);
+	}
+
+	public function unsetValue($name)
+	{
+		return $this->__unset($name);
 	}
 
 	public function encode()

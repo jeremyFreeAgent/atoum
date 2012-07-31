@@ -13,7 +13,7 @@ class client
 	protected $timeout = 30;
 	protected $socket = null;
 
-	public function __construct($host, $port, $timeout = 30)
+	public function __construct($host = '127.0.0.1', $port = 9000, $timeout = 30)
 	{
 		$this->host = (string) $host;
 		$this->port = (int) $port;

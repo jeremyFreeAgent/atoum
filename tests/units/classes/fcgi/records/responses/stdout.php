@@ -23,10 +23,10 @@ class stdout extends atoum\test
 	public function test__construct()
 	{
 		$this
-			->if($record = new testedClass($contentData = uniqid(), $requestId = rand(1, 128)))
+			->if($record = new testedClass($contentData = uniqid(), $requestId = uniqid()))
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
-				->integer($record->getRequestId())->isEqualTo($requestId)
+				->string($record->getRequestId())->isEqualTo($requestId)
 				->string($record->getContentData())->isEqualTo($contentData)
 		;
 	}
