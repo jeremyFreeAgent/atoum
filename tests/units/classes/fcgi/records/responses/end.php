@@ -62,4 +62,22 @@ class end extends atoum\test
 				->boolean($record->isEndOfRequest())->isTrue()
 		;
 	}
+
+	public function testRequestIsSuccessfullyCompleted()
+	{
+		$this
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::requestComplete) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->requestIsSuccessfullyCompleted())->isTrue()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::canNotMultiplexConnection) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->requestIsSuccessfullyCompleted())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::serverIsOverloaded) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->requestIsSuccessfullyCompleted())->isFalse()
+			->if($record = new testedClass("\000\000\000\000" . chr(testedClass::unknownRole) . "\000", rand(1, 128)))
+			->then
+				->boolean($record->requestIsSuccessfullyCompleted())->isFalse()
+		;
+	}
 }
