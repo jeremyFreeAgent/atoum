@@ -7,7 +7,7 @@ use
 	mageekguy\atoum\exceptions
 ;
 
-abstract class request extends fcgi\record
+abstract class request extends fcgi\record implements fcgi\client\request
 {
 	public function __construct($type, $requestId = 1, $contentData = '')
 	{

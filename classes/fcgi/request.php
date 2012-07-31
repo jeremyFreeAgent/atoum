@@ -6,13 +6,17 @@ use
 	mageekguy\atoum\fcgi\records\requests
 ;
 
-class request
+class request implements client\request
 {
+	protected $requestId = 1;
+	protected $persistentConnection = false;
 	protected $params = null;
 	protected $stdin = null;
 
-	public function __construct()
+	public function __construct($requestId = 1, $persistentConnection = false)
 	{
+		$this->requestId = $requestId;
+		$this->persistentConnection = $persistentConnection;
 		$this->params = new requests\params();
 		$this->stdin = new requests\stdin();
 	}
@@ -55,9 +59,21 @@ class request
 		return $this;
 	}
 
-	public function __invoke(client $client)
+	public function __invoke(client $client, $requestId = 1)
 	{
-		return $this->sendWithClient($client);
+		return $this->sendWithClient($client, $requestId);
+	}
+
+	public function setRequestId($requestId)
+	{
+		$this->requestId = $requestId;
+
+		return $this;
+	}
+
+	public function getRequestId()
+	{
+		return $this->requestId;
 	}
 
 	public function setStdin($stdin)
@@ -77,24 +93,31 @@ class request
 		return $this->params->getValues();
 	}
 
+	public function connectionIsPersistent()
+	{
+		$this->persistentConnection = true;
+
+		return $this;
+	}
+
 	public function sendWithClient(client $client)
 	{
 		$response = null;
 
 		if (sizeof($this->params) > 0 || sizeof($this->stdin) > 0)
 		{
-			$client(new requests\begin());
+			$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
 
 			if (sizeof($this->params) > 0)
 			{
-				$client($this->params);
-				$client(new requests\params());
+				$client($this->params->setRequestId($this->requestId));
+				$client(new requests\params(array(), $this->requestId));
 			}
 
 			if (sizeof($this->stdin) > 0)
 			{
-				$client($this->stdin);
-				$client(new requests\stdin());
+				$client($this->stdin->setRequestId($this->requestId));
+				$client(new requests\stdin('', $this->requestId));
 			}
 
 			$response = new response($client);

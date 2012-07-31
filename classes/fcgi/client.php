@@ -34,9 +34,9 @@ class client
 		return 'tcp://' . $this->host . ':' . $this->port;
 	}
 
-	public function __invoke(records\request $request)
+	public function __invoke(client\request $request)
 	{
-		return $this->sendData($request->encode());
+		return $request->sendWithClient($this);
 	}
 
 	public function getHost()
