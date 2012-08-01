@@ -9,19 +9,19 @@ use
 
 class client
 {
-	protected $host = '';
-	protected $port = 0;
-	protected $timeout = 30;
+	protected $servers = array();
+	protected $currentServer = null;
 	protected $socket = null;
 	protected $adapter = null;
 
-	public function __construct($host = '127.0.0.1', $port = 9000, $timeout = 30, atoum\adapter $adapter = null)
+	public function __construct(array $servers = array(), atoum\adapter $adapter = null)
 	{
-		$this->host = (string) $host;
-		$this->port = (int) $port;
-		$this->timeout = (int) $timeout;
-
 		$this->setAdapter($adapter ?: new atoum\adapter());
+
+		foreach ($servers as $url => $timeout)
+		{
+			$this->addServer($url, $timeout);
+		}
 	}
 
 	public function __destruct()
@@ -31,22 +31,12 @@ class client
 
 	public function __toString()
 	{
-		return 'tcp://' . $this->host . ':' . $this->port;
+		return (string) $this->currentServer;
 	}
 
 	public function __invoke(client\request $request)
 	{
 		return $request->sendWithClient($this);
-	}
-
-	public function getHost()
-	{
-		return $this->host;
-	}
-
-	public function getPort()
-	{
-		return $this->port;
 	}
 
 	public function setAdapter(atoum\adapter $adapter)
@@ -61,11 +51,23 @@ class client
 		return $this->adapter;
 	}
 
+	public function addServer($url, $timeout)
+	{
+		$this->servers[(string) $url] = (int) $timeout;
+
+		return $this;
+	}
+
 	public function openConnection()
 	{
 		if ($this->socket === null)
 		{
-			$socket = @$this->adapter->invoke('stream_socket_client', array((string) $this, & $errorCode, & $errorMessage, $this->timeout));
+			if ((list($this->currentServer, $timeout) = each($this->servers)) === false)
+			{
+				reset($this->servers);
+			}
+
+			$socket = $this->adapter->invoke('stream_socket_client', array($this->currentServer, & $errorCode, & $errorMessage, $timeout));
 
 			if ($socket === false)
 			{
@@ -99,7 +101,7 @@ class client
 	{
 		if ($this->adapter->fwrite($this->openConnection()->socket, $data) === false)
 		{
-			throw new client\exception('Unable to send request to \'' . $this->host . '\' on port ' . $this->port);
+			throw new client\exception('Unable to send request to \'' . $this . '\'');
 		}
 
 		return $this;
