@@ -59,9 +59,9 @@ class request implements client\request
 		return $this;
 	}
 
-	public function __invoke(client $client, $requestId = 1)
+	public function __invoke(client $client)
 	{
-		return $this->sendWithClient($client, $requestId);
+		return $this->sendWithClient($client);
 	}
 
 	public function setRequestId($requestId)
