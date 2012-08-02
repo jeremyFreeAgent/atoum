@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../../runner.php';
 
 class end extends atoum\test
 {
-	public function testClass()
+	public function testClassConstants()
 	{
 		$this
 			->integer(testedClass::type)->isEqualTo(3)
@@ -19,6 +19,12 @@ class end extends atoum\test
 			->integer(testedClass::serverCanNotMultiplexConnection)->isEqualTo(1)
 			->integer(testedClass::serverIsOverloaded)->isEqualTo(2)
 			->integer(testedClass::serverDoesNotKnowTheRole)->isEqualTo(3)
+		;
+	}
+
+	public function testClass()
+	{
+		$this
 			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\records\response')
 		;
 	}

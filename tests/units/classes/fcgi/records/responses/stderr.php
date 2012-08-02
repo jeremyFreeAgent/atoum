@@ -12,10 +12,16 @@ require_once __DIR__ . '/../../../../runner.php';
 
 class stderr extends atoum\test
 {
-	public function testClass()
+	public function testClassConstants()
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(7)
+		;
+	}
+
+	public function testClass()
+	{
+		$this
 			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
 		;
 	}

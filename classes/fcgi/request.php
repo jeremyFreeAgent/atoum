@@ -17,8 +17,8 @@ class request implements client\request
 	public function __construct($persistentConnection = false)
 	{
 		$this->persistentConnection = $persistentConnection;
-		$this->params = new requests\params();
 		$this->stdin = new requests\stdin();
+		$this->params = new requests\params();
 	}
 
 	public function __set($name, $value)

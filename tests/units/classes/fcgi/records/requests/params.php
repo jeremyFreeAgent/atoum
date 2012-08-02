@@ -12,17 +12,17 @@ require_once __DIR__ . '/../../../../runner.php';
 
 class params extends atoum\test
 {
-	public function testClass()
-	{
-		$this
-			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\records\request')
-		;
-	}
-
 	public function testClassConstants()
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(4)
+		;
+	}
+
+	public function testClass()
+	{
+		$this
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\records\request')
 		;
 	}
 

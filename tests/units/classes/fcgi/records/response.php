@@ -12,11 +12,17 @@ require_once __DIR__ . '/../../../runner.php';
 
 class response extends atoum\test
 {
-	public function testClass()
+	public function testClassConstants()
 	{
 		$this
 			->integer(fcgi\record::version)->isEqualTo(1)
 			->integer(fcgi\record::maxContentLength)->isEqualTo(65535)
+		;
+	}
+
+	public function testClass()
+	{
+		$this
 			->testedClass->hasInterface('countable')
 		;
 	}

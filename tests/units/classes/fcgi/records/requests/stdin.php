@@ -11,10 +11,16 @@ require_once __DIR__ . '/../../../../runner.php';
 
 class stdin extends atoum\test
 {
-	public function testClass()
+	public function testClassConstants()
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(5)
+		;
+	}
+
+	public function testClass()
+	{
+		$this
 			->testedClass->isSubclassOf('mageekguy\atoum\fcgi\record')
 		;
 	}
