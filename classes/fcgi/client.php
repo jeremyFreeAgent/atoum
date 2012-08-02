@@ -13,6 +13,7 @@ class client
 	protected $currentServer = null;
 	protected $socket = null;
 	protected $adapter = null;
+	protected $responses = array();
 
 	public function __construct(array $servers = array(), atoum\adapter $adapter = null)
 	{
@@ -36,7 +37,7 @@ class client
 
 	public function __invoke(client\request $request)
 	{
-		return $request->sendWithClient($this);
+		return $this->sendRequest($request);
 	}
 
 	public function setAdapter(atoum\adapter $adapter)
@@ -58,6 +59,51 @@ class client
 		return $this;
 	}
 
+	public function getServers()
+	{
+		return $this->servers;
+	}
+
+	public function sendRequest(client\request $request)
+	{
+		$request->sendWithClient($this);
+
+		return $this;
+	}
+
+	public function receiveResponses()
+	{
+		$responses = array();
+
+		while (($record = records\response::getFromClient($this)) !== null)
+		{
+			$requestId = $record->getRequestId();
+
+			if ($this->responses[$requestId]->isCompletedByRecord($record) === true)
+			{
+				$responses[$requestId] = $this->responses[$requestId];
+
+				unset($this->responses[$requestId]);
+			}
+		}
+
+		return $responses;
+	}
+
+	public function generateRequestId()
+	{
+		$id = 1;
+
+		while (isset($this->responses[$id]) === true)
+		{
+			$id++;
+		}
+
+		$this->responses[$id] = new response($id);
+
+		return $id;
+	}
+
 	public function openConnection()
 	{
 		if ($this->socket === null)
@@ -67,7 +113,7 @@ class client
 				reset($this->servers);
 			}
 
-			$socket = $this->adapter->invoke('stream_socket_client', array($this->currentServer, & $errorCode, & $errorMessage, $timeout));
+			$socket = $this->adapter->invoke('stream_socket_client', array($this->currentServer, & $errorCode, & $errorMessage, $timeout, STREAM_CLIENT_PERSISTENT|STREAM_CLIENT_CONNECT));
 
 			if ($socket === false)
 			{
@@ -76,9 +122,9 @@ class client
 
 			$this->socket = $socket;
 
-			if ($this->adapter->stream_set_blocking($this->socket, 1) === false)
+			if ($this->adapter->stream_set_blocking($this->socket, 0) === false)
 			{
-				throw new client\exception('Unable to set blocking mode');
+				throw new client\exception('Unable to unset blocking mode');
 			}
 		}
 
@@ -109,6 +155,6 @@ class client
 
 	public function receiveData($length)
 	{
-		return fread($this->socket, $length);
+		 return fread($this->openConnection()->socket, $length);
 	}
 }

@@ -3,20 +3,20 @@
 namespace mageekguy\atoum\fcgi\records;
 
 use
-	mageekguy\atoum\exceptions,
 	mageekguy\atoum\fcgi,
+	mageekguy\atoum\fcgi\exceptions,
 	mageekguy\atoum\fcgi\records\responses
 ;
 
 abstract class response extends fcgi\record
 {
-	public function addToResponse(fcgi\response $response)
+	public function completeResponse(fcgi\response $response)
 	{
-		return $response;
-	}
+		if ($response->getRequestId() != $this->getRequestId())
+		{
+			throw new exceptions\runtime('The response \'' . $response->getRequestId() . '\' does not own the record \'' . $this->getRequestId() . '\'');
+		}
 
-	public function isEndOfRequest()
-	{
 		return false;
 	}
 
@@ -39,13 +39,13 @@ abstract class response extends fcgi\record
 			switch ($recordProperties['type'])
 			{
 				case responses\stdout::type:
-					return new responses\stdout($contentData, $recordProperties['requestId']);
+					return new responses\stdout($recordProperties['requestId'], $contentData);
 
 				case responses\stderr::type:
-					return new responses\stderr($contentData, $recordProperties['requestId']);
+					return new responses\stderr($recordProperties['requestId'], $contentData);
 
 				case responses\end::type:
-					return new responses\end($contentData, $recordProperties['requestId']);
+					return new responses\end($recordProperties['requestId'], $contentData);
 
 				default:
 					throw new exceptions\runtime('Type \'' . $recordProperties['type'] . '\' is unknown');

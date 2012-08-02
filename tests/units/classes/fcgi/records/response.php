@@ -48,21 +48,15 @@ class response extends atoum\test
 		;
 	}
 
-	public function testIsEndOfRequest()
+	public function testCompleteResponse()
 	{
 		$this
-			->if($record = new testedClass(rand(- 128, 127)))
+			->if($record = new testedClass(rand(- 128, 127), 1))
 			->then
-				->boolean($record->isEndOfRequest())->isFalse()
-		;
-	}
-
-	public function testAddRoResponse()
-	{
-		$this
-			->if($record = new testedClass(rand(- 128, 127)))
-			->then
-				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
+				->boolean($record->completeResponse($response = new fcgi\response(1)))->isFalse()
+				->exception(function() use ($record, & $requestId) { $record->completeResponse(new fcgi\response($requestId = uniqid())); })
+					->isInstanceOf('mageekguy\atoum\fcgi\exceptions\runtime')
+					->hasMessage('The response \'' . $requestId . '\' does not own the record \'' . $record->getRequestId() . '\'')
 		;
 	}
 
@@ -113,7 +107,7 @@ class response extends atoum\test
 			->and($client->getMockController()->receiveData[1] = "\001\009\000\001\000b\000\000")
 			->then
 				->exception(function() use ($client) { testedClass::getFromClient($client); })
-					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
+					->isInstanceOf('mageekguy\atoum\fcgi\exceptions\runtime')
 					->hasMessage('Type \'' . ord("\009") . '\' is unknown')
 		;
 	}

@@ -10,13 +10,17 @@ class stdout extends fcgi\records\response
 {
 	const type = '6';
 
-	public function __construct($stdout, $requestId)
+	public function __construct($requestId, $stdout)
 	{
 		parent::__construct(self::type, $requestId, $stdout);
 	}
 
-	public function addToResponse(fcgi\response $response)
+	public function completeResponse(fcgi\response $response)
 	{
-		return $response->addToOutput($this->getContentData());
+		parent::completeResponse($response);
+
+		$response->addToStdout($this);
+
+		return false;
 	}
 }

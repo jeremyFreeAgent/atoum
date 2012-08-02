@@ -92,13 +92,10 @@ class request extends atoum\test
 	{
 		$this
 			->if($record = new testedClass($type = rand(- 128, 127)))
-			->and($adapter = new atoum\test\adapter())
-			->and($adapter->stream_socket_client = uniqid())
-			->and($adapter->stream_set_blocking = function() {})
-			->and($adapter->fwrite = function() {})
-			->and($adapter->fread = function() {})
-			->and($adapter->fclose = function() {})
-			->and($client = new fcgi\client(uniqid(), rand(1, PHP_INT_MAX), rand(1, PHP_INT_MAX), $adapter))
+			->and
+				->mockGenerator->shunt('sendData')
+			->and($client = new fcgi\client())
+			->and($client->getMockController()->sendData = $client)
 			->then
 				->object($record->sendWithClient($client))->isIdenticalTo($client)
 				->mock($client)->call('sendData')->withArguments((string) $record)->once()

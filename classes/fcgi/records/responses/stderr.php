@@ -10,13 +10,17 @@ class stderr extends fcgi\records\response
 {
 	const type = '7';
 
-	public function __construct($stderr, $requestId)
+	public function __construct($requestId, $stderr)
 	{
 		parent::__construct(self::type, $requestId, $stderr);
 	}
 
-	public function addToResponse(fcgi\response $response)
+	public function completeResponse(fcgi\response $response)
 	{
-		return $response->addToErrors($this->getContentData());
+		parent::completeResponse($response);
+
+		$response->addToStderr($this);
+
+		return false;
 	}
 }

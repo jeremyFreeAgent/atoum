@@ -3,19 +3,19 @@
 namespace mageekguy\atoum\fcgi;
 
 use
+	mageekguy\atoum\fcgi\exceptions,
 	mageekguy\atoum\fcgi\records\requests
 ;
 
 class request implements client\request
 {
-	protected $requestId = 1;
+	protected $requestId = '';
 	protected $persistentConnection = false;
 	protected $params = null;
 	protected $stdin = null;
 
-	public function __construct($requestId = 1, $persistentConnection = false)
+	public function __construct($persistentConnection = false)
 	{
-		$this->requestId = $requestId;
 		$this->persistentConnection = $persistentConnection;
 		$this->params = new requests\params();
 		$this->stdin = new requests\stdin();
@@ -23,40 +23,22 @@ class request implements client\request
 
 	public function __set($name, $value)
 	{
-		if (self::cleanName($name) === 'STDIN')
-		{
-			$this->setStdin($value);
-		}
-		else
-		{
-			$this->params->{$name} = $value;
-		}
-
-		return $this;
+		return (self::cleanName($name) === 'STDIN' ? $this->setStdin($value) : $this->setParam($name, $value));
 	}
 
 	public function __get($name)
 	{
-		return (strtoupper($name) === 'STDIN' ? $this->stdin->getContentData() : $this->params->{$name});
+		return (strtoupper($name) === 'STDIN' ? $this->getStdin() : $this->getParam($name));
 	}
 
 	public function __isset($name)
 	{
-		return (self::cleanName($name) === 'STDIN' ? sizeof($this->stdin) > 0 : isset($this->params->{$name}));
+		return (self::cleanName($name) === 'STDIN' ? $this->stdinIsSet() : $this->paramIsSet($name));
 	}
 
 	public function __unset($name)
 	{
-		if (self::cleanName($name) === 'STDIN')
-		{
-			$this->setStdin('');
-		}
-		else
-		{
-			unset($this->params->{$name});
-		}
-
-		return $this;
+		return (self::cleanName($name) === 'STDIN' ? $this->unsetStdin() : $this->unsetParam($name));
 	}
 
 	public function __invoke(client $client)
@@ -64,9 +46,9 @@ class request implements client\request
 		return $this->sendWithClient($client);
 	}
 
-	public function setRequestId($requestId)
+	public function setRequestId($id)
 	{
-		$this->requestId = $requestId;
+		$this->requestId = (string) $id;
 
 		return $this;
 	}
@@ -83,9 +65,41 @@ class request implements client\request
 		return $this;
 	}
 
+	public function unsetStdin()
+	{
+		return $this->setStdin('');
+	}
+
+	public function stdinIsSet()
+	{
+		return (sizeof($this->stdin) > 0);
+	}
+
 	public function getStdin()
 	{
 		return $this->stdin->getContentData();
+	}
+
+	public function getParam($name)
+	{
+		return $this->params->{$name};
+	}
+
+	public function setParam($name, $value)
+	{
+		$this->params->{$name} = $value;
+	}
+
+	public function unsetParam($name)
+	{
+		unset($this->params->{$name});
+
+		return $this;
+	}
+
+	public function paramIsSet($name)
+	{
+		return isset($this->params->{$name});
 	}
 
 	public function getParams()
@@ -102,28 +116,33 @@ class request implements client\request
 
 	public function sendWithClient(client $client)
 	{
-		$response = null;
-
-		if (sizeof($this->params) > 0 || sizeof($this->stdin) > 0)
+		if (sizeof($this->params) <= 0 && sizeof($this->stdin) <= 0)
 		{
-			$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
-
-			if (sizeof($this->params) > 0)
-			{
-				$client($this->params->setRequestId($this->requestId));
-				$client(new requests\params(array(), $this->requestId));
-			}
-
-			if (sizeof($this->stdin) > 0)
-			{
-				$client($this->stdin->setRequestId($this->requestId));
-				$client(new requests\stdin('', $this->requestId));
-			}
-
-			$response = new response($client);
+			throw new exceptions\runtime('Unable to send an empty request');
 		}
 
-		return $response;
+		$this->requestId = $client->generateRequestId();
+
+		$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
+
+		if (sizeof($this->params) > 0)
+		{
+			$client($this->params->setRequestId($this->requestId));
+			$client(new requests\params(array(), $this->requestId));
+		}
+
+		if (sizeof($this->stdin) > 0)
+		{
+			$client($this->stdin->setRequestId($this->requestId));
+			$client(new requests\stdin('', $this->requestId));
+		}
+
+		return $this;
+	}
+
+	public function getResponseFromClient(client $client)
+	{
+		return $client->getResponse($this);
 	}
 
 	private static function cleanName($name)

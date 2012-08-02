@@ -17,9 +17,12 @@ class client extends atoum\test
 		$this
 			->if($client = new testedClass())
 			->then
-				->string($client->getHost())->isEqualTo('127.0.0.1')
-				->integer($client->getPort())->isEqualTo(9000)
+				->array($client->getServers())->isEmpty()
 				->object($client->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
+			->if($client = new testedClass($servers = array('tcp://127.0.0.1:9000' => 30), $adapter = new atoum\adapter()))
+			->then
+				->array($client->getServers())->isEqualTo($servers)
+				->object($client->getAdapter())->isIdenticalTo($adapter)
 		;
 	}
 
@@ -28,7 +31,7 @@ class client extends atoum\test
 		$this
 			->if($client = new testedClass())
 			->then
-				->castToString($client)->isEqualTo('tcp://127.0.0.1:9000')
+				->castToString($client)->isEmpty()
 		;
 	}
 

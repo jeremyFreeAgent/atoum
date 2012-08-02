@@ -16,14 +16,14 @@ class stdout extends atoum\test
 	{
 		$this
 			->string(testedClass::type)->isEqualTo(6)
-			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\record')
+			->testedClass->isSubClassOf('mageekguy\atoum\fcgi\records\response')
 		;
 	}
 
 	public function test__construct()
 	{
 		$this
-			->if($record = new testedClass($contentData = uniqid(), $requestId = uniqid()))
+			->if($record = new testedClass($requestId = uniqid(), $contentData = uniqid()))
 			->then
 				->string($record->getType())->isEqualTo(testedClass::type)
 				->string($record->getRequestId())->isEqualTo($requestId)
@@ -31,28 +31,25 @@ class stdout extends atoum\test
 		;
 	}
 
-	public function testIsEndOfRequest()
+	public function testCompleteResponse()
 	{
 		$this
-			->if($record = new testedClass(uniqid(), rand(1, 128)))
+			->if($record = new testedClass($requestId = uniqid(), $contentData = uniqid()))
 			->then
-				->boolean($record->isEndOfRequest())->isFalse()
-		;
-	}
-
-	public function testAddToResponse()
-	{
-		$this
-			->if($record = new testedClass($contentData = uniqid(), rand(1, 128)))
+				->boolean($record->completeResponse($response = new fcgi\response($requestId)))->isFalse()
+				->string($response->getStdout())->isEqualTo($contentData)
+				->string($response->getStderr())->isEmpty()
+			->if($otherRecord = new testedClass($requestId, $otherContentData = uniqid()))
 			->then
-				->object($record->addToResponse($response = new fcgi\response()))->isIdenticalTo($response)
-				->string($response->getOutput())->isEqualTo($contentData)
-			->if($otherRecord = new testedClass($otherContentData = uniqid(), rand(1, 128)))
-			->then
-				->object($otherRecord->addToResponse($response))->isIdenticalTo($response)
-				->string($response->getOutput())->isEqualTo($contentData . $otherContentData)
-				->object($record->addToResponse($response))->isIdenticalTo($response)
-				->string($response->getOutput())->isEqualTo($contentData . $otherContentData . $contentData)
+				->boolean($otherRecord->completeResponse($response))->isFalse()
+				->string($response->getStdout())->isEqualTo($contentData . $otherContentData)
+				->string($response->getStderr())->isEmpty()
+				->boolean($record->completeResponse($response))->isFalse()
+				->string($response->getStdout())->isEqualTo($contentData . $otherContentData . $contentData)
+				->string($response->getStderr())->isEmpty()
+				->exception(function() use ($record, & $requestId) { $record->completeResponse(new fcgi\response($requestId = uniqid())); })
+					->isInstanceOf('mageekguy\atoum\fcgi\exceptions\runtime')
+					->hasMessage('The response \'' . $requestId . '\' does not own the record \'' . $record->getRequestId() . '\'')
 		;
 	}
 }

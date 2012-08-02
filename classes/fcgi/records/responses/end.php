@@ -3,49 +3,43 @@
 namespace mageekguy\atoum\fcgi\records\responses;
 
 use
-	mageekguy\atoum\fcgi
+	mageekguy\atoum\fcgi,
+	mageekguy\atoum\fcgi\records,
+	mageekguy\atoum\fcgi\exceptions
 ;
 
-class end extends fcgi\records\response
+class end extends records\response
 {
 	const type = 3;
 	const requestComplete = 0;
-	const canNotMultiplexConnection = 1;
+	const serverCanNotMultiplexConnection = 1;
 	const serverIsOverloaded = 2;
-	const unknownRole = 3;
+	const serverDoesNotKnowTheRole = 3;
 
-	public function __construct($contentData, $requestId)
+	public function __construct($requestId, $contentData)
 	{
+		if (strlen($contentData) != 8)
+		{
+			throw new exceptions\runtime('Content data are invalid');
+		}
+
 		parent::__construct(self::type, $requestId, $contentData);
+
+		switch (ord($this->contentData[4]))
+		{
+			case self::serverCanNotMultiplexConnection:
+				throw new exceptions\runtime('Server can not multiplex connection');
+
+			case self::serverIsOverloaded:
+				throw new exceptions\runtime('Server is overloaded');
+
+			case self::serverDoesNotKnowTheRole:
+				throw new exceptions\runtime('Server does not know the role');
+		}
 	}
 
-	public function getProtocolStatus()
-	{
-		return ord($this->contentData[4]);
-	}
-
-	public function isEndOfRequest()
+	public function completeResponse(fcgi\response $response)
 	{
 		return true;
-	}
-
-	public function requestIsSuccessfullyCompleted()
-	{
-		return ($this->getProtocolStatus() === self::requestComplete);
-	}
-
-	public function serverCanNotMultiplexConnection()
-	{
-		return ($this->getProtocolStatus() === self::canNotMultiplexConnection);
-	}
-
-	public function serverIsOverloaded()
-	{
-		return ($this->getProtocolStatus() === self::serverIsOverloaded);
-	}
-
-	public function roleIsUnknown()
-	{
-		return ($this->getProtocolStatus() === self::unknownRole);
 	}
 }
