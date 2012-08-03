@@ -43,6 +43,11 @@ abstract class request extends fcgi\record implements fcgi\client\request
 
 		$client->sendData(sprintf('%c%c%c%c%c%c%c%c%s%s', self::version, $this->type, $requestIdB0, $requestIdB1, $contentLengthB0, $contentLengthB1, 0, 0, $this->contentData, ''));
 
+		return $this;
+	}
+
+	public function getResponse()
+	{
 		return null;
 	}
 

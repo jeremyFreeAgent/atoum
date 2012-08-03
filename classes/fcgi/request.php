@@ -9,10 +9,11 @@ use
 
 class request implements client\request
 {
-	protected $requestId = '';
+	protected $requestId = null;
 	protected $persistentConnection = false;
 	protected $params = null;
 	protected $stdin = null;
+	protected $response = null;
 
 	public function __construct($persistentConnection = false)
 	{
@@ -44,13 +45,6 @@ class request implements client\request
 	public function __invoke(client $client)
 	{
 		return $this->sendWithClient($client);
-	}
-
-	public function setRequestId($id)
-	{
-		$this->requestId = (string) $id;
-
-		return $this;
 	}
 
 	public function getRequestId()
@@ -109,7 +103,12 @@ class request implements client\request
 
 	public function connectionIsPersistent()
 	{
-		$this->persistentConnection = true;
+		return $this->persistentConnection;
+	}
+
+	public function reset()
+	{
+		$this->response = null;
 
 		return $this;
 	}
@@ -121,28 +120,37 @@ class request implements client\request
 			throw new exceptions\runtime('Unable to send an empty request');
 		}
 
-		$this->requestId = $client->getNextRequestId();
+		$response = null;
 
-		$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
-
-		if (sizeof($this->params) > 0)
+		if ($this->response === null)
 		{
-			$client($this->params->setRequestId($this->requestId));
-			$client(new requests\params(array(), $this->requestId));
+			$this->requestId = $client->getNextRequestId();
+
+			$this->response = new response($this->requestId);
+
+			$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
+
+			if (sizeof($this->params) > 0)
+			{
+				$client($this->params->setRequestId($this->requestId));
+				$client(new requests\params(array(), $this->requestId));
+			}
+
+			if (sizeof($this->stdin) > 0)
+			{
+				$client($this->stdin->setRequestId($this->requestId));
+				$client(new requests\stdin('', $this->requestId));
+			}
+
+			$client->sendRequest($this);
 		}
 
-		if (sizeof($this->stdin) > 0)
-		{
-			$client($this->stdin->setRequestId($this->requestId));
-			$client(new requests\stdin('', $this->requestId));
-		}
-
-		return new response($this->requestId);
+		return $this;
 	}
 
-	public function getResponseFromClient(client $client)
+	public function getResponse()
 	{
-		return $client->getResponse($this);
+		return $this->response;
 	}
 
 	private static function cleanName($name)

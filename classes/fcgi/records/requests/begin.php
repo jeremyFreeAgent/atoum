@@ -17,7 +17,7 @@ class begin extends fcgi\records\request
 	protected $role = '1';
 	protected $persistentConnection = 0;
 
-	public function __construct($role = self::responder, $requestId = 1, $persistentConnection = 0)
+	public function __construct($role = self::responder, $requestId = 1, $persistentConnection = false)
 	{
 		switch ($role)
 		{

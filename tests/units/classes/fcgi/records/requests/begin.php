@@ -71,11 +71,11 @@ class begin extends atoum\test
 			->and($client = new \mock\mageekguy\atoum\fcgi\client())
 			->and($client->getMockController()->sendData = $client)
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments("\001\001\000\001\000" . chr('8') . "\000\000\000\001\000\000\000\000\000\000")->once()
 			->if($record = new testedClass(testedClass::responder, $requestId = rand(2, 128), true))
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments("\001\001\000" . chr($requestId) . "\000" . chr('8') . "\000\000\000\001\001\000\000\000\000\000")->once()
 		;
 	}

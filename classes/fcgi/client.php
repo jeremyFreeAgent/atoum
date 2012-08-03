@@ -66,15 +66,15 @@ class client
 
 	public function sendRequest(client\request $request)
 	{
-		$response = $request->sendWithClient($this);
+		$response = $request->sendWithClient($this)->getResponse();
 
-		if ($response !== null)
+		if ($response !== null && in_array($response, $this->responses, true) === false)
 		{
 			$requestId = $response->getRequestId();
 
 			if (isset($this->responses[$requestId]) === true)
 			{
-				throw new client\exception('Response for request \'' . $requestId . '\' is uncompleted');
+				throw new client\exception('Client already wait response for request \'' . $requestId . '\'');
 			}
 
 			$this->responses[$requestId] = $response;
@@ -87,15 +87,23 @@ class client
 	{
 		$responses = array();
 
-		while (($record = records\response::getFromClient($this)) !== null)
+		if (sizeof($this->responses) > 0)
 		{
-			$requestId = $record->getRequestId();
-
-			if ($this->responses[$requestId]->isCompletedByRecord($record) === true)
+			while (($record = records\response::getFromClient($this)) !== null)
 			{
-				$responses[$requestId] = $this->responses[$requestId];
+				$requestId = $record->getRequestId();
 
-				unset($this->responses[$requestId]);
+				if (isset($this->responses[$requestId]) === false)
+				{
+					throw new client\exception('Request \'' . $requestId . '\' is unknown');
+				}
+
+				if ($this->responses[$requestId]->isCompletedByRecord($record) === true)
+				{
+					$responses[$requestId] = $this->responses[$requestId];
+
+					unset($this->responses[$requestId]);
+				}
 			}
 		}
 
@@ -110,6 +118,8 @@ class client
 		{
 			$id++;
 		}
+
+		$this->responses[$id] = null;
 
 		return $id;
 	}
@@ -145,9 +155,15 @@ class client
 	{
 		if ($this->socket !== null)
 		{
+			while (sizeof($this->responses) > 0)
+			{
+				$this->receiveResponses();
+			}
+
 			$this->adapter->fclose($this->socket);
 
 			$this->socket = null;
+			$this->currentServer = null;
 		}
 
 		return $this;
@@ -155,9 +171,16 @@ class client
 
 	public function sendData($data)
 	{
-		if ($this->adapter->fwrite($this->openConnection()->socket, $data) === false)
+		while ($data != '')
 		{
-			throw new client\exception('Unable to send request to \'' . $this . '\'');
+			$dataWrited = $this->adapter->fwrite($this->openConnection()->socket, $data);
+
+			if ($dataWrited === false)
+			{
+				throw new client\exception('Unable to send request to \'' . $this . '\'');
+			}
+
+			$data = substr($data, $dataWrited);
 		}
 
 		return $this;
@@ -165,6 +188,11 @@ class client
 
 	public function receiveData($length)
 	{
-		 return fread($this->openConnection()->socket, $length);
+		if ($this->socket === null)
+		{
+			throw new client\exception('Unable to receive data because connection is not open');
+		}
+
+		return fread($this->socket, $length);
 	}
 }

@@ -68,11 +68,11 @@ class request extends atoum\test
 			->and($client = new fcgi\client())
 			->and($client->getMockController()->sendData = $client)
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments("\001" . chr($type) . "\000\001\000\000\000\000")->once()
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = uniqid()))
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments(sprintf('%c%c%c%c%c%c%c%c%s%s', fcgi\record::version, $type, ($requestId >> 8) & 0xff, $requestId & 0xff, (strlen($contentData) >> 8) & 0xff, strlen($contentData) & 0xff, 0, 0, $contentData, ''))->once()
 			->if($record = new testedClass($type = rand(- 128, 127), $requestId = rand(- PHP_INT_MAX, PHP_INT_MAX), $contentData = str_repeat('0', 65536)))
 			->then

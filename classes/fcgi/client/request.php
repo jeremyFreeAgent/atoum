@@ -9,4 +9,5 @@ use
 interface request
 {
 	public function sendWithClient(fcgi\client $client);
+	public function getResponse();
 }

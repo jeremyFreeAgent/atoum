@@ -308,15 +308,15 @@ class params extends atoum\test
 			->and($client = new \mock\mageekguy\atoum\fcgi\client())
 			->and($client->getMockController()->sendData = $client)
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments("\001\004\000\001\000\000\000\000")->once()
 			->if($record->setValue($name = 'CONTENT_LENGTH', $value = uniqid()))
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments("\001\004\000\001\000\035\000\000\016\r" . $name . $value)->once()
 			->if($record->setValue($otherName = 'PATH_INFO', $otherValue = uniqid()))
 			->then
-				->variable($record->sendWithClient($client))->isNull()
+				->object($record->sendWithClient($client))->isIdenticalTo($record)
 				->mock($client)->call('sendData')->withArguments("\001\004\000\001\0005\000\000\016\r" . $name . $value . "\t\r" . $otherName . $otherValue)->once()
 		;
 	}
