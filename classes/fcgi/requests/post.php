@@ -8,6 +8,9 @@ use
 
 class post extends fcgi\request implements \arrayAccess
 {
+	const contentType = 'application/x-www-form-urlencoded';
+	const requestMethod = 'POST';
+
 	public function offsetSet($name, $value)
 	{
 		$variables = $this->getVariablesFromStdin();
@@ -41,6 +44,14 @@ class post extends fcgi\request implements \arrayAccess
 		$variables = $this->getVariablesFromStdin();
 
 		return isset($variables[$name]);
+	}
+
+	public function sendWithClient(fcgi\client $client)
+	{
+		$this->REQUEST_METHOD = self::contentType;
+		$this->CONTENT_TYPE = self::requestMethod;
+
+		return parent::sendWithClient($client);
 	}
 
 	private function buildStdin(array $variables)
