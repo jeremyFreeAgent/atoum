@@ -14,11 +14,6 @@ abstract class request extends fcgi\record implements fcgi\client\request
 		parent::__construct($type, $requestId, $contentData);
 	}
 
-	public function __toString()
-	{
-		return $this->encode();
-	}
-
 	public function __invoke(fcgi\client $client)
 	{
 		return $this->sendWithClient($client);
@@ -34,7 +29,7 @@ abstract class request extends fcgi\record implements fcgi\client\request
 		return parent::setContentData($contentData);
 	}
 
-	public function encode()
+	public function sendWithClient(fcgi\client $client)
 	{
 		$contentLength = strlen($this->contentData);
 
@@ -46,12 +41,9 @@ abstract class request extends fcgi\record implements fcgi\client\request
 		list($requestIdB0, $requestIdB1) = self::encodeValue($this->requestId);
 		list($contentLengthB0, $contentLengthB1) = self::encodeValue($contentLength);
 
-		return sprintf('%c%c%c%c%c%c%c%c%s%s', self::version, $this->type, $requestIdB0, $requestIdB1, $contentLengthB0, $contentLengthB1, 0, 0, $this->contentData, '');
-	}
+		$client->sendData(sprintf('%c%c%c%c%c%c%c%c%s%s', self::version, $this->type, $requestIdB0, $requestIdB1, $contentLengthB0, $contentLengthB1, 0, 0, $this->contentData, ''));
 
-	public function sendWithClient(fcgi\client $client)
-	{
-		return $client->sendData((string) $this);
+		return null;
 	}
 
 	protected static function encodeValue($value)

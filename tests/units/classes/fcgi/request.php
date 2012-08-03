@@ -140,7 +140,7 @@ class request extends atoum\test
 					->hasMessage('Unable to send an empty request')
 			->if($request->stdin = $stdin = uniqid())
 			->then
-				->object($request($client))->isIdenticalTo($request)
+				->object($request($client))->isEqualTo(new atoum\fcgi\response($request->getRequestId()))
 				->mock($client)->call('sendData')
 					->withArguments("\001\001\000\001\000" . chr(8) . "\000\000\000\001\000\000\000\000\000\000")->once()
 					->withArguments("\001\005\000\001\000\r\000\000" . $stdin)->once()
@@ -148,13 +148,13 @@ class request extends atoum\test
 			->if($client->getMockController()->resetCalls())
 			->and($request->CONTENT_LENGTH = 123)
 			->then
-				->object($request($client))->isIdenticalTo($request)
+				->object($request($client))->isEqualTo(new atoum\fcgi\response($request->getRequestId()))
 				->mock($client)->call('sendData')
-					->withArguments("\001\001\000\002\000" . chr(8) . "\000\000\000\001\000\000\000\000\000\000")->once()
-					->withArguments("\001\004\000\002\000\023\000\000\016\003CONTENT_LENGTH123")->once()
-					->withArguments("\001\004\000\002\000\000\000\000")
-					->withArguments("\001\005\000\002\000\r\000\000" . $stdin)->once()
-					->withArguments("\001\005\000\002\000\000\000\000")->once()
+					->withArguments("\001\001\000\001\000" . chr(8) . "\000\000\000\001\000\000\000\000\000\000")->once()
+					->withArguments("\001\004\000\001\000\023\000\000\016\003CONTENT_LENGTH123")->once()
+					->withArguments("\001\004\000\001\000\000\000\000")
+					->withArguments("\001\005\000\001\000\r\000\000" . $stdin)->once()
+					->withArguments("\001\005\000\001\000\000\000\000")->once()
 		;
 	}
 
@@ -177,7 +177,7 @@ class request extends atoum\test
 					->hasMessage('Unable to send an empty request')
 			->if($request->stdin = $stdin = uniqid())
 			->then
-				->object($request->sendWithClient($client))->isIdenticalTo($request)
+				->object($request->sendWithClient($client))->isEqualTo(new atoum\fcgi\response($request->getRequestId()))
 				->mock($client)->call('sendData')
 					->withArguments("\001\001\000\001\000" . chr(8) . "\000\000\000\001\000\000\000\000\000\000")->once()
 					->withArguments("\001\005\000\001\000\r\000\000" . $stdin)->once()
@@ -185,13 +185,13 @@ class request extends atoum\test
 			->if($client->getMockController()->resetCalls())
 			->and($request->CONTENT_LENGTH = 123)
 			->then
-				->object($request->sendWithClient($client))->isIdenticalTo($request)
+				->object($request->sendWithClient($client))->isEqualTo(new atoum\fcgi\response($request->getRequestId()))
 				->mock($client)->call('sendData')
-					->withArguments("\001\001\000\002\000" . chr(8) . "\000\000\000\001\000\000\000\000\000\000")->once()
-					->withArguments("\001\004\000\002\000\023\000\000\016\003CONTENT_LENGTH123")->once()
-					->withArguments("\001\004\000\002\000\000\000\000")
-					->withArguments("\001\005\000\002\000\r\000\000" . $stdin)->once()
-					->withArguments("\001\005\000\002\000\000\000\000")->once()
+					->withArguments("\001\001\000\001\000" . chr(8) . "\000\000\000\001\000\000\000\000\000\000")->once()
+					->withArguments("\001\004\000\001\000\023\000\000\016\003CONTENT_LENGTH123")->once()
+					->withArguments("\001\004\000\001\000\000\000\000")
+					->withArguments("\001\005\000\001\000\r\000\000" . $stdin)->once()
+					->withArguments("\001\005\000\001\000\000\000\000")->once()
 		;
 	}
 }

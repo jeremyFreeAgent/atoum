@@ -35,9 +35,9 @@ class client
 		return (string) $this->currentServer;
 	}
 
-	public function __invoke(client\request $request)
+	public function __invoke(client\request $request = null)
 	{
-		return $this->sendRequest($request);
+		return ($request === null ? $this->receiveResponses() : $this->sendRequest($request));
 	}
 
 	public function setAdapter(atoum\adapter $adapter)
@@ -66,7 +66,19 @@ class client
 
 	public function sendRequest(client\request $request)
 	{
-		$request->sendWithClient($this);
+		$response = $request->sendWithClient($this);
+
+		if ($response !== null)
+		{
+			$requestId = $response->getRequestId();
+
+			if (isset($this->responses[$requestId]) === true)
+			{
+				throw new client\exception('Response for request \'' . $requestId . '\' is uncompleted');
+			}
+
+			$this->responses[$requestId] = $response;
+		}
 
 		return $this;
 	}
@@ -90,7 +102,7 @@ class client
 		return $responses;
 	}
 
-	public function generateRequestId()
+	public function getNextRequestId()
 	{
 		$id = 1;
 
@@ -98,8 +110,6 @@ class client
 		{
 			$id++;
 		}
-
-		$this->responses[$id] = new response($id);
 
 		return $id;
 	}

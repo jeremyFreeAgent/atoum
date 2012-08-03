@@ -62,27 +62,21 @@ class begin extends atoum\test
 		;
 	}
 
-	public function test__toString()
+	public function testSendWithClient()
 	{
 		$this
 			->if($record = new testedClass())
+			->and
+				->mockGenerator->shunt('sendData')
+			->and($client = new \mock\mageekguy\atoum\fcgi\client())
+			->and($client->getMockController()->sendData = $client)
 			->then
-				->castToString($record)->isEqualTo("\001\001\000\001\000" . chr('8') . "\000\000\000\001\000\000\000\000\000\000")
+				->variable($record->sendWithClient($client))->isNull()
+				->mock($client)->call('sendData')->withArguments("\001\001\000\001\000" . chr('8') . "\000\000\000\001\000\000\000\000\000\000")->once()
 			->if($record = new testedClass(testedClass::responder, $requestId = rand(2, 128), true))
 			->then
-				->castToString($record)->isEqualTo("\001\001\000" . chr($requestId) . "\000" . chr('8') . "\000\000\000\001\001\000\000\000\000\000")
-		;
-	}
-
-	public function testEncode()
-	{
-		$this
-			->if($record = new testedClass())
-			->then
-				->string($record->encode())->isEqualTo("\001\001\000\001\000" . chr('8') . "\000\000\000\001\000\000\000\000\000\000")
-			->if($record = new testedClass(testedClass::responder, $requestId = rand(2, 128), true))
-			->then
-				->string($record->encode())->isEqualTo("\001\001\000" . chr($requestId) . "\000" . chr('8') . "\000\000\000\001\001\000\000\000\000\000")
+				->variable($record->sendWithClient($client))->isNull()
+				->mock($client)->call('sendData')->withArguments("\001\001\000" . chr($requestId) . "\000" . chr('8') . "\000\000\000\001\001\000\000\000\000\000")->once()
 		;
 	}
 }

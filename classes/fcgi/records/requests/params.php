@@ -80,7 +80,7 @@ class params extends fcgi\records\request
 		return $this->__unset($name);
 	}
 
-	public function encode()
+	public function sendWithClient(fcgi\client $client)
 	{
 		$this->contentData = '';
 
@@ -89,7 +89,7 @@ class params extends fcgi\records\request
 			$this->contentData .= self::encodeLength($name) . self::encodeLength($value) . $name . $value;
 		}
 
-		return ($this->contentData = '' ? '' : parent::encode());
+		return ($this->contentData = '' ? '' : parent::sendWithClient($client));
 	}
 
 	protected static function encodeLength($string)

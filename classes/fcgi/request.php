@@ -121,7 +121,7 @@ class request implements client\request
 			throw new exceptions\runtime('Unable to send an empty request');
 		}
 
-		$this->requestId = $client->generateRequestId();
+		$this->requestId = $client->getNextRequestId();
 
 		$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
 
@@ -137,7 +137,7 @@ class request implements client\request
 			$client(new requests\stdin('', $this->requestId));
 		}
 
-		return $this;
+		return new response($this->requestId);
 	}
 
 	public function getResponseFromClient(client $client)

@@ -98,21 +98,6 @@ class params extends atoum\test
 		;
 	}
 
-	public function test__toString()
-	{
-		$this
-			->if($record = new testedClass())
-			->then
-				->castToString($record)->isEqualTo("\001\004\000\001\000\000\000\000")
-			->if($record->setValue($name = 'CONTENT_LENGTH', $value = uniqid()))
-			->then
-				->castToString($record)->isEqualTo("\001\004\000\001\000\035\000\000\016\r" . $name . $value)
-			->if($record->setValue($otherName = 'PATH_INFO', $otherValue = uniqid()))
-			->then
-				->castToString($record)->isEqualTo("\001\004\000\001\0005\000\000\016\r" . $name . $value . "\t\r" . $otherName . $otherValue)
-		;
-	}
-
 	public function testSetValue()
 	{
 		$this
@@ -314,18 +299,25 @@ class params extends atoum\test
 		;
 	}
 
-	public function testEncode()
+	public function testSendWithClient()
 	{
 		$this
 			->if($record = new testedClass())
+			->and
+				->mockGenerator->shunt('sendData')
+			->and($client = new \mock\mageekguy\atoum\fcgi\client())
+			->and($client->getMockController()->sendData = $client)
 			->then
-				->string($record->encode())->isEqualTo("\001\004\000\001\000\000\000\000")
+				->variable($record->sendWithClient($client))->isNull()
+				->mock($client)->call('sendData')->withArguments("\001\004\000\001\000\000\000\000")->once()
 			->if($record->setValue($name = 'CONTENT_LENGTH', $value = uniqid()))
 			->then
-				->string($record->encode())->isEqualTo("\001\004\000\001\000\035\000\000\016\r" . $name . $value)
+				->variable($record->sendWithClient($client))->isNull()
+				->mock($client)->call('sendData')->withArguments("\001\004\000\001\000\035\000\000\016\r" . $name . $value)->once()
 			->if($record->setValue($otherName = 'PATH_INFO', $otherValue = uniqid()))
 			->then
-				->string($record->encode())->isEqualTo("\001\004\000\001\0005\000\000\016\r" . $name . $value . "\t\r" . $otherName . $otherValue)
+				->variable($record->sendWithClient($client))->isNull()
+				->mock($client)->call('sendData')->withArguments("\001\004\000\001\0005\000\000\016\r" . $name . $value . "\t\r" . $otherName . $otherValue)->once()
 		;
 	}
 }

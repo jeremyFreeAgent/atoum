@@ -45,12 +45,12 @@ class begin extends fcgi\records\request
 		return $this->persistentConnection;
 	}
 
-	public function encode()
+	public function sendWithClient(fcgi\client $client)
 	{
 		list($roleB0, $roleB1) = self::encodeValue($this->role);
 
 		$this->contentData = sprintf('%c%c%c%c%c%c%c%c', $roleB0, $roleB1, ($this->persistentConnection ? 1 : 0), 0, 0, 0, 0, 0);
 
-		return parent::encode();
+		return parent::sendWithClient($client);
 	}
 }
