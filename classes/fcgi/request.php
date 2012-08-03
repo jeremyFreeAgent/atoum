@@ -9,7 +9,6 @@ use
 
 class request implements client\request
 {
-	protected $requestId = null;
 	protected $persistentConnection = false;
 	protected $params = null;
 	protected $stdin = null;
@@ -49,7 +48,7 @@ class request implements client\request
 
 	public function getRequestId()
 	{
-		return $this->requestId;
+		return ($this->response === null ? null : $thsi->response->getRequestId());
 	}
 
 	public function setStdin($stdin)
@@ -124,22 +123,22 @@ class request implements client\request
 
 		if ($this->response === null)
 		{
-			$this->requestId = $client->getNextRequestId();
+			$requestId = $client->getNextRequestId();
 
-			$this->response = new response($this->requestId);
+			$this->response = new response($requestId);
 
-			$client(new requests\begin(1, $this->requestId, $this->persistentConnection));
+			$client(new requests\begin(1, $requestId, $this->persistentConnection));
 
 			if (sizeof($this->params) > 0)
 			{
-				$client($this->params->setRequestId($this->requestId));
-				$client(new requests\params(array(), $this->requestId));
+				$client($this->params->setRequestId($requestId));
+				$client(new requests\params(array(), $requestId));
 			}
 
 			if (sizeof($this->stdin) > 0)
 			{
-				$client($this->stdin->setRequestId($this->requestId));
-				$client(new requests\stdin('', $this->requestId));
+				$client($this->stdin->setRequestId($requestId));
+				$client(new requests\stdin('', $requestId));
 			}
 
 			$client->sendRequest($this);
