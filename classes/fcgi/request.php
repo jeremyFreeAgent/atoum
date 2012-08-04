@@ -48,7 +48,7 @@ class request implements client\request
 
 	public function getRequestId()
 	{
-		return ($this->response === null ? null : $thsi->response->getRequestId());
+		return ($this->response === null ? null : $this->response->getRequestId());
 	}
 
 	public function setStdin($stdin)
