@@ -4,14 +4,13 @@ namespace mageekguy\atoum\tests\units;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\test,
 	mageekguy\atoum\score\coverage,
 	mageekguy\atoum\score as testedClass
 ;
 
 require_once __DIR__ . '/../runner.php';
 
-class score extends test
+class score extends atoum\test
 {
 	public function test__construct()
 	{
