@@ -36,20 +36,9 @@ class directory implements \iteratorAggregate
 	{
 		$this->dependencies = $dependencies;
 
-		if (isset($this->dependencies['iterator']) === false)
-		{
-			$this->dependencies['iterator'] = function($dependencies) { return new \recursiveDirectoryIterator($dependencies['directory']()); };
-		}
-
-		if (isset($this->dependencies['filters\dot']) === false)
-		{
-			$this->dependencies['filters\dot'] = function($dependencies) { return new filters\recursives\dot($dependencies['iterator']()); };
-		}
-
-		if (isset($this->dependencies['filters\extension']) === false)
-		{
-			$this->dependencies['filters\extension'] = function($dependencies) { return new filters\recursives\extension($dependencies['iterator'](), $dependencies['extensions']()); };
-		}
+		$this->dependencies['iterator'] = $this->dependencies['iterator'] ?: function($dependencies) { return new \recursiveDirectoryIterator($dependencies['directory']()); };
+		$this->dependencies['filters\dot'] = $this->dependencies['filters\dot'] ?: function($dependencies) { return new filters\recursives\dot($dependencies['iterator']()); };
+		$this->dependencies['filters\extension'] = $this->dependencies['filters\extension'] ?: function($dependencies) { return new filters\recursives\extension($dependencies['iterator'](), $dependencies['extensions']()); };
 
 		return $this;
 	}

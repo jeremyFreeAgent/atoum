@@ -99,10 +99,10 @@ class dependencies extends atoum\test
 		$this
 			->if($dependencies = new testedClass())
 			->then
-				->object($dependencies->getDependence(uniqid()))->isInstanceOf($dependencies)
+				->variable($dependencies->getDependence(uniqid()))->isNull()
 			->if($dependencies->setDependence($name = uniqid(), uniqid()))
 			->then
-				->object($dependencies->getDependence(uniqid()))->isInstanceOf($dependencies)
+				->variable($dependencies->getDependence(uniqid()))->isNull()
 				->object($dependencies->getDependence($name))->isInstanceOf($dependencies)
 		;
 	}
@@ -154,10 +154,10 @@ class dependencies extends atoum\test
 		$this
 			->if($dependencies = new testedClass())
 			->then
-				->object($dependencies->offsetGet(uniqid()))->isInstanceOf($dependencies)
+				->variable($dependencies->offsetGet(uniqid()))->isNull()
 			->if($dependencies->setDependence($name = uniqid(), uniqid()))
 			->then
-				->object($dependencies->offsetGet(uniqid()))->isInstanceOf($dependencies)
+				->variable($dependencies->offsetGet(uniqid()))->isNull()
 				->object($dependencies->offsetGet($name))->isInstanceOf($dependencies)
 		;
 	}

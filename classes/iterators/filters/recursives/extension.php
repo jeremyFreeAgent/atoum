@@ -23,15 +23,9 @@ class extension extends \recursiveFilterIterator
 				$dependencies = new atoum\dependencies();
 			}
 
-			if (isset($dependencies['iterator']) === false)
-			{
-				$dependencies['iterator'] = new \recursiveDirectoryIterator((string) $mixed);
-			}
+			$dependencies['iterator'] = $dependencies['iterator'] ?: new \recursiveDirectoryIterator((string) $mixed);
 
-			if (isset($dependencies['iterator']['directory']) === false)
-			{
-				$dependencies['iterator']['directory'] = (string) $mixed;
-			}
+			$dependencies['iterator']['directory'] = (string) $mixed;
 
 			parent::__construct($dependencies['iterator']());
 		}

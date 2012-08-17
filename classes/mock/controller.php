@@ -61,10 +61,7 @@ class controller extends test\adapter
 
 	public function setDependencies(atoum\dependencies $dependencies)
 	{
-		if (isset($dependencies['reflection\class']) === false)
-		{
-			$dependencies['reflection\class'] = function($dependencies) { return new \reflectionClass($dependencies['class']()); };
-		}
+		$dependencies['reflection\class'] = $dependencies['reflection\class'] ?: function($dependencies) { return new \reflectionClass($dependencies['class']()); };
 
 		return parent::setDependencies($dependencies);
 	}

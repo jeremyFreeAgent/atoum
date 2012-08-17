@@ -34,11 +34,6 @@ class dot extends atoum\test
 			->then
 				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)
 				->mock($filter->getInnerIterator())->call('__construct')->withArguments($path, null)->once()
-			->if($dependencies['iterator']['directory'] = $otherPath = uniqid())
-			->and($filter = new recursives\dot($path = uniqid(), $dependencies))
-			->then
-				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)
-				->mock($filter->getInnerIterator())->call('__construct')->withArguments($otherPath, null)->once()
 		;
 	}
 

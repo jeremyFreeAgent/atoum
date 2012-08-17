@@ -36,12 +36,6 @@ class extension extends atoum\test
 				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)
 				->mock($filter->getInnerIterator())->call('__construct')->withArguments($path)->once()
 				->array($filter->getAcceptedExtensions())->isEqualTo($acceptedExtensions)
-			->if($dependencies['iterator']['directory'] = $otherPath = uniqid())
-			->and($filter = new recursives\extension($path = uniqid(), $acceptedExtensions, $dependencies))
-			->then
-				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)
-				->mock($filter->getInnerIterator())->call('__construct')->withArguments($otherPath, null)->once()
-				->array($filter->getAcceptedExtensions())->isEqualTo($acceptedExtensions)
 		;
 	}
 

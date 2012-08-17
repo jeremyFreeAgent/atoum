@@ -53,10 +53,7 @@ class coverage implements \countable, \serializable
 	{
 		$this->dependencies = $dependencies;
 
-		if (isset($this->dependencies['reflection\class']) === false)
-		{
-			$this->dependencies['reflection\class'] = function($dependencies) { return new \reflectionClass($dependencies['class']()); };
-		}
+		$this->dependencies['reflection\class'] = $this->dependencies['reflection\class'] ?: function($dependencies) { return new \reflectionClass($dependencies['class']()); };
 
 		return $this;
 	}
