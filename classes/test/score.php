@@ -20,19 +20,19 @@ class score extends atoum\score
 		;
 	}
 
-	public function addFail($file, $line, $class, $method, $asserter, $reason, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	public function addFail($file, $class, $method, $line, $asserter, $reason, $case = null, $dataSetKey = null, $dataSetProvider = null)
 	{
-		return parent::addFail($file, $line, $class, $method, $asserter, $reason, $case ?: $this->case, $dataSetKey ?: $this->dataSetKey, $dataSetProvider ?: $this->dataSetProvider);
+		return parent::addFail($file, $class, $method, $line, $asserter, $reason, $case ?: $this->case, $dataSetKey ?: $this->dataSetKey, $dataSetProvider ?: $this->dataSetProvider);
 	}
 
-	public function addException($file, $line, $class, $method, \exception $exception, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	public function addException($file, $class, $method, $line, \exception $exception, $case = null, $dataSetKey = null, $dataSetProvider = null)
 	{
-		return parent::addException($file, $line, $class, $method, $exception, $case ?: $this->case, $dataSetKey ?: $this->dataSetKey, $dataSetProvider ?: $this->dataSetProvider);
+		return parent::addException($file, $class, $method, $line, $exception, $case ?: $this->case, $dataSetKey ?: $this->dataSetKey, $dataSetProvider ?: $this->dataSetProvider);
 	}
 
-	public function addError($file, $line, $class, $method, $type, $message, $errorFile = null, $errorLine = null, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	public function addError($file, $class, $method, $line, $type, $message, $errorFile = null, $errorLine = null, $case = null, $dataSetKey = null, $dataSetProvider = null)
 	{
-		return parent::addError($file, $line, $class, $method, $type, $message, $errorFile, $errorLine, $case ?: $this->case, $dataSetKey ?: $this->dataSetKey, $dataSetProvider ?: $this->dataSetProvider);
+		return parent::addError($file, $class, $method, $line, $type, $message, $errorFile, $errorLine, $case ?: $this->case, $dataSetKey ?: $this->dataSetKey, $dataSetProvider ?: $this->dataSetProvider);
 	}
 
 	public function getCase()

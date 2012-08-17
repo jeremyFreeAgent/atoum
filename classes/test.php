@@ -21,12 +21,14 @@ abstract class test implements observable, adapter\aggregator, \countable
 	const beforeTestMethod = 'beforeTestMethod';
 	const fail = 'testAssertionFail';
 	const error = 'testError';
+	const void = 'testVoid';
 	const uncompleted = 'testUncompleted';
 	const exception = 'testException';
 	const runtimeException = 'testRuntimeException';
 	const success = 'testAssertionSuccess';
 	const afterTestMethod = 'afterTestMethod';
 	const beforeTearDown = 'beforeTestTearDown';
+	const tearDownFail = 'tearDownFail';
 	const afterTearDown = 'afterTestTearDown';
 	const runStop = 'testRunStop';
 	const defaultEngine = 'concurrent';
@@ -55,6 +57,8 @@ abstract class test implements observable, adapter\aggregator, \countable
 	private $engines = array();
 	private $classEngine = null;
 	private $methodEngines = array();
+	private $classHasNotVoidMethods = false;
+	private $methodsAreNotVoid = array();
 	private $asynchronousEngines = 0;
 	private $maxAsynchronousEngines = null;
 	private $codeCoverage = false;
@@ -68,7 +72,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 	{
 		$this
 			->setFactory($factory ?: new factory())
-			->setScore($this->factory['mageekguy\atoum\test\score']($this->factory))
+			->setScore($this->factory['mageekguy\atoum\test\score']())
 			->setLocale($this->factory['mageekguy\atoum\locale']())
 			->setAdapter($this->factory['mageekguy\atoum\adapter']())
 			->setSuperglobals($this->factory['mageekguy\atoum\superglobals']())
@@ -92,6 +96,8 @@ abstract class test implements observable, adapter\aggregator, \countable
 			->setHandler('namespace', function($value) use ($test) { $test->setTestNamespace($value); })
 			->setHandler('maxChildrenNumber', function($value) use ($test) { $test->setMaxChildrenNumber($value); })
 			->setHandler('engine', function($value) use ($test) { $test->setClassEngine($value); })
+			->setHandler('hasVoidMethods', function($value) use ($test) { $test->classHasVoidMethods(); })
+			->setHandler('hasNotVoidMethods', function($value) use ($test) { $test->classHasNotVoidMethods(); })
 			->extract($class->getDocComment())
 		;
 
@@ -117,6 +123,8 @@ abstract class test implements observable, adapter\aggregator, \countable
 			->setHandler('tags', function($value) use ($test, & $methodName) { $test->setMethodTags($methodName, annotations\extractor::toArray($value)); })
 			->setHandler('dataProvider', function($value) use ($test, & $methodName) { $test->setDataProvider($methodName, $value); })
 			->setHandler('engine', function($value) use ($test, & $methodName) { $test->setMethodEngine($methodName, $value); })
+			->setHandler('isVoid', function($value) use ($test, & $methodName) { $test->setMethodVoid($methodName); })
+			->setHandler('isNotVoid', function($value) use ($test, & $methodName) { $test->setMethodNotVoid($methodName); })
 		;
 
 		foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $publicMethod)
@@ -178,6 +186,31 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return $this->classEngine;
 	}
 
+	public function classHasVoidMethods()
+	{
+		$this->classHasNotVoidMethods = false;
+	}
+
+	public function classHasNotVoidMethods()
+	{
+		$this->classHasNotVoidMethods = true;
+	}
+
+	public function setMethodVoid($method)
+	{
+		$this->methodsAreNotVoid[$method] = false;
+	}
+
+	public function setMethodNotVoid($method)
+	{
+		$this->methodsAreNotVoid[$method] = true;
+	}
+
+	public function methodIsNotVoid($method)
+	{
+		return (isset($this->methodsAreNotVoid[$method]) === false ? $this->classHasNotVoidMethods : $this->methodsAreNotVoid[$method]);
+	}
+
 	public function setMethodEngine($method, $engine)
 	{
 		$this->methodEngines[(string) $method] = (string) $engine;
@@ -198,20 +231,37 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 		$this->assertionManager->setHandler('when', function($mixed) use ($assertionManager) { if (is_callable($mixed) === true) { call_user_func($mixed); } return $assertionManager; });
 
+		$mockControllerExtractor = function(mock\aggregator $mock) { return $mock->getMockController(); };
+
+		$this->assertionManager
+			->setHandler('calling', $mockControllerExtractor)
+			->setHandler('ƒ', $mockControllerExtractor)
+		;
+
 		$returnAssertionManager = function() use ($assertionManager) { return $assertionManager; };
-		$this->assertionManager->setHandler('if', $returnAssertionManager);
-		$this->assertionManager->setHandler('and', $returnAssertionManager);
-		$this->assertionManager->setHandler('then', $returnAssertionManager);
-		$this->assertionManager->setHandler('given', $returnAssertionManager);
+		$this->assertionManager
+			->setHandler('if', $returnAssertionManager)
+			->setHandler('and', $returnAssertionManager)
+			->setHandler('then', $returnAssertionManager)
+			->setHandler('given', $returnAssertionManager)
+		;
+
 
 		$test = $this;
-		$this->assertionManager->setHandler('assert', function($case = null) use ($test) { $test->stopCase(); if ($case !== null) { $test->startCase($case); } return $test->getAssertionManager(); });
-		$this->assertionManager->setHandler('mockGenerator', function() use ($test) { return $test->getMockGenerator(); });
-		$this->assertionManager->setHandler('mockClass', function($class, $mockNamespace = null, $mockClass = null) use ($test) { $test->getMockGenerator()->generate($class, $mockNamespace, $mockClass); return $test; });
-		$this->assertionManager->setHandler('mockTestedClass', function($mockNamespace = null, $mockClass = null) use ($test) { $test->getMockGenerator()->generate($test->getTestedClassName(), $mockNamespace, $mockClass); return $test; });
+		$this->assertionManager
+			->setHandler('assert', function($case = null) use ($test) { $test->stopCase(); if ($case !== null) { $test->startCase($case); } return $test->getAssertionManager(); })
+			->setHandler('mockGenerator', function() use ($test) { return $test->getMockGenerator(); })
+			->setHandler('mockClass', function($class, $mockNamespace = null, $mockClass = null) use ($test) { $test->getMockGenerator()->generate($class, $mockNamespace, $mockClass); return $test; })
+			->setHandler('mockTestedClass', function($mockNamespace = null, $mockClass = null) use ($test) { $test->getMockGenerator()->generate($test->getTestedClassName(), $mockNamespace, $mockClass); return $test; })
+		;
 
 		$asserterGenerator = $this->asserterGenerator;
 		$this->assertionManager->setHandler('define', function() use ($asserterGenerator) { return $asserterGenerator; });
+
+		$this->assertionManager
+			->setHandler('dump', function() use ($assertionManager) { call_user_func_array('var_dump', func_get_args()); return $assertionManager; })
+			->setHandler('stop', function() { throw new test\exceptions\stop(); })
+		;
 
 		$this->assertionManager->setDefaultHandler(function($asserter, $arguments) use ($asserterGenerator) { return $asserterGenerator->getAsserterInstance($asserter, $arguments); });
 
@@ -578,7 +628,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	public function isIgnored()
 	{
-		return ($this->ignore === true);
+		return (sizeof($this) <=0 || $this->ignore === true);
 	}
 
 	public function ignoreMethod($methodName, $boolean)
@@ -655,6 +705,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 						xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
 					}
 
+					$assertionNumber = $this->score->getAssertionNumber();
 					$time = microtime(true);
 					$memory = memory_get_usage(true);
 
@@ -697,21 +748,26 @@ abstract class test implements observable, adapter\aggregator, \countable
 					$memoryUsage = memory_get_usage(true) - $memory;
 					$duration = microtime(true) - $time;
 
+					$this->score
+						->addMemoryUsage($this->path, $this->class, $this->currentMethod, $memoryUsage)
+						->addDuration($this->path, $this->class, $this->currentMethod, $duration)
+						->addOutput($this->path, $this->class, $this->currentMethod, ob_get_clean())
+					;
+
 					if ($this->codeCoverageIsEnabled() === true)
 					{
-						$this->getCoverage()->addXdebugDataForTest($this, xdebug_get_code_coverage());
+						$this->score->getCoverage()->addXdebugDataForTest($this, xdebug_get_code_coverage());
 						xdebug_stop_code_coverage();
 					}
 
-					$this->score
-						->addMemoryUsage($this->class, $this->currentMethod, $memoryUsage)
-						->addDuration($this->class, $this->currentMethod, $duration)
-						->addOutput($this->class, $this->currentMethod, ob_get_clean())
-					;
+					if ($assertionNumber == $this->score->getAssertionNumber() && $this->methodIsNotVoid($this->currentMethod) === false)
+					{
+						$this->score->addVoidMethod($this->path, $this->class, $this->currentMethod);
+					}
 				}
 				catch (\exception $exception)
 				{
-					$this->score->addOutput($this->class, $this->currentMethod, ob_get_clean());
+					$this->score->addOutput($this->path, $this->class, $this->currentMethod, ob_get_clean());
 
 					throw $exception;
 				}
@@ -725,7 +781,10 @@ abstract class test implements observable, adapter\aggregator, \countable
 			}
 			catch (test\exceptions\runtime $exception)
 			{
-				$this->score->addRuntimeException($exception);
+				$this->score->addRuntimeException($this->path, $this->class, $this->currentMethod, $exception);
+			}
+			catch (test\exceptions\stop $exception)
+			{
 			}
 			catch (\exception $exception)
 			{
@@ -753,109 +812,24 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	public function run(array $runTestMethods = array(), array $tags = array())
 	{
+		if ($runTestMethods)
+		{
+			$this->runTestMethods(array_intersect($runTestMethods, $this->getTestMethods($tags)));
+		}
+
 		if ($this->isIgnored() === false)
 		{
-			if ($runTestMethods)
-			{
-				$this->runTestMethods(array_intersect($runTestMethods, $this->getTestMethods($tags)));
-			}
-
 			$this->callObservers(self::runStart);
 
-			if (sizeof($this))
+			try
 			{
-				try
-				{
-					$this->callObservers(self::beforeSetUp);
+				$this->runEngines();
+			}
+			catch (\exception $exception)
+			{
+				$this->stopEngines();
 
-					if ($this->setUp() === false)
-					{
-						$this->callObservers(self::setUpFail);
-					}
-					else
-					{
-						$this->callObservers(self::afterSetUp);
-
-						while ($this->runEngine()->engines)
-						{
-							$engines = array();
-
-							foreach ($this->engines as $this->currentMethod => $engine)
-							{
-								$score = $engine->getScore();
-
-								if ($score === null)
-								{
-									$engines[$this->currentMethod] = $engine;
-								}
-								else
-								{
-									$this->callObservers(self::afterTestMethod);
-
-									switch (true)
-									{
-										case $score->getRuntimeExceptionNumber() > 0:
-											$this->callObservers(self::runtimeException);
-											throw current($score->getRuntimeExceptions());
-
-										case $score->getUncompletedMethodNumber():
-											$this->callObservers(self::uncompleted);
-											break;
-
-										case $score->getFailNumber():
-											$this->callObservers(self::fail);
-											break;
-
-										case $score->getErrorNumber():
-											$this->callObservers(self::error);
-											break;
-
-										case $score->getExceptionNumber():
-											$this->callObservers(self::exception);
-											break;
-
-										case $score->getPassNumber():
-											$this->callObservers(self::success);
-											break;
-									}
-
-									$this->score->merge($score);
-
-									if ($engine->isAsynchronous() === true)
-									{
-										$this->asynchronousEngines--;
-									}
-								}
-							}
-
-							$this->engines = $engines;
-							$this->currentMethod = null;
-						}
-					}
-				}
-				catch (\exception $exception)
-				{
-					while ($this->engines)
-					{
-						$engines = $this->engines;
-
-						$this->engines = array();
-
-						foreach ($engines as $engine)
-						{
-							if ($engine->getScore() === null)
-							{
-								$this->engines[] = $engine;
-							}
-						}
-					}
-
-					$this->doTearDown();
-
-					throw $exception;
-				}
-
-				$this->doTearDown();
+				throw $exception;
 			}
 
 			$this->callObservers(self::runStop);
@@ -870,7 +844,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 		{
 			list($file, $line) = $this->getBacktrace();
 
-			$this->score->addError($file, $line, $this->class, $this->currentMethod, $errno, $errstr, $errfile, $errline);
+			$this->score->addError($file, $this->class, $this->currentMethod, $line, $errno, $errstr, $errfile, $errline);
 		}
 
 		return true;
@@ -881,31 +855,6 @@ abstract class test implements observable, adapter\aggregator, \countable
 		die(__METHOD__ . ' is deprecated, please use ' . __CLASS__ . '::mockClass() instead');
 
 		return $this;
-	}
-
-	public static function setNamespace($namespace)
-	{
-		self::$namespace = self::cleanNamespace($namespace);
-
-		if (self::$namespace === '')
-		{
-			throw new exceptions\logic\invalidArgument('Namespace must not be empty');
-		}
-	}
-
-	public static function getNamespace()
-	{
-		return self::$namespace ?: self::defaultNamespace;
-	}
-
-	public static function setDefaultEngine($defaultEngine)
-	{
-		self::$defaultEngine = (string) $defaultEngine;
-	}
-
-	public static function getDefaultEngine()
-	{
-		return self::$defaultEngine ?: self::defaultEngine;
 	}
 
 	public function startCase($case)
@@ -943,9 +892,34 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return $this;
 	}
 
+	public static function setNamespace($namespace)
+	{
+		self::$namespace = self::cleanNamespace($namespace);
+
+		if (self::$namespace === '')
+		{
+			throw new exceptions\logic\invalidArgument('Namespace must not be empty');
+		}
+	}
+
+	public static function getNamespace()
+	{
+		return self::$namespace ?: self::defaultNamespace;
+	}
+
+	public static function setDefaultEngine($defaultEngine)
+	{
+		self::$defaultEngine = (string) $defaultEngine;
+	}
+
+	public static function getDefaultEngine()
+	{
+		return self::$defaultEngine ?: self::defaultEngine;
+	}
+
 	protected function setUp()
 	{
-		return $this;
+		return true;
 	}
 
 	protected function beforeTestMethod($testMethod)
@@ -960,14 +934,14 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	protected function tearDown()
 	{
-		return $this;
+		return false;
 	}
 
 	protected function addExceptionToScore(\exception $exception)
 	{
 		list($file, $line) = $this->getBacktrace($exception->getTrace());
 
-		$this->score->addException($file, $line, $this->class, $this->currentMethod, $exception);
+		$this->score->addException($file, $this->class, $this->currentMethod, $line, $exception);
 
 		return $this;
 	}
@@ -1011,6 +985,89 @@ abstract class test implements observable, adapter\aggregator, \countable
 		}
 
 		return $this;
+	}
+
+	private function runEngines()
+	{
+		if ($this->doSetUp() === true)
+		{
+			while ($this->runEngine()->engines)
+			{
+				$engines = $this->engines;
+
+				foreach ($engines as $this->currentMethod => $engine)
+				{
+					$score = $engine->getScore();
+
+					if ($score !== null)
+					{
+						unset($this->engines[$this->currentMethod]);
+
+						$this->callObservers(self::afterTestMethod);
+
+						switch (true)
+						{
+							case $score->getRuntimeExceptionNumber() > 0:
+								$this->callObservers(self::runtimeException);
+								$runtimeExceptions = $score->getRuntimeExceptions();
+								throw array_shift($runtimeExceptions);
+
+							case $score->getVoidMethodNumber() > 0:
+								$this->callObservers(self::void);
+								break;
+
+							case $score->getUncompletedMethodNumber():
+								$this->callObservers(self::uncompleted);
+								break;
+
+							case $score->getFailNumber():
+								$this->callObservers(self::fail);
+								break;
+
+							case $score->getErrorNumber():
+								$this->callObservers(self::error);
+								break;
+
+							case $score->getExceptionNumber():
+								$this->callObservers(self::exception);
+								break;
+
+							default:
+								$this->callObservers(self::success);
+						}
+
+						$this->score->merge($score);
+
+						if ($engine->isAsynchronous() === true)
+						{
+							$this->asynchronousEngines--;
+						}
+					}
+				}
+
+				$this->currentMethod = null;
+			}
+		}
+
+		return $this->doTearDown();
+	}
+
+	private function stopEngines()
+	{
+		while ($this->engines)
+		{
+			$engines = $this->engines;
+
+			foreach ($engines as $currentMethod => $engine)
+			{
+				if ($engine->getScore() !== null)
+				{
+					unset($this->engines[$currentMethod]);
+				}
+			}
+		}
+
+		return $this->doTearDown();
 	}
 
 	private function runEngine()
@@ -1058,11 +1115,34 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return ($this->runTestMethods && ($engine->isAsynchronous() === false || ($this->maxAsynchronousEngines === null || $this->asynchronousEngines < $this->maxAsynchronousEngines)));
 	}
 
+	private function doSetUp()
+	{
+		$this->callObservers(self::beforeSetUp);
+
+		switch (true)
+		{
+			case $this->setUp():
+				$this->callObservers(self::afterSetUp);
+				return true;
+
+			default:
+				$this->callObservers(self::setUpFail);
+				return false;
+		}
+	}
+
 	private function doTearDown()
 	{
 		$this->callObservers(self::beforeTearDown);
-		$this->tearDown();
-		$this->callObservers(self::afterTearDown);
+
+		if ($this->tearDown() === true)
+		{
+			$this->callObservers(self::afterTearDown);
+		}
+		else
+		{
+			$this->callObservers(self::tearDownFail);
+		}
 
 		return $this;
 	}

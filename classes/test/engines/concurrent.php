@@ -60,8 +60,7 @@ class concurrent extends test\engine
 			$phpCode =
 				'<?php ' .
 				'ob_start();' .
-				'define(\'mageekguy\atoum\autorun\', false);' .
-				'require \'' . atoum\directory . '/scripts/runner.php\';'
+				'require \'' . atoum\directory . '/classes/autoloader.php\';'
 			;
 
 			$bootstrapFile = $this->test->getBootstrapFile();
@@ -69,7 +68,6 @@ class concurrent extends test\engine
 			if ($bootstrapFile !== null)
 			{
 				$phpCode .=
-					'require \'' . atoum\directory . '/classes/includer.php\';' .
 					'$includer = new mageekguy\atoum\includer();' .
 					'try { $includer->includePath(\'' . $bootstrapFile . '\'); }' .
 					'catch (mageekguy\atoum\includer\exception $exception)' .
@@ -110,7 +108,8 @@ class concurrent extends test\engine
 
 			$phpCode .=
 				'ob_end_clean();' .
-				'echo serialize($test->runTestMethod(\'' . $this->method . '\')->getScore()->getContainer());'
+				'mageekguy\atoum\scripts\runner::disableAutorun();' .
+				'echo serialize($test->runTestMethod(\'' . $this->method . '\')->getScore());'
 			;
 
 			$this->adapter->fwrite($this->pipes[0], $phpCode);
@@ -150,28 +149,25 @@ class concurrent extends test\engine
 				$this->adapter->proc_close($this->php);
 				$this->php = null;
 
-				$score = $this->factory['mageekguy\atoum\test\score']($this->factory);
+				$score = @unserialize($this->stdOut);
 
-				$scoreContainer = @unserialize($this->stdOut);
-
-				if ($scoreContainer instanceof atoum\score\container === false)
+				if ($score instanceof atoum\score === false)
 				{
-					$score->addUncompletedMethod($this->test->getClass(), $this->method, $phpStatus['exitcode'], $this->stdOut);
-				}
-				else
-				{
-					$score->mergeContainer($scoreContainer);
+					$score = $this
+						->factory['mageekguy\atoum\score']()
+						->addUncompletedMethod($this->test->getPath(), $this->test->getClass(), $this->method, $phpStatus['exitcode'], $this->stdOut)
+					;
 				}
 
 				if ($this->stdErr !== '')
 				{
 					if (preg_match_all('/([^:]+): (.+) in (.+) on line ([0-9]+)/', trim($this->stdErr), $errors, PREG_SET_ORDER) === 0)
 					{
-						$score->addError($this->test->getPath(), null, $this->test->getClass(), $this->method, 'UNKNOWN', $this->stdErr);
+						$score->addError($this->test->getPath(), $this->test->getClass(), $this->method, null, 'UNKNOWN', $this->stdErr);
 					}
 					else foreach ($errors as $error)
 					{
-						$score->addError($this->test->getPath(), null, $this->test->getClass(), $this->method, $error[1], $error[2], $error[3], $error[4]);
+						$score->addError($this->test->getPath(), $this->test->getClass(), $this->method, null, $error[1], $error[2], $error[3], $error[4]);
 					}
 				}
 

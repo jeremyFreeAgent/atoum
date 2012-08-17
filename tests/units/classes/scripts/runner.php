@@ -57,7 +57,7 @@ class runner extends atoum\test
 							'Define default report title with <string>'
 						),
 						array(
-							array('-c', '--configuration-files'),
+							array('-c', '--configurations'),
 							'<file>...',
 							'Use all configuration files <file>'
 						),
@@ -92,7 +92,7 @@ class runner extends atoum\test
 							'Disable code coverage for classes <class>'
 						),
 						array(
-							array('-f', '--test-files'),
+							array('-f', '--files'),
 							'<file>...',
 							'Execute all unit test files <file>'
 						),
@@ -135,6 +135,11 @@ class runner extends atoum\test
 							array('--test-it'),
 							null,
 							'Execute atoum unit tests'
+						),
+						array(
+							array('--test-all'),
+							null,
+							'Execute unit tests in directories defined via $script->addTestAllDirectory(\'path/to/directory\') in a configuration file'
 						),
 						array(
 							array('-ft', '--force-terminal'),
@@ -189,7 +194,7 @@ class runner extends atoum\test
 							'Define default report title with <string>'
 						),
 						array(
-							array('-c', '--configuration-files'),
+							array('-c', '--configurations'),
 							'<file>...',
 							'Use all configuration files <file>'
 						),
@@ -224,7 +229,7 @@ class runner extends atoum\test
 							'Disable code coverage for classes <class>'
 						),
 						array(
-							array('-f', '--test-files'),
+							array('-f', '--files'),
 							'<file>...',
 							'Execute all unit test files <file>'
 						),
@@ -267,6 +272,11 @@ class runner extends atoum\test
 							array('--test-it'),
 							null,
 							'Execute atoum unit tests'
+						),
+						array(
+							array('--test-all'),
+							null,
+							'Execute unit tests in directories defined via $script->addTestAllDirectory(\'path/to/directory\') in a configuration file'
 						),
 						array(
 							array('-ft', '--force-terminal'),
@@ -326,7 +336,7 @@ class runner extends atoum\test
 	public function testUseDefaultConfigFiles()
 	{
 		$this
-			->if($runner = new \mock\mageekguy\atoum\scripts\runner($name = uniqid()))
+			->if($runner = new \mock\mageekguy\atoum\scripts\runner(uniqid()))
 			->and($runner->getMockController()->useConfigFile = function() {})
 			->then
 				->object($runner->useDefaultConfigFiles())->isIdenticalTo($runner)
@@ -335,6 +345,29 @@ class runner extends atoum\test
 							$mock->call('useConfigFile')->withArguments($path . scripts\runner::defaultConfigFile)->once();
 						}
 					)
+		;
+	}
+
+	public function getTestAllDirectories()
+	{
+		$this
+			->if($runner = new \mock\mageekguy\atoum\scripts\runner(uniqid()))
+			->then
+				->array($runner->getTestAllDirectories())->isEmpty()
+		;
+	}
+
+	public function testAddTestAllDirectory()
+	{
+		$this
+			->if($runner = new \mock\mageekguy\atoum\scripts\runner(uniqid()))
+			->then
+				->object($runner->addTestAllDirectory($directory = uniqid()))->isIdenticalTo($runner)
+				->array($runner->getTestAllDirectories())->isEqualTo(array($directory))
+				->object($runner->addtestalldirectory($directory))->isidenticalto($runner)
+				->array($runner->gettestalldirectories())->isequalto(array($directory))
+				->object($runner->addtestalldirectory(($otherDirectory = uniqid()) . DIRECTORY_SEPARATOR))->isidenticalto($runner)
+				->array($runner->gettestalldirectories())->isequalto(array($directory, $otherDirectory))
 		;
 	}
 

@@ -38,6 +38,7 @@ abstract class script implements atoum\adapter\aggregator
 	public function setDependencies(atoum\dependencies $dependencies)
 	{
 		$this->dependencies = $dependencies;
+
 		$this->dependencies['locale'] = $this->dependencies['locale'] ?: new atoum\locale();
 		$this->dependencies['adapter'] = $this->dependencies['adapter'] ?: new atoum\adapter();
 		$this->dependencies['arguments\parser'] = $this->dependencies['arguments\parser'] ?: new atoum\script\arguments\parser();
@@ -257,6 +258,8 @@ abstract class script implements atoum\adapter\aggregator
 
 	protected function setArgumentHandlers()
 	{
+		$this->argumentsParser->resetHandlers();
+
 		$this->help = array();
 
 		return $this;

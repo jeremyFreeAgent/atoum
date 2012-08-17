@@ -8,25 +8,30 @@ use
 	mageekguy\atoum\exceptions
 ;
 
-class score extends atoum\score\container
+class score
 {
-	protected $factory = null;
+	protected $passNumber = 0;
+	protected $failAssertions = array();
+	protected $exceptions = array();
+	protected $runtimeExceptions = array();
+	protected $errors = array();
+	protected $outputs = array();
+	protected $durations = array();
+	protected $memoryUsages = array();
+	protected $voidMethods = array();
+	protected $uncompletedMethods = array();
+	protected $coverage = null;
 
 	private static $failId = 0;
 
-	public function __construct(factory $factory = null)
+	public function __construct(dependencies $dependencies = null)
 	{
-		$this
-			->setFactory($factory ?: new factory())
-			->setCoverage($this->factory['mageekguy\atoum\score\coverage']($this->factory))
-		;
+		$this->setDependencies($dependencies ?: new atoum\dependencies());
 	}
 
-	public function setFactory(factory $factory)
+	public function setDependencies(dependencies $dependencies)
 	{
-		$this->factory = $factory;
-
-		return $this;
+		return $this->setCoverage(isset($dependencies['coverage']) === false ? new score\coverage($dependencies) : $dependencies['coverage']());
 	}
 
 	public function setCoverage(score\coverage $coverage)
@@ -52,146 +57,29 @@ class score extends atoum\score\container
 		return $this;
 	}
 
-	public function merge(score $score)
+	public function getPassNumber()
 	{
-		$this->passNumber += $score->passNumber;
-		$this->failAssertions = array_merge($this->failAssertions, $score->failAssertions);
-		$this->exceptions = array_merge($this->exceptions, $score->exceptions);
-		$this->runtimeExceptions = array_merge($this->runtimeExceptions, $score->runtimeExceptions);
-		$this->errors = array_merge($this->errors, $score->errors);
-		$this->outputs = array_merge($this->outputs, $score->outputs);
-		$this->durations = array_merge($this->durations, $score->durations);
-		$this->memoryUsages = array_merge($this->memoryUsages, $score->memoryUsages);
-		$this->uncompletedMethods = array_merge($this->uncompletedMethods, $score->uncompletedMethods);
-		$this->coverage->merge($score->coverage);
-
-		return $this;
+		return $this->passNumber;
 	}
 
-	public function addPass()
+	public function getRuntimeExceptions()
 	{
-		$this->passNumber++;
-
-		return $this;
+		return $this->runtimeExceptions;
 	}
 
-	public function addFail($file, $line, $class, $method, $asserter, $reason, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	public function getVoidMethods()
 	{
-		$this->failAssertions[] = array(
-			'id' => ++self::$failId,
-			'case' => $case,
-			'dataSetKey' => $dataSetKey,
-			'dataSetProvider' => $dataSetProvider,
-			'class' => $class,
-			'method' => $method,
-			'file' => $file,
-			'line' => $line,
-			'asserter' => $asserter,
-			'fail' => $reason
-		);
-
-		return self::$failId;
+		return $this->voidMethods;
 	}
 
-	public function addException($file, $line, $class, $method, \exception $exception, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	public function getUncompletedMethods()
 	{
-		$this->exceptions[] = array(
-			'case' => $case,
-			'dataSetKey' => $dataSetKey,
-			'dataSetProvider' => $dataSetProvider,
-			'class' => $class,
-			'method' => $method,
-			'file' => $file,
-			'line' => $line,
-			'value' => (string) $exception
-		);
-
-		return $this;
+		return $this->uncompletedMethods;
 	}
 
-	public function addRuntimeException(exceptions\runtime $exception)
+	public function getCoverage()
 	{
-		$this->runtimeExceptions[] = $exception;
-
-		return $this;
-	}
-
-	public function addError($file, $line, $class, $method, $type, $message, $errorFile = null, $errorLine = null, $case = null, $dataSetKey = null, $dataSetProvider = null)
-	{
-		$this->errors[] = array(
-			'case' => $case,
-			'dataSetKey' => $dataSetKey,
-			'dataSetProvider' => $dataSetProvider,
-			'class' => $class,
-			'method' => $method,
-			'file' => $file,
-			'line' => $line,
-			'type' => $type,
-			'message' => trim($message),
-			'errorFile' => $errorFile,
-			'errorLine' => $errorLine
-		);
-
-		return $this;
-	}
-
-	public function addOutput($class, $method, $output)
-	{
-		if ($output != '')
-		{
-			$this->outputs[] = array(
-				'class' => $class,
-				'method' => $method,
-				'value' => $output
-			);
-		}
-
-		return $this;
-	}
-
-	public function addDuration($class, $method, $duration)
-	{
-		if ($duration > 0)
-		{
-			$this->durations[] = array(
-				'class' => $class,
-				'method' => $method,
-				'value' => $duration
-			);
-		}
-
-		return $this;
-	}
-
-	public function addMemoryUsage($class, $method, $memoryUsage)
-	{
-		if ($memoryUsage > 0)
-		{
-			$this->memoryUsages[] = array(
-				'class' => $class,
-				'method' => $method,
-				'value' => $memoryUsage
-			);
-		}
-
-		return $this;
-	}
-
-	public function addUncompletedMethod($class, $method, $exitCode, $output)
-	{
-		$this->uncompletedMethods[] = array(
-			'class' => $class,
-			'method' => $method,
-			'exitCode' => $exitCode,
-			'output' => $output
-		);
-
-		return $this;
-	}
-
-	public function getFactory()
-	{
-		return $this->factory;
+		return $this->coverage;
 	}
 
 	public function getOutputs()
@@ -288,14 +176,14 @@ class score extends atoum\score\container
 		return sizeof($this->errors);
 	}
 
+	public function getVoidMethodNumber()
+	{
+		return sizeof($this->voidMethods);
+	}
+
 	public function getUncompletedMethodNumber()
 	{
 		return sizeof($this->uncompletedMethods);
-	}
-
-	public function getCoverageContainer()
-	{
-		return $this->coverage->getContainer();
 	}
 
 	public function getMethodsWithFail()
@@ -316,6 +204,155 @@ class score extends atoum\score\container
 	public function getMethodsNotCompleted()
 	{
 		return self::getMethods($this->getUncompletedMethods());
+	}
+
+	public function addPass()
+	{
+		$this->passNumber++;
+
+		return $this;
+	}
+
+	public function addFail($file, $class, $method, $line, $asserter, $reason, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	{
+		$this->failAssertions[] = array(
+			'id' => ++self::$failId,
+			'case' => $case,
+			'dataSetKey' => $dataSetKey,
+			'dataSetProvider' => $dataSetProvider,
+			'class' => $class,
+			'method' => $method,
+			'file' => $file,
+			'line' => $line,
+			'asserter' => $asserter,
+			'fail' => $reason
+		);
+
+		return self::$failId;
+	}
+
+	public function addException($file, $class, $method, $line, \exception $exception, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	{
+		$this->exceptions[] = array(
+			'case' => $case,
+			'dataSetKey' => $dataSetKey,
+			'dataSetProvider' => $dataSetProvider,
+			'class' => $class,
+			'method' => $method,
+			'file' => $file,
+			'line' => $line,
+			'value' => (string) $exception
+		);
+
+		return $this;
+	}
+
+	public function addRuntimeException($file, $class, $method, exceptions\runtime $exception)
+	{
+		$this->runtimeExceptions[] = $exception;
+
+		return $this;
+	}
+
+	public function addError($file, $class, $method, $line, $type, $message, $errorFile = null, $errorLine = null, $case = null, $dataSetKey = null, $dataSetProvider = null)
+	{
+		$this->errors[] = array(
+			'case' => $case,
+			'dataSetKey' => $dataSetKey,
+			'dataSetProvider' => $dataSetProvider,
+			'class' => $class,
+			'method' => $method,
+			'file' => $file,
+			'line' => $line,
+			'type' => $type,
+			'message' => trim($message),
+			'errorFile' => $errorFile,
+			'errorLine' => $errorLine
+		);
+
+		return $this;
+	}
+
+	public function addOutput($file, $class, $method, $output)
+	{
+		if ($output != '')
+		{
+			$this->outputs[] = array(
+				'class' => $class,
+				'method' => $method,
+				'value' => $output
+			);
+		}
+
+		return $this;
+	}
+
+	public function addDuration($file, $class, $method, $duration)
+	{
+		if ($duration > 0)
+		{
+			$this->durations[] = array(
+				'class' => $class,
+				'method' => $method,
+				'value' => $duration,
+				'path' => $file
+			);
+		}
+
+		return $this;
+	}
+
+	public function addMemoryUsage($file, $class, $method, $memoryUsage)
+	{
+		if ($memoryUsage > 0)
+		{
+			$this->memoryUsages[] = array(
+				'class' => $class,
+				'method' => $method,
+				'value' => $memoryUsage
+			);
+		}
+
+		return $this;
+	}
+
+	public function addVoidMethod($file, $class, $method)
+	{
+		$this->voidMethods[] = array(
+			'class' => $class,
+			'method' => $method
+		);
+
+		return $this;
+	}
+
+	public function addUncompletedMethod($file, $class, $method, $exitCode, $output)
+	{
+		$this->uncompletedMethods[] = array(
+			'class' => $class,
+			'method' => $method,
+			'exitCode' => $exitCode,
+			'output' => $output
+		);
+
+		return $this;
+	}
+
+	public function merge(score $score)
+	{
+		$this->passNumber += $score->getPassNumber();
+		$this->failAssertions = array_merge($this->failAssertions, $score->getFailAssertions());
+		$this->exceptions = array_merge($this->exceptions, $score->getExceptions());
+		$this->runtimeExceptions = array_merge($this->runtimeExceptions, $score->getRuntimeExceptions());
+		$this->errors = array_merge($this->errors, $score->getErrors());
+		$this->outputs = array_merge($this->outputs, $score->getOutputs());
+		$this->durations = array_merge($this->durations, $score->getDurations());
+		$this->memoryUsages = array_merge($this->memoryUsages, $score->getMemoryUsages());
+		$this->voidMethods = array_merge($this->voidMethods, $score->getVoidMethods());
+		$this->uncompletedMethods = array_merge($this->uncompletedMethods, $score->getUncompletedMethods());
+		$this->coverage->merge($score->getCoverage());
+
+		return $this;
 	}
 
 	public function errorExists($message = null, $type = null, $messageIsPattern = false)
@@ -354,27 +391,6 @@ class score extends atoum\score\container
 		$id = $exception->getCode();
 
 		return (sizeof(array_filter($this->failAssertions, function($assertion) use ($id) { return ($assertion['id'] === $id); })) > 0);
-	}
-
-	public function getContainer()
-	{
-		return $this->factory['mageekguy\atoum\score\container']($this);
-	}
-
-	public function mergeContainer(score\container $container)
-	{
-		$this->passNumber += $container->getPassNumber();
-		$this->failAssertions = array_merge($this->failAssertions, $container->getFailAssertions());
-		$this->exceptions = array_merge($this->exceptions, $container->getExceptions());
-		$this->runtimeExceptions = array_merge($this->runtimeExceptions, $container->getRuntimeExceptions());
-		$this->errors = array_merge($this->errors, $container->getErrors());
-		$this->outputs = array_merge($this->outputs, $container->getOutputs());
-		$this->durations = array_merge($this->durations, $container->getDurations());
-		$this->memoryUsages = array_merge($this->memoryUsages, $container->getMemoryUsages());
-		$this->uncompletedMethods = array_merge($this->uncompletedMethods, $container->getUncompletedMethods());
-		$this->coverage->mergeContainer($container->getCoverage());
-
-		return $this;
 	}
 
 	private static function getMethods(array $array)

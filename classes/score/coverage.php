@@ -8,28 +8,72 @@ use
 	mageekguy\atoum\exceptions
 ;
 
-class coverage extends score\coverage\container implements \countable
+class coverage implements \countable, \serializable
 {
-	protected $factory = null;
+	protected $dependencies = null;
+	protected $classes = array();
+	protected $methods = array();
 	protected $excludedClasses = array();
 	protected $excludedNamespaces = array();
 	protected $excludedDirectories = array();
 
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(atoum\dependencies $dependencies = null)
 	{
-		$this->setFactory($factory ?: new atoum\factory());
+		$this->setDependencies($dependencies ?: new atoum\dependencies());
 	}
 
-	public function setFactory(atoum\factory $factory)
+	public function serialize()
 	{
-		$this->factory = $factory;
+		return serialize(array(
+				$this->classes,
+				$this->methods,
+				$this->excludedClasses,
+				$this->excludedNamespaces,
+				$this->excludedDirectories
+			)
+		);
+	}
+
+	public function unserialize($string, atoum\dependencies $dependencies = null)
+	{
+		$this->setDependencies($dependencies ?: new atoum\dependencies());
+
+		list(
+			$this->classes,
+			$this->methods,
+			$this->excludedClasses,
+			$this->excludedNamespaces,
+			$this->excludedDirectories
+		) = unserialize($string);
 
 		return $this;
 	}
 
-	public function getFactory()
+	public function setDependencies(atoum\dependencies $dependencies)
 	{
-		return $this->factory;
+		$this->dependencies = $dependencies;
+
+		if (isset($this->dependencies['reflection\class']) === false)
+		{
+			$this->dependencies['reflection\class'] = function($dependencies) { return new \reflectionClass($dependencies['class']()); };
+		}
+
+		return $this;
+	}
+
+	public function getDependencies()
+	{
+		return $this->dependencies;
+	}
+
+	public function getClasses()
+	{
+		return $this->classes;
+	}
+
+	public function getMethods()
+	{
+		return $this->methods;
 	}
 
 	public function reset()
@@ -54,7 +98,7 @@ class coverage extends score\coverage\container implements \countable
 		{
 			try
 			{
-				$reflectedClass = $this->factory['reflectionClass']($class);
+				$reflectedClass = $this->dependencies['reflection\class'](array('class' => $class));
 
 				if ($this->isExcluded($reflectedClass) === false)
 				{
@@ -103,7 +147,37 @@ class coverage extends score\coverage\container implements \countable
 
 	public function merge(score\coverage $coverage)
 	{
-		return $this->mergeClassesAndMethods($coverage->classes, $coverage->methods);
+		$classes = $coverage->getClasses();
+		$methods = $coverage->getMethods();
+
+		foreach ($methods as $class => $methods)
+		{
+			$reflectedClass = $this->dependencies['reflection\class'](array('class' => $class));
+
+			if (isset($this->classes[$class]) === false)
+			{
+				if ($this->isExcluded($reflectedClass) === false)
+				{
+					$this->classes[$class] = $classes[$class];
+				}
+			}
+
+			foreach ($methods as $method => $lines)
+			{
+				if (isset($this->methods[$class][$method]) === true || $this->isExcluded($reflectedClass->getMethod($method)->getDeclaringClass()) === false)
+				{
+					foreach ($lines as $line => $call)
+					{
+						if (isset($this->methods[$class][$method][$line]) === false || $this->methods[$class][$method][$line] < $call)
+						{
+							$this->methods[$class][$method][$line] = $call;
+						}
+					}
+				}
+			}
+		}
+
+		return $this;
 	}
 
 	public function getValue()
@@ -177,6 +251,18 @@ class coverage extends score\coverage\container implements \countable
 		return $value;
 	}
 
+	public function getCoverageForClass($class)
+	{
+		$class = (string) $class;
+
+		if(isset($this->methods[$class]) === false)
+		{
+			throw new exceptions\logic\invalidArgument('Class \'' . $class . '\' does not exist');
+		}
+
+		return ($this->isInExcludedClasses($class) ? array() : $this->methods[$class]);
+	}
+
 	public function getValueForMethod($class, $method)
 	{
 		$value = null;
@@ -206,6 +292,18 @@ class coverage extends score\coverage\container implements \countable
 		}
 
 		return $value;
+	}
+
+	public function getCoverageForMethod($class, $method)
+	{
+		$class = $this->getCoverageForClass($class);
+
+		if(isset($class[$method]) === false)
+		{
+			throw new exceptions\logic\invalidArgument('Method \'' . $method . '\' does not exist');
+		}
+
+		return $class[$method];
 	}
 
 	public function excludeClass($class)
@@ -279,16 +377,6 @@ class coverage extends score\coverage\container implements \countable
 		return self::itemIsExcluded($this->excludedDirectories, $file, DIRECTORY_SEPARATOR);
 	}
 
-	public function getContainer()
-	{
-		return $this->factory['mageekguy\atoum\score\coverage\container']($this);
-	}
-
-	public function mergeContainer(coverage\container $container)
-	{
-		return $this->mergeClassesAndMethods($container->getClasses(), $container->getMethods());
-	}
-
 	protected function isExcluded(\reflectionClass $class)
 	{
 		$className = $class->getName();
@@ -303,38 +391,6 @@ class coverage extends score\coverage\container implements \countable
 
 			return ($fileName === false || $this->isInExcludedDirectories($fileName) === true);
 		}
-	}
-
-	protected function mergeClassesAndMethods(array $classes, array $methods)
-	{
-		foreach ($methods as $class => $methods)
-		{
-			$reflectedClass = $this->factory['reflectionClass']($class);
-
-			if (isset($this->classes[$class]) === false)
-			{
-				if ($this->isExcluded($reflectedClass) === false)
-				{
-					$this->classes[$class] = $classes[$class];
-				}
-			}
-
-			foreach ($methods as $method => $lines)
-			{
-				if (isset($this->methods[$class][$method]) === true || $this->isExcluded($reflectedClass->getMethod($method)->getDeclaringClass()) === false)
-				{
-					foreach ($lines as $line => $call)
-					{
-						if (isset($this->methods[$class][$method][$line]) === false || $this->methods[$class][$method][$line] < $call)
-						{
-							$this->methods[$class][$method][$line] = $call;
-						}
-					}
-				}
-			}
-		}
-
-		return $this;
 	}
 
 	protected static function itemIsExcluded(array $excludedItems, $item, $delimiter)

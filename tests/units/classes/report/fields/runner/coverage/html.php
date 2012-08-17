@@ -30,7 +30,7 @@ class html extends atoum\test
 			->then
 				->string($field->getProjectName())->isEqualTo($projectName)
 				->string($field->getDestinationDirectory())->isEqualTo($destinationDirectory)
-				->string($field->getTemplatesDirectory())->isEqualTo(atoum\directory . '/resources/templates/coverage')
+				->string($field->getTemplatesDirectory())->isEqualTo(atoum\directory . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'coverage')
 				->object($field->getPrompt())->isEqualTo(new prompt())
 				->object($field->getTitleColorizer())->isEqualTo(new colorizer())
 				->object($field->getCoverageColorizer())->isEqualTo(new colorizer())
@@ -168,7 +168,7 @@ class html extends atoum\test
 			->then
 				->array($iterators = $field->getSrcDirectoryIterators())->isEqualTo(array(new \recursiveIteratorIterator(new atoum\iterators\filters\recursives\closure(new \recursiveDirectoryIterator($directory)))))
 				->array(current($iterators)->getClosures())->isEqualTo(array($closure))
-			->if($field->addSrcDirectory($otherDirectory = __DIR__ . '/..', $otherClosure = function() {}))
+			->if($field->addSrcDirectory($otherDirectory = __DIR__ . DIRECTORY_SEPARATOR . '..', $otherClosure = function() {}))
 			->then
 				->array($iterators = $field->getSrcDirectoryIterators())->isEqualTo(array(
 							new \recursiveIteratorIterator(new atoum\iterators\filters\recursives\closure(new \recursiveDirectoryIterator($directory))),
@@ -452,10 +452,10 @@ class html extends atoum\test
 			->and($templateParserController->parseFile = function($path) use ($templatesDirectory, $indexTemplate, $classTemplate) {
 						switch ($path)
 						{
-							case $templatesDirectory . '/index.tpl':
+							case $templatesDirectory . DIRECTORY_SEPARATOR . 'index.tpl':
 								return $indexTemplate;
 
-							case $templatesDirectory . '/class.tpl':
+							case $templatesDirectory . DIRECTORY_SEPARATOR . 'class.tpl':
 								return $classTemplate;
 						}
 					}
@@ -499,8 +499,8 @@ class html extends atoum\test
 					->call('getValueForMethod')->withArguments($className, $method3Name)->never()
 					->call('getValueForMethod')->withArguments($className, $method4Name)->once()
 				->mock($templateParser)
-					->call('parseFile')->withArguments($templatesDirectory . '/index.tpl', null)->once()
-					->call('parseFile')->withArguments($templatesDirectory . '/class.tpl', null)->once()
+					->call('parseFile')->withArguments($templatesDirectory . DIRECTORY_SEPARATOR . 'index.tpl', null)->once()
+					->call('parseFile')->withArguments($templatesDirectory . DIRECTORY_SEPARATOR . 'class.tpl', null)->once()
 				->mock($indexTemplate)
 					->call('__set')->withArguments('projectName', $projectName)->once()
 					->call('__set')->withArguments('rootUrl', $rootUrl . '/')->once()
@@ -551,7 +551,8 @@ class html extends atoum\test
 				->mock($notCoveredLineTemplate)
 					->call('__set')->withArguments('code', $line7)->once()
 				->adapter($adapter)
-					->call('file_put_contents')->withArguments($destinationDirectory . '/index.html', $buildOfIndexTemplate)->once()
+					->call('file_put_contents')->withArguments($destinationDirectory . DIRECTORY_SEPARATOR . 'index.html', $buildOfIndexTemplate)->once()
+					->call('copy')->withArguments($templatesDirectory . DIRECTORY_SEPARATOR . 'screen.css', $destinationDirectory . DIRECTORY_SEPARATOR . 'screen.css')->once()
 					->call('fopen')->withArguments($classFile, 'r')->once()
 					->call('fgets')->withArguments($classResource)->atLeastOnce()
 					->call('fclose')->withArguments($classResource)->once()
