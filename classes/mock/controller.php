@@ -6,23 +6,27 @@ use
 	mageekguy\atoum,
 	mageekguy\atoum\mock,
 	mageekguy\atoum\test,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class controller extends test\adapter
 {
 	protected $mockClass = null;
-	protected $reflectionClassDependency = null;
+	protected $reflectionClassResolver = null;
 
 	protected static $controlNextNewMock = null;
 
 	private $disableMethodChecking = false;
 
-	public function __construct(atoum\dependencies $dependencies = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($dependencies);
+		parent::__construct($resolver);
 
-		$this->controlNextNewMock();
+		$this
+			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+			->controlNextNewMock()
+		;
 	}
 
 	public function __set($method, $mixed)
@@ -57,30 +61,16 @@ class controller extends test\adapter
 		return $this;
 	}
 
-	public function setReflectionClassDependency(atoum\dependency $dependency)
+	public function setReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		$this->reflectionClassDependency = $dependency;
+		$this->reflectionClassResolver = $resolver;
 
 		return $this;
 	}
 
-	public function getReflectionClassDependency()
+	public function getReflectionClassResolver()
 	{
-		return $this->reflectionClassDependency;
-	}
-
-	public function setDependencies(atoum\dependencies $dependencies)
-	{
-		if (isset($dependencies['reflection\class']) === true)
-		{
-			$this->setReflectionClassDependency($dependencies['reflection\class']);
-		}
-		else
-		{
-			$this->setReflectionClassDependency(new atoum\dependency(function($dependencies) { return new \reflectionClass($dependencies['class']()); }));
-		}
-
-		return parent::setDependencies($dependencies);
+		return $this->reflectionClassResolver;
 	}
 
 	public function disableMethodChecking()
@@ -239,9 +229,14 @@ class controller extends test\adapter
 
 	protected function getReflectionClass($class)
 	{
-		$reflectionClassDependency = $this->reflectionClassDependency;
+		$reflectionClassResolver = $this->reflectionClassResolver;
 
-		return $reflectionClassDependency(array('class' => $class));
+		return $reflectionClassResolver(array('class' => $class));
+	}
+
+	protected static function getDefaultReflectionClassResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['class']()); });
 	}
 
 	private function set__call()

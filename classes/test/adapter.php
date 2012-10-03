@@ -5,7 +5,6 @@ namespace mageekguy\atoum\test;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\exceptions,
-	mageekguy\atoum\dependency,
 	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test\adapter\invoker
 ;
@@ -14,14 +13,14 @@ class adapter extends atoum\adapter
 {
 	protected $calls = array();
 	protected $invokers = array();
-	protected $invokerDependency = null;
+	protected $invokerResolver = null;
 
 	private static $callsNumber = 0;
 	private static $instances = null;
 
-	public function __construct(dependencies $dependencies = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setDependencies($dependencies ?: new dependencies());
+		$this->setInvokerResolver($resolver['@invoker'] ?: static::getDefaultInvokerResolver());
 
 		if (self::$instances === null)
 		{
@@ -80,30 +79,16 @@ class adapter extends atoum\adapter
 		return $this;
 	}
 
-	public function setInvokerDependency(atoum\dependency $dependency)
+	public function setInvokerResolver(dependencies\resolver $resolver)
 	{
-		$this->invokerDependency = $dependency;
+		$this->invokerResolver = $resolver;
 
 		return $this;
 	}
 
-	public function getInvokerDependency()
+	public function getInvokerResolver()
 	{
-		return $this->invokerDependency;
-	}
-
-	public function setDependencies(dependencies $dependencies)
-	{
-		if (isset($dependencies['invoker']) === true)
-		{
-			$this->setInvokerDependency($dependencies['invoker']);
-		}
-		else
-		{
-			$this->setInvokerDependency(new dependency(function() { return new invoker(); }));
-		}
-
-		return $this;
+		return $this->invokerResolver;
 	}
 
 	public function getInvokers()
@@ -224,9 +209,12 @@ class adapter extends atoum\adapter
 
 	protected function getInvoker()
 	{
-		$invokerDependency = $this->invokerDependency;
+		return $this->invokerResolver->__invoke();
+	}
 
-		return $invokerDependency();
+	protected static function getDefaultInvokerResolver()
+	{
+		return new dependencies\resolver(function() { return new invoker(); });
 	}
 
 	protected static function isLanguageConstruct($functionName)

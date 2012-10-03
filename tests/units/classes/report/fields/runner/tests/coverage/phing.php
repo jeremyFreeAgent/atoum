@@ -9,6 +9,7 @@ use
 	mageekguy\atoum\locale,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\report\fields\runner\tests
 ;
 
@@ -196,11 +197,10 @@ class phing extends atoum\test
 				->and($methodController->getStartLine = 6)
 				->and($methodController->getEndLine = 8)
 				->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-				->and($dependencies = new atoum\dependencies())
-				->and($dependencies['reflection\class'] = $class)
 				->and($className = uniqid())
 				->and($methodName = uniqid())
-				->and($scoreCoverage->setDependencies($dependencies))
+				->and($reflectionClassResolver = new dependencies\resolver($class))
+				->and($scoreCoverage->setReflectionClassResolver($reflectionClassResolver))
 				->and($scoreCoverage->addXdebugDataForTest($this, $xdebugData = array(
 							  ($classFile = uniqid()) =>
 								 array(

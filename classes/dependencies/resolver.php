@@ -9,6 +9,21 @@ class resolver implements \arrayAccess
 	protected $value = null;
 	protected $dependencies = array();
 
+	public function __construct($mixed = null)
+	{
+		$this->value = $mixed;
+	}
+
+	public function __invoke(array $dependencies = array())
+	{
+		foreach ($dependencies as $name => $value)
+		{
+			$this[$name] = $value;
+		}
+
+		return ($this->value instanceof \closure === false ? $this->value : $this->value->__invoke($this));
+	}
+
 	public function __toString()
 	{
 		$path = $this->name;
@@ -34,18 +49,7 @@ class resolver implements \arrayAccess
 			$this->dependencies[$resolvedDependency]->parent = $this;
 		}
 
-		switch (true)
-		{
-			case $resolvedDependency === $dependency:
-				return $this->dependencies[$resolvedDependency];
-
-			case $this->dependencies[$resolvedDependency]->value instanceof \closure:
-				$dependency = $this->dependencies[$resolvedDependency]->value;
-				return $dependency($this);
-
-			default:
-				return $this->dependencies[$resolvedDependency]->value;
-		}
+		return ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]());
 	}
 
 	public function offsetSet($dependency, $mixed)

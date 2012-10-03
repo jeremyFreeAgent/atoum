@@ -4,6 +4,7 @@ namespace mageekguy\atoum\tests\units\mock;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test\adapter\invoker,
 	mageekguy\atoum\mock\controller as testedClass
 ;
@@ -19,7 +20,7 @@ class controller extends atoum\test
 {
 	public function testClass()
 	{
-		$this->testedClass->isSubclassOf('mageekguy\atoum\test\adapter');
+		$this->testedClass->extends('mageekguy\atoum\test\adapter');
 	}
 
 	public function test__construct()
@@ -30,25 +31,25 @@ class controller extends atoum\test
 				->array($mockController->getCalls())->isEmpty()
 				->array($mockController->getInvokers())->isEmpty()
 				->variable($mockController->getMockClass())->isNull()
-				->object($mockController->getInvokerDependency())->isInstanceOf('mageekguy\atoum\dependency')
-				->object($mockController->getReflectionClassDependency())->isInstanceOf('mageekguy\atoum\dependency')
-			->if($mockController = new testedClass(new atoum\dependencies()))
+				->object($mockController->getInvokerResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($mockController->getReflectionClassResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+			->if($mockController = new testedClass(new dependencies\resolver()))
 			->then
 				->array($mockController->getCalls())->isEmpty()
 				->array($mockController->getInvokers())->isEmpty()
 				->variable($mockController->getMockClass())->isNull()
-				->object($mockController->getInvokerDependency())->isInstanceOf('mageekguy\atoum\dependency')
-				->object($mockController->getReflectionClassDependency())->isInstanceOf('mageekguy\atoum\dependency')
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['invoker'] = function() {})
-			->and($dependencies['reflection\class'] = function() {})
-			->and($mockController = new testedClass($dependencies))
+				->object($mockController->getInvokerResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($mockController->getReflectionClassResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['invoker'] = new dependencies\resolver(function() { return new invoker(); }))
+			->and($resolver['reflection\class'] = new dependencies\resolver(function($class) { return new \reflectionClass($class); }))
+			->and($mockController = new testedClass($resolver))
 			->then
 				->array($mockController->getCalls())->isEmpty()
 				->array($mockController->getInvokers())->isEmpty()
 				->variable($mockController->getMockClass())->isNull()
-				->object($mockController->getInvokerDependency())->isIdenticalTo($dependencies['invoker'])
-				->object($mockController->getReflectionClassDependency())->isIdenticalTo($dependencies['reflection\class'])
+				->object($mockController->getInvokerResolver())->isIdenticalTo($resolver['@invoker'])
+				->object($mockController->getReflectionClassResolver())->isIdenticalTo($resolver['@reflection\class'])
 		;
 	}
 
@@ -154,24 +155,6 @@ class controller extends atoum\test
 		;
 	}
 
-	public function testSetDependencies()
-	{
-		$this
-			->if($mockController = new testedClass())
-			->then
-				->object($mockController->setDependencies(new atoum\dependencies()))->isIdenticalTo($mockController)
-				->object($mockController->getInvokerDependency())->isInstanceOf('mageekguy\atoum\dependency')
-				->object($mockController->getReflectionClassDependency())->isInstanceOf('mageekguy\atoum\dependency')
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['invoker'] = function() {})
-			->and($dependencies['reflection\class'] = function() {})
-			->then
-				->object($mockController->setDependencies($dependencies))->isIdenticalTo($mockController)
-				->object($mockController->getInvokerDependency())->isIdenticalTo($dependencies['invoker'])
-				->object($mockController->getReflectionClassDependency())->isIdenticalTo($dependencies['reflection\class'])
-		;
-	}
-
 	public function testControl()
 	{
 		$mockAggregatorController = new testedClass();
@@ -240,16 +223,15 @@ class controller extends atoum\test
 
 		$reflectionClass = new \mock\reflectionClass(uniqid(), $reflectionClassController);
 
-
 		$aMockController = new testedClass();
 		$aMockController->__construct = function() {};
 
 		$aMock = new \mock\reflectionClass(uniqid(), $aMockController);
 
 		$this
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $reflectionClass)
-			->and($mockController = new testedClass($dependencies))
+			->if($reflectionClassResolver = new dependencies\resolver($reflectionClass))
+			->and($mockController = new testedClass())
+			->and($mockController->setReflectionClassResolver($reflectionClassResolver))
 			->then
 				->variable($mockController->getMockClass())->isNull()
 				->array($mockController->getInvokers())->isEmpty()

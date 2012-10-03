@@ -24,9 +24,9 @@ class score extends atoum\test
 				->array($score->getMemoryUsages())->isEmpty()
 				->array($score->getUncompletedMethods())->isEmpty()
 				->object($score->getCoverage())->isInstanceOf('mageekguy\atoum\score\coverage')
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['coverage'] = $coverage = new \mageekguy\atoum\score\coverage())
-			->and($score = new atoum\score($dependencies))
+			->if($resolver = new atoum\dependencies\resolver())
+			->and($resolver['coverage'] = $coverage = new \mageekguy\atoum\score\coverage())
+			->and($score = new atoum\score($resolver))
 			->then
 				->integer($score->getPassNumber())->isZero()
 				->array($score->getFailAssertions())->isEmpty()

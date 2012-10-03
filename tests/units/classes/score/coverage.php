@@ -6,6 +6,7 @@ use
 	mageekguy\atoum,
 	mageekguy\atoum\mock,
 	mageekguy\atoum\score,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\score\coverage as testedClass
 ;
 
@@ -16,8 +17,8 @@ class coverage extends atoum\test
 	public function testClass()
 	{
 		$this->testedClass
-			->hasInterface('countable')
-			->hasInterface('serializable')
+			->implements('countable')
+			->implements('serializable')
 		;
 	}
 
@@ -29,22 +30,24 @@ class coverage extends atoum\test
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
 				->object($coverage->getAdapter())->isEqualTo(new atoum\adapter())
-				->object($coverage->getReflectionClassDependency())->isInstanceOf('mageekguy\atoum\dependencies')
-			->if($coverage = new testedClass(new atoum\dependencies()))
+				->object($reflectionClassResolver = $coverage->getReflectionClassResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($reflectionClassResolver(array('class' => __CLASS__)))->isEqualTo(new \reflectionClass(__CLASS__))
+			->if($coverage = new testedClass(new dependencies\resolver()))
 			->then
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
 				->object($coverage->getAdapter())->isEqualTo(new atoum\adapter())
-				->object($coverage->getReflectionClassDependency())->isInstanceOf('mageekguy\atoum\dependencies')
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['adapter'] = new atoum\adapter())
-			->and($dependencies['reflection\class'] = function() {})
-			->and($coverage = new testedClass($dependencies))
+				->object($coverage->getReflectionClassResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($reflectionClassResolver(array('class' => __CLASS__)))->isEqualTo(new \reflectionClass(__CLASS__))
+			->if($dependenciesResolver = new dependencies\resolver())
+			->and($dependenciesResolver['adapter'] = $adapter = new atoum\adapter())
+			->and($dependenciesResolver['reflection\class'] = $reflectionClassDependency = new dependencies\resolver())
+			->and($coverage = new testedClass($dependenciesResolver))
 			->then
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
-				->object($coverage->getAdapter())->isIdenticalTo($dependencies['adapter']())
-				->object($coverage->getReflectionClassDependency())->isIdenticalTo($dependencies['reflection\class'])
+				->object($coverage->getAdapter())->isIdenticalTo($adapter)
+				->object($coverage->getReflectionClassResolver())->isIdenticalTo($reflectionClassDependency)
 		;
 	}
 
@@ -63,8 +66,8 @@ class coverage extends atoum\test
 		$this
 			->if($coverage = new testedClass())
 			->then
-				->object($coverage->setReflectionClassDependency($dependency = new atoum\dependencies()))->isIdenticalTo($coverage)
-				->object($coverage->getReflectionClassDependency())->isIdenticalTo($dependency)
+				->object($coverage->setReflectionClassResolver($reflectionClassDependency = new dependencies\resolver()))->isIdenticalTo($coverage)
+				->object($coverage->getReflectionClassResolver())->isIdenticalTo($reflectionClassDependency)
 		;
 	}
 
@@ -95,7 +98,6 @@ class coverage extends atoum\test
 			->and($methodController->getEndLine = 8)
 			->and($methodController->getFileName = $classFile)
 			->and($classController->getMethods = array($method = new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($dependencies['reflection\class'] = $class)
 			->and($classDirectory = uniqid())
 			->and($classFile = $classDirectory . DIRECTORY_SEPARATOR . uniqid())
 			->and($className = uniqid())
@@ -119,9 +121,8 @@ class coverage extends atoum\test
 						)
 					)
 				)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage->setDependencies($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->then
 				->object($coverage->addXdebugDataForTest($this, $xdebugData))->isIdenticalTo($coverage)
 				->array($coverage->getMethods())->isEqualTo(array(
@@ -156,7 +157,9 @@ class coverage extends atoum\test
 					)
 				)
 			->if($class->getMockController()->getName = get_class($class))
-			->and($coverage = new testedClass($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage = new testedClass())
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->excludeClass(get_class($class)))
 			->then
 				->object($coverage->addXdebugDataForTest($this, array()))->isIdenticalTo($coverage)
@@ -165,7 +168,8 @@ class coverage extends atoum\test
 				->object($coverage->addXdebugDataForTest($this, $xdebugData))->isIdenticalTo($coverage)
 				->array($coverage->getClasses())->isEmpty()
 				->array($coverage->getMethods())->isEmpty()
-			->if($coverage = new testedClass($dependencies))
+			->if($coverage = new testedClass())
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->excludeDirectory($classDirectory))
 			->then
 				->object($coverage->addXdebugDataForTest($this, array()))->isIdenticalTo($coverage)
@@ -180,7 +184,7 @@ class coverage extends atoum\test
 	public function testReset()
 	{
 		$this
-			->if($coverage = new testedClass($dependencies = new atoum\dependencies()))
+			->if($coverage = new testedClass())
 			->then
 				->array($coverage->getClasses())->isEmpty()
 				->array($coverage->getMethods())->isEmpty()
@@ -211,7 +215,6 @@ class coverage extends atoum\test
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
 			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($dependencies['reflection\class'] = $class)
 			->and($classFile = uniqid())
 			->and($className = uniqid())
 			->and($methodName = uniqid())
@@ -238,6 +241,8 @@ class coverage extends atoum\test
 			->and($coverage->excludeClass($excludedClass =uniqid()))
 			->and($coverage->excludeNamespace($excludedNamespace= uniqid()))
 			->and($coverage->excludeDirectory($excludedDirectory = uniqid()))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->then
 				->array($coverage->getClasses())->isNotEmpty()
 				->array($coverage->getMethods())->isNotEmpty()
@@ -340,9 +345,9 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage = new testedClass($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage = new testedClass())
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->then
 				->object($coverage->merge($coverage))->isIdenticalTo($coverage)
 				->array($coverage->getClasses())->isEmpty()
@@ -423,9 +428,8 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($otherDependencies = new atoum\dependencies())
-			->and($otherDependencies['reflection\class'] = $otherClass)
-			->and($otherCoverage->setDependencies($otherDependencies))
+			->and($otherReflectionClassResolver = new dependencies\resolver($otherClass))
+			->and($otherCoverage->setReflectionClassResolver($otherReflectionClassResolver))
 			->then
 				->object($coverage->merge($otherCoverage->addXdebugDataForTest($this, $otherXdebugData)))->isIdenticalTo($coverage)
 				->array($coverage->getClasses())->isEqualTo(array(
@@ -494,11 +498,13 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage = new testedClass($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage = new testedClass())
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->excludeClass($className))
-			->and($otherDependencies['reflection\class'] = $class)
-			->and($otherCoverage = new testedClass($otherDependencies))
+			->and($otherReflectionClassResolver = new dependencies\resolver($class))
+			->and($otherCoverage = new testedClass())
+			->and($otherCoverage->setReflectionClassResolver($otherReflectionClassResolver))
 			->and($otherCoverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->array($otherCoverage->getClasses())->isNotEmpty()
@@ -512,7 +518,7 @@ class coverage extends atoum\test
 	public function testCount()
 	{
 		$this
-			->if($coverage = new testedClass($dependencies = new atoum\dependencies()))
+			->if($coverage = new testedClass())
 			->then
 				->sizeOf($coverage)->isZero()
 			->if($classController = new mock\controller())
@@ -533,7 +539,6 @@ class coverage extends atoum\test
 			->and($methodController->getStartLine = 6)
 			->and($methodController->getEndLine = 8)
 			->and($classController->getMethods = array(new \mock\reflectionMethod(uniqid(), uniqid(), $methodController)))
-			->and($dependencies['reflection\class'] = $class)
 			->and($classFile = uniqid())
 			->and($className = uniqid())
 			->and($methodName = uniqid())
@@ -556,6 +561,8 @@ class coverage extends atoum\test
 					)
 				)
 			)
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->then
 				->sizeOf($coverage->addXdebugDataForTest($this, $xdebugData))->isEqualTo(1)
 		;
@@ -597,9 +604,9 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage = new testedClass($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage = new testedClass())
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->array($coverage->getClasses())->isEqualTo(array($className => $classFile))
@@ -650,9 +657,9 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage = new testedClass($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage = new testedClass())
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->float($coverage->getValue())->isEqualTo(0.0)
@@ -778,9 +785,8 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage->setDependencies($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->variable($coverage->getValueForClass(uniqid()))->isNull()
@@ -922,9 +928,8 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage->setDependencies($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->array($coverage->getCoverageForClass($className))->isEqualTo($expected)
@@ -979,9 +984,8 @@ class coverage extends atoum\test
 					)
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage->setDependencies($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->variable($coverage->getValueForMethod(uniqid(), uniqid()))->isNull()
@@ -1124,9 +1128,8 @@ class coverage extends atoum\test
 					8 => -2,
 				)
 			)
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage->setDependencies($dependencies))
+			->and($reflectionClassDependency = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassDependency))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->array($coverage->getCoverageForMethod($className, $methodName))->isEqualTo($expected)

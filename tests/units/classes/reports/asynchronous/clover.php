@@ -4,8 +4,9 @@ namespace mageekguy\atoum\tests\units\reports\asynchronous;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\score,
 	mageekguy\atoum\mock,
+	mageekguy\atoum\score,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\reports\asynchronous as reports
 ;
 
@@ -148,9 +149,8 @@ class clover extends Atoum\test
 					'2.xml'
 				)
 			))
-			->and($dependencies = new atoum\dependencies())
-			->and($dependencies['reflection\class'] = $class)
-			->and($coverage->setDependencies($dependencies))
+			->and($reflectionClassResolver = new dependencies\resolver($class))
+			->and($coverage->setReflectionClassResolver($reflectionClassResolver))
 			->and($coverage->addXdebugDataForTest($this, $xdebugData))
 			->then
 				->object($report->handleEvent(atoum\runner::runStop, $observable))->isIdenticalTo($report)

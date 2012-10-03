@@ -26,19 +26,21 @@ class adapter extends test
 			->then
 				->array($adapter->getInvokers())->isEmpty()
 				->array($adapter->getCalls())->isEmpty()
-				->object($adapter->getInvokerDependency())->isInstanceOf('mageekguy\atoum\dependency')
-			->if($adapter = new testedClass(new dependencies()))
+				->object($invokerResolver = $adapter->getInvokerResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($invokerResolver())->isEqualTo(new invoker())
+			->if($adapter = new testedClass(new dependencies\resolver()))
 			->then
 				->array($adapter->getInvokers())->isEmpty()
 				->array($adapter->getCalls())->isEmpty()
-				->object($adapter->getInvokerDependency())->isInstanceOf('mageekguy\atoum\dependency')
-			->if($dependencies = new dependencies())
-			->and($dependencies['invoker'] = function() {})
-			->and($adapter = new testedClass($dependencies))
+				->object($adapter->getInvokerResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($invokerResolver())->isEqualTo(new invoker())
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['invoker'] = new dependencies\resolver())
+			->and($adapter = new testedClass($resolver))
 			->then
 				->array($adapter->getInvokers())->isEmpty()
 				->array($adapter->getCalls())->isEmpty()
-				->object($adapter->getInvokerDependency())->isIdenticalTo($dependencies['invoker'])
+				->object($adapter->getInvokerResolver())->isIdenticalTo($resolver['@invoker'])
 		;
 	}
 
@@ -194,28 +196,13 @@ class adapter extends test
 		;
 	}
 
-	public function testSetInvokerDependency()
+	public function testSetInvokerResolver()
 	{
 		$this
 			->if($adapter = new testedClass())
 			->then
-				->object($adapter->setInvokerDependency($dependency = new dependency()))->isIdenticalTo($adapter)
-				->object($adapter->getInvokerDependency())->isIdenticalTo($dependency)
-		;
-	}
-
-	public function testSetDependencies()
-	{
-		$this
-			->if($adapter = new testedClass())
-			->then
-				->object($adapter->setDependencies(new dependencies()))->isIdenticalTo($adapter)
-				->object($adapter->getInvokerDependency())->isInstanceOf('mageekguy\atoum\dependency')
-			->if($dependencies = new dependencies())
-			->and($dependencies['invoker'] = function() {})
-			->then
-				->object($adapter->setDependencies($dependencies))->isIdenticalTo($adapter)
-				->object($adapter->getInvokerDependency())->isIdenticalTo($dependencies['invoker'])
+				->object($adapter->setInvokerResolver($invokerResolver = new dependencies\resolver(function() {})))->isIdenticalTo($adapter)
+				->object($adapter->getInvokerResolver())->isIdenticalTo($invokerResolver)
 		;
 	}
 

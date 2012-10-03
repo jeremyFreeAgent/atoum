@@ -13,9 +13,9 @@ class controller extends test\adapter
 {
 	protected $stream = '';
 
-	public function __construct($stream, dependencies $dependencies = null)
+	public function __construct($stream, dependencies\resolver $resolver = null)
 	{
-		parent::__construct($dependencies);
+		parent::__construct($resolver);
 
 		$this->stream = (string) $stream;
 	}
@@ -27,7 +27,7 @@ class controller extends test\adapter
 
 	public function __get($method)
 	{
-		$this->invokerDependency['method'] = $method = strtolower(self::mapMethod($method));
+		$this->invokerResolver['method'] = $method = strtolower(static::mapMethod($method));
 
 		return parent::__get($method);
 	}
@@ -59,7 +59,7 @@ class controller extends test\adapter
 				return $this;
 
 			default:
-				$method = self::mapMethod($method);
+				$method = static::mapMethod($method);
 
 				switch ($method)
 				{
@@ -84,17 +84,7 @@ class controller extends test\adapter
 
 	public function __isset($method)
 	{
-		return parent::__isset(self::mapMethod($method));
-	}
-
-	public function setDependencies(dependencies $dependencies)
-	{
-		if (isset($dependencies['invoker']) === false)
-		{
-			$dependencies['invoker'] = function($dependencies) { return new invoker($dependencies['method']()); };
-		}
-
-		return parent::setDependencies($dependencies);
+		return parent::__isset(static::mapMethod($method));
 	}
 
 	public function getStream()
@@ -109,7 +99,7 @@ class controller extends test\adapter
 
 	public function invoke($method, array $arguments = array())
 	{
-		$method = self::mapMethod($method);
+		$method = static::mapMethod($method);
 
 		if ($method === 'dir_rewinddir' && isset($this->{$method}) === true)
 		{
@@ -117,6 +107,11 @@ class controller extends test\adapter
 		}
 
 		return (isset($this->{$method}) === false ? null : parent::invoke($method, $arguments));
+	}
+
+	protected static function getDefaultInvokerResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new invoker($resolver['method']()); });
 	}
 
 	protected static function mapMethod($method)

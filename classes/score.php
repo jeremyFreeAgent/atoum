@@ -24,21 +24,9 @@ class score
 
 	private static $failId = 0;
 
-	public function __construct(dependencies $dependencies = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setDependencies($dependencies ?: new atoum\dependencies());
-	}
-
-	public function setDependencies(dependencies $dependencies)
-	{
-		return $this->setCoverage(isset($dependencies['coverage']) === false ? new score\coverage($dependencies['coverage']) : $dependencies['coverage']());
-	}
-
-	public function setCoverage(score\coverage $coverage)
-	{
-		$this->coverage = $coverage;
-
-		return $this;
+		$this->setCoverage($resolver['@coverage'] ?: static::getDefaultCoverage($resolver['coverage']));
 	}
 
 	public function reset()
@@ -75,6 +63,13 @@ class score
 	public function getUncompletedMethods()
 	{
 		return $this->uncompletedMethods;
+	}
+
+	public function setCoverage(score\coverage $coverage)
+	{
+		$this->coverage = $coverage;
+
+		return $this;
 	}
 
 	public function getCoverage()
@@ -123,17 +118,17 @@ class score
 
 	public function getFailAssertions()
 	{
-		return self::sort(self::cleanAssertions($this->failAssertions));
+		return static::sort(static::cleanAssertions($this->failAssertions));
 	}
 
 	public function getErrors()
 	{
-		return self::sort($this->errors);
+		return static::sort($this->errors);
 	}
 
 	public function getExceptions()
 	{
-		return self::sort($this->exceptions);
+		return static::sort($this->exceptions);
 	}
 
 	public function getDurationNumber()
@@ -188,22 +183,22 @@ class score
 
 	public function getMethodsWithFail()
 	{
-		return self::getMethods($this->getFailAssertions());
+		return static::getMethods($this->getFailAssertions());
 	}
 
 	public function getMethodsWithError()
 	{
-		return self::getMethods($this->getErrors());
+		return static::getMethods($this->getErrors());
 	}
 
 	public function getMethodsWithException()
 	{
-		return self::getMethods($this->getExceptions());
+		return static::getMethods($this->getExceptions());
 	}
 
 	public function getMethodsNotCompleted()
 	{
-		return self::getMethods($this->getUncompletedMethods());
+		return static::getMethods($this->getUncompletedMethods());
 	}
 
 	public function addPass()
@@ -391,6 +386,11 @@ class score
 		$id = $exception->getCode();
 
 		return (sizeof(array_filter($this->failAssertions, function($assertion) use ($id) { return ($assertion['id'] === $id); })) > 0);
+	}
+
+	protected static function getDefaultCoverage(dependencies\resolver $resolver = null)
+	{
+		return new score\coverage($resolver);
 	}
 
 	private static function getMethods(array $array)

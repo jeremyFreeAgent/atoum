@@ -5,7 +5,8 @@ namespace mageekguy\atoum\score;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\score,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class coverage implements \countable, \serializable
@@ -18,9 +19,9 @@ class coverage implements \countable, \serializable
 	protected $excludedNamespaces = array();
 	protected $excludedDirectories = array();
 
-	public function __construct(atoum\dependencies $dependencies = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setDependencies($dependencies ?: new atoum\dependencies());
+		$this->setDependencies($resolver);
 	}
 
 	public function setAdapter(atoum\adapter $adapter)
@@ -35,14 +36,14 @@ class coverage implements \countable, \serializable
 		return $this->adapter;
 	}
 
-	public function setReflectionClassDependency(atoum\dependency $dependency)
+	public function setReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		$this->reflectionClassDependency = $dependency;
+		$this->reflectionClassDependency = $resolver;
 
 		return $this;
 	}
 
-	public function getReflectionClassDependency()
+	public function getReflectionClassResolver()
 	{
 		return $this->reflectionClassDependency;
 	}
@@ -59,9 +60,9 @@ class coverage implements \countable, \serializable
 		);
 	}
 
-	public function unserialize($string, atoum\dependencies $dependencies = null)
+	public function unserialize($string, dependencies\resolver $resolver = null)
 	{
-		$this->setDependencies($dependencies ?: new atoum\dependencies());
+		$this->setDependencies($resolver);
 
 		list(
 			$this->classes,
@@ -70,29 +71,6 @@ class coverage implements \countable, \serializable
 			$this->excludedNamespaces,
 			$this->excludedDirectories
 		) = unserialize($string);
-
-		return $this;
-	}
-
-	public function setDependencies(atoum\dependencies $dependencies)
-	{
-		if (isset($dependencies['reflection\class']) === true)
-		{
-			$this->setReflectionClassDependency($dependencies['reflection\class']);
-		}
-		else
-		{
-			$this->setReflectionClassDependency(new atoum\dependencies(function($dependencies) { return new \reflectionClass($dependencies['class']()); }));
-		}
-
-		if (isset($dependencies['adapter']) === true)
-		{
-			$this->setAdapter($dependencies['adapter']());
-		}
-		else
-		{
-			$this->setAdapter(new atoum\adapter());
-		}
 
 		return $this;
 	}
@@ -415,12 +393,12 @@ class coverage implements \countable, \serializable
 
 	public function isInExcludedNamespaces($class)
 	{
-		return self::itemIsExcluded($this->excludedNamespaces, $class, '\\');
+		return static::itemIsExcluded($this->excludedNamespaces, $class, '\\');
 	}
 
 	public function isInExcludedDirectories($file)
 	{
-		return self::itemIsExcluded($this->excludedDirectories, $file, DIRECTORY_SEPARATOR);
+		return static::itemIsExcluded($this->excludedDirectories, $file, DIRECTORY_SEPARATOR);
 	}
 
 	protected function isExcluded(\reflectionClass $class)
@@ -474,6 +452,24 @@ class coverage implements \countable, \serializable
 		$reflectionClassDependency = $this->reflectionClassDependency;
 
 		return $reflectionClassDependency(array('class' => $class));
+	}
+
+	protected function setDependencies(dependencies\resolver $resolver = null)
+	{
+		return $this
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
+			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+		;
+	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new atoum\adapter();
+	}
+
+	protected static function getDefaultReflectionClassResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}
 
 	protected static function itemIsExcluded(array $excludedItems, $item, $delimiter)

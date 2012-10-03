@@ -22,6 +22,15 @@ class resolver extends atoum\test
 			->if($resolver = new testedClass())
 			->then
 				->castToString($resolver)->isEqualTo('/')
+				->variable($resolver())->isNull()
+			->if($resolver = new testedClass($value = uniqid()))
+			->then
+				->castToString($resolver)->isEqualTo('/')
+				->string($resolver())->isEqualTo($value)
+			->if($resolver = new testedClass(function() use (& $value) { return ($value = uniqid()); }))
+			->then
+				->castToString($resolver)->isEqualTo('/')
+				->string($resolver())->isEqualTo($value)
 		;
 	}
 
@@ -68,6 +77,10 @@ class resolver extends atoum\test
 				->variable($resolver[$dependency]['@' . $otherDependency])->isNull()
 				->castToString($resolver[$dependency])->isEqualTo('/' . $dependency)
 				->castToString($resolver[$dependency][$otherDependency])->isEqualTo('/' . $dependency . '/' . $otherDependency)
+			->if($resolver[$dependency = uniqid()] = function() use (& $value) { return ($value = uniqid()); })
+			->then
+				->object($resolver[$dependency])->isInstanceOf($this->getTestedClassName())
+				->string($resolver['@' . $dependency])->isEqualTo($value)
 		;
 	}
 
