@@ -5,6 +5,7 @@ namespace mageekguy\atoum\iterators\recursives;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\iterators\filters
 ;
 
@@ -13,16 +14,22 @@ class directory implements \iteratorAggregate
 	protected $path = null;
 	protected $acceptDots = false;
 	protected $acceptedExtensions = array('php');
-	protected $dependencies = null;
+	protected $iteratorResolver = null;
+	protected $dotFilterResolver = null;
+	protected $extensionFilterResolver = null;
 
-	public function __construct($path = null, atoum\dependencies $dependencies = null)
+	public function __construct($path = null, dependencies\resolver $resolver = null)
 	{
 		if ($path !== null)
 		{
 			$this->setPath($path);
 		}
 
-		$this->setDependencies($dependencies ?: new atoum\dependencies());
+		$this
+			->setIteratorResolver($resolver['@iterator'] ?: static::getDefaultIteratorResolver())
+			->setDotFilterResolver($resolver['@filters\dot'] ?: static::getDefaultDotFilterResolver())
+			->setExtensionFilterResolver($resolver['@filters\extension'] ?: static::getDefaultExtensionFilterResolver())
+		;
 	}
 
 	public function setPath($path)
@@ -32,31 +39,40 @@ class directory implements \iteratorAggregate
 		return $this;
 	}
 
-	public function setDependencies(atoum\dependencies $dependencies)
+	public function setIteratorResolver(dependencies\resolver $resolver)
 	{
-		$this->dependencies = $dependencies;
-
-		if (isset($this->dependencies['iterator']) === false)
-		{
-			$this->dependencies['iterator'] = function($dependencies) { return new \recursiveDirectoryIterator($dependencies['directory']()); };
-		}
-
-		if (isset($this->dependencies['filters\dot']) === false)
-		{
-			$this->dependencies['filters\dot'] = function($dependencies) { return new filters\recursives\dot($dependencies['iterator']()); };
-		}
-
-		if (isset($this->dependencies['filters\extension']) === false)
-		{
-			$this->dependencies['filters\extension'] = function($dependencies) { return new filters\recursives\extension($dependencies['iterator'](), $dependencies['extensions']()); };
-		}
+		$this->iteratorResolver = $resolver;
 
 		return $this;
 	}
 
-	public function getDependencies()
+	public function getIteratorResolver()
 	{
-		return $this->dependencies;
+		return $this->iteratorResolver;
+	}
+
+	public function setDotFilterResolver(dependencies\resolver $resolver)
+	{
+		$this->dotFilterResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getDotFilterResolver()
+	{
+		return $this->dotFilterResolver;
+	}
+
+	public function setExtensionFilterResolver(dependencies\resolver $resolver)
+	{
+		$this->extensionFilterResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getExtensionFilterResolver()
+	{
+		return $this->extensionFilterResolver;
 	}
 
 	public function getPath()
@@ -75,16 +91,16 @@ class directory implements \iteratorAggregate
 			throw new exceptions\runtime('Path is undefined');
 		}
 
-		$iterator = $this->dependencies['iterator'](array('directory' => $this->path));
+		$iterator = $this->iteratorResolver->__invoke(array('directory' => $this->path));
 
 		if ($this->acceptDots === false)
 		{
-			$iterator = $this->dependencies['filters\dot'](array('iterator' => $iterator));
+			$iterator = $this->dotFilterResolver->__invoke(array('iterator' => $iterator));
 		}
 
 		if (sizeof($this->acceptedExtensions) > 0)
 		{
-			$iterator = $this->dependencies['filters\extension'](array('iterator' => $iterator, 'extensions' => $this->acceptedExtensions));
+			$iterator = $this->extensionFilterResolver->__invoke(array('iterator' => $iterator, 'extensions' => $this->acceptedExtensions));
 		}
 
 		return $iterator;
@@ -148,5 +164,20 @@ class directory implements \iteratorAggregate
 	protected static function cleanExtension($extension)
 	{
 		return trim($extension, '.');
+	}
+
+	protected static function getDefaultIteratorResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \recursiveDirectoryIterator($resolver['directory']()); });
+	}
+
+	protected static function getDefaultDotFilterResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new filters\recursives\dot($resolver['iterator']()); });
+	}
+
+	protected static function getDefaultExtensionFilterResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new filters\recursives\extension($resolver['iterator'](), $resolver['extensions']()); });
 	}
 }

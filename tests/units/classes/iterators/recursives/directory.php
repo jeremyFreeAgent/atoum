@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../runner.php';
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\iterators\filters,
 	mageekguy\atoum\iterators\recursives
 ;
@@ -19,7 +20,7 @@ class directory extends atoum\test
 
 	public function test_class()
 	{
-		$this->testedClass->hasInterface('iteratorAggregate');
+		$this->testedClass->implements('iteratorAggregate');
 	}
 
 	public function test__construct()
@@ -29,14 +30,36 @@ class directory extends atoum\test
 				->variable($iterator->getPath())->isNull()
 				->boolean($iterator->dotsAreAccepted())->isFalse()
 				->array($iterator->getAcceptedExtensions())->isEqualTo(array('php'))
-				->object($iterator->getDependencies())->isInstanceOf('mageekguy\atoum\dependencies')
-			->if($iterator = new recursives\directory($path = uniqid(), $dependencies = new atoum\dependencies()))
+				->object($iteratorResolver = $iterator->getIteratorResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($iteratorResolver(array('directory' => __DIR__)))->isEqualTo(new \recursiveDirectoryIterator(__DIR__))
+				->object($dotFilterResolver = $iterator->getDotFilterResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($dotFilterResolver(array('iterator' => $directoryIterator = new \recursiveDirectoryIterator(__DIR__))))->isEqualTo(new filters\recursives\dot($directoryIterator))
+				->object($extensionFilterIterator = $iterator->getExtensionFilterResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($extensionFilterIterator(array('iterator' => $directoryIterator, 'extensions' => $extensions = array(uniqid()))))->isEqualTo(new filters\recursives\extension($directoryIterator, $extensions))
+			->if($iterator = new recursives\directory($path = uniqid(), $resolver = new dependencies\resolver()))
 			->then
 				->string($iterator->getPath())->isEqualTo($path)
 				->boolean($iterator->dotsAreAccepted())->isFalse()
 				->array($iterator->getAcceptedExtensions())->isEqualTo(array('php'))
-				->object($iterator->getDependencies())->isIdenticalTo($dependencies)
-		;
+				->object($iterator->getIteratorResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($iteratorResolver(array('directory' => __DIR__)))->isEqualTo(new \recursiveDirectoryIterator(__DIR__))
+				->object($dotFilterResolver = $iterator->getDotFilterResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($dotFilterResolver(array('iterator' => $directoryIterator = new \recursiveDirectoryIterator(__DIR__))))->isEqualTo(new filters\recursives\dot($directoryIterator))
+				->object($extensionFilterIterator = $iterator->getExtensionFilterResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
+				->object($extensionFilterIterator(array('iterator' => $directoryIterator, 'extensions' => $extensions = array(uniqid()))))->isEqualTo(new filters\recursives\extension($directoryIterator, $extensions))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['iterator'] = $iteratorResolver = new dependencies\resolver(function() {}))
+			->and($resolver['filters\dot'] = $dotFilterResolver = new dependencies\resolver(function() {}))
+			->and($resolver['filters\extension'] = $extensionFilterResolver = new dependencies\resolver(function() {}))
+			->and($iterator = new recursives\directory($path = uniqid(), $resolver))
+			->then
+				->string($iterator->getPath())->isEqualTo($path)
+				->boolean($iterator->dotsAreAccepted())->isFalse()
+				->array($iterator->getAcceptedExtensions())->isEqualTo(array('php'))
+				->object($iterator->getIteratorResolver())->isIdenticalTo($iteratorResolver)
+				->object($iterator->getDotFilterResolver())->isIdenticalTo($dotFilterResolver)
+				->object($iterator->getExtensionFilterResolver())->isIdenticalTo($extensionFilterResolver)
+			;
 	}
 
 	public function testSetPath()
@@ -46,20 +69,6 @@ class directory extends atoum\test
 			->then
 				->object($iterator->setPath($path = uniqid()))->isIdenticalTo($iterator)
 				->string($iterator->getPath())->isEqualTo($path)
-		;
-	}
-
-	public function testSetDependencies()
-	{
-		$this
-			->if($iterator = new recursives\directory())
-			->then
-				->object($iterator->setDependencies($dependencies = new atoum\dependencies()))->isIdenticalTo($iterator)
-				->object($iterator->getDependencies())->isIdenticalTo($dependencies)
-				->object($dependencies['iterator'](array('directory' => __DIR__)))->isInstanceOf('recursiveDirectoryIterator')
-				->string($dependencies['iterator'](array('directory' => __DIR__))->getPath())->isEqualTo(__DIR__)
-				->object($dependencies['filters\dot'](array('iterator' => $iterator = new \recursiveDirectoryIterator(__DIR__))))->isEqualTo(new filters\recursives\dot($iterator))
-				->object($dependencies['filters\extension'](array('iterator' => $iterator = new \recursiveDirectoryIterator(__DIR__), 'extensions' => $extensions = array('php'))))->isEqualTo(new filters\recursives\extension($iterator, $extensions))
 		;
 	}
 
@@ -130,11 +139,11 @@ class directory extends atoum\test
 				)
 					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
 					->hasMessage('Path is undefined')
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['iterator'] = function($dependencies) use (& $recursiveDirectoryIterator) { return ($recursiveDirectoryIterator = new \mock\recursiveDirectoryIterator($dependencies['directory']())); })
-			->and($dependencies['filters\dot'] = function($dependencies) use (& $dotFilterIterator) { return ($dotFilterIterator = new filters\recursives\dot($dependencies['iterator']())); })
-			->and($dependencies['filters\extension'] = function($dependencies) use (& $extensionFilterIterator) { return ($extensionFilterIterator = new filters\recursives\extension($dependencies['iterator'](), $dependencies['extensions']())); })
-			->and($iterator = new recursives\directory($path = uniqid(), $dependencies))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['iterator'] = new dependencies\resolver(function($resolver) use (& $recursiveDirectoryIterator) { return ($recursiveDirectoryIterator = new \mock\recursiveDirectoryIterator($resolver['directory']())); }))
+			->and($resolver['filters\dot'] = new dependencies\resolver(function($resolver) use (& $dotFilterIterator) { return ($dotFilterIterator = new filters\recursives\dot($resolver['iterator']())); }))
+			->and($resolver['filters\extension'] = new dependencies\resolver(function($resolver) use (& $extensionFilterIterator) { return ($extensionFilterIterator = new filters\recursives\extension($resolver['iterator'](), $resolver['extensions']())); }))
+			->and($iterator = new recursives\directory($path = uniqid(), $resolver))
 			->then
 				->object($filterIterator = $iterator->getIterator())->isIdenticalTo($extensionFilterIterator)
 				->object($filterIterator->getInnerIterator())->isIdenticalTo($dotFilterIterator)
