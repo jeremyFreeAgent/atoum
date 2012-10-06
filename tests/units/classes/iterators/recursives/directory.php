@@ -18,7 +18,7 @@ class directory extends atoum\test
 		$this->mockGenerator->shunt('__construct')->generate('recursiveDirectoryIterator');
 	}
 
-	public function test_class()
+	public function testClass()
 	{
 		$this->testedClass->implements('iteratorAggregate');
 	}
