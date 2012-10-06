@@ -7,6 +7,7 @@ require __DIR__ . '/../../../../runner.php';
 use
 	mageekguy\atoum,
 	mageekguy\atoum\mock,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\iterators\filters\recursives
 ;
 
@@ -14,7 +15,7 @@ class dot extends atoum\test
 {
 	public function testClass()
 	{
-		$this->testedClass->isSubclassOf('\recursiveFilterIterator');
+		$this->testedClass->extends('\recursiveFilterIterator');
 	}
 
 	public function test__construct()
@@ -28,17 +29,12 @@ class dot extends atoum\test
 			->then
 				->object($filter->getInnerIterator())->isEqualTo(new \recursiveDirectoryIterator(__DIR__ ))
 				->string($filter->getInnerIterator()->getPath())->isEqualTo(__DIR__)
-			->if($dependencies = new atoum\dependencies())
-			->and($dependencies['iterator'] = function($dependencies) use (& $innerIterator) { return ($innerIterator = new \mock\recursiveDirectoryIterator($dependencies['directory']())); })
-			->and($filter = new recursives\dot($path = uniqid(), $dependencies))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['iterator'] = function($resolver) use (& $innerIterator) { return ($innerIterator = new \mock\recursiveDirectoryIterator($resolver['@directory'])); })
+			->and($filter = new recursives\dot($path = uniqid(), $resolver))
 			->then
 				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)
 				->mock($filter->getInnerIterator())->call('__construct')->withArguments($path, null)->once()
-			->if($dependencies['iterator']['directory'] = $otherPath = uniqid())
-			->and($filter = new recursives\dot($path = uniqid(), $dependencies))
-			->then
-				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)
-				->mock($filter->getInnerIterator())->call('__construct')->withArguments($otherPath, null)->once()
 		;
 	}
 
@@ -47,7 +43,6 @@ class dot extends atoum\test
 		$this
 			->mockGenerator->shunt('__construct')
 			->if($iteratorController = new mock\controller())
-			->and($iteratorController->__construct = function() {})
 			->and($filter = new recursives\dot(new \mock\recursiveDirectoryIterator(uniqid())))
 			->and($iteratorController->current = new \splFileInfo(uniqid()))
 			->then
