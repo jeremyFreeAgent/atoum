@@ -4,16 +4,17 @@ namespace mageekguy\atoum\test\mock;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\mock
+	mageekguy\atoum\mock,
+	mageekguy\atoum\dependencies
 ;
 
 class generator extends mock\generator
 {
 	protected $test = null;
 
-	public function __construct(atoum\test $test)
+	public function __construct(atoum\test $test, dependencies\resolver $resolver = null)
 	{
-		parent::__construct($test->getFactory());
+		parent::__construct($resolver);
 
 		$this->setTest($test);
 	}

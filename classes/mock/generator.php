@@ -4,35 +4,67 @@ namespace mageekguy\atoum\mock;
 
 use
 	mageekguy\atoum,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class generator
 {
 	const defaultNamespace = 'mock';
 
-	protected $factory = null;
+	protected $adapter = null;
+	protected $phpMethodResolver = null;
+	protected $reflectionClassResolver = null;
 	protected $shuntedMethods = array();
 	protected $overloadedMethods = array();
 
 	private $defaultNamespace = null;
 
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setFactory($factory ?: new atoum\factory());
+		$this
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
+			->setPhpMethodResolver($resolver['@php\method'] ?: static::getDefaultPhpMethodResolver())
+			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+		;
 	}
 
-	public function setFactory(atoum\factory $factory)
+	public function setAdapter(atoum\adapter $adapter)
 	{
-		$this->factory = $factory;
+		$this->adapter = $adapter;
 
 		return $this;
 	}
 
-	public function getFactory()
+	public function getAdapter()
 	{
-		return $this->factory;
+		return $this->adapter;
 	}
+
+	public function setReflectionClassResolver(dependencies\resolver $resolver)
+	{
+		$this->reflectionClassResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getReflectionClassResolver()
+	{
+		return $this->reflectionClassResolver;
+	}
+
+	public function setPhpMethodResolver(dependencies\resolver $resolver)
+	{
+		$this->phpMethodResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getPhpMethodResolver()
+	{
+		return $this->phpMethodResolver;
+	}
+
 
 	public function setDefaultNamespace($namespace)
 	{
@@ -81,7 +113,7 @@ class generator
 	public function orphanize($method)
 	{
 		return $this
-			->overload($this->factory['mageekguy\atoum\mock\php\method']($method))
+			->overload($this->phpMethodResolver->__invoke(array('method' => $method)))
 			->shunt($method)
 		;
 	}
@@ -107,20 +139,18 @@ class generator
 			$mockClass = self::getClassName($class);
 		}
 
-		$adapter = $this->factory['mageekguy\atoum\adapter']();
-
-		if ($adapter->class_exists($mockNamespace . '\\' . $mockClass, false) === true || $adapter->interface_exists($mockNamespace . '\\' . $mockClass, false) === true)
+		if ($this->adapter->class_exists($mockNamespace . '\\' . $mockClass, false) === true || $this->adapter->interface_exists($mockNamespace . '\\' . $mockClass, false) === true)
 		{
 			throw new exceptions\logic('Class \'' . $mockNamespace . '\\' . $mockClass . '\' already exists');
 		}
 
-		if ($adapter->class_exists($class, true) === false && $adapter->interface_exists($class, true) === false)
+		if ($this->adapter->class_exists($class, true) === false && $this->adapter->interface_exists($class, true) === false)
 		{
 			$code = self::generateUnknownClassCode($class, $mockNamespace, $mockClass);
 		}
 		else
 		{
-			$reflectionClass = $this->factory['reflectionClass']($class);
+			$reflectionClass = $this->reflectionClassResolver->__invoke(array('class' => $class));
 
 			if ($reflectionClass->isFinal() === true)
 			{
@@ -509,5 +539,20 @@ class generator
 			. "\t\t" . '}' . PHP_EOL
 			. "\t" . '}' . PHP_EOL
 		;
+	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new atoum\adapter();
+	}
+
+	protected static function getDefaultPhpMethodResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new php\method($resolver['@method']); });
+	}
+
+	protected static function getDefaultReflectionClassResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}
 }
