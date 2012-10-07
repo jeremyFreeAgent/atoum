@@ -4,6 +4,7 @@ namespace mageekguy\atoum\tests\units\reports\asynchronous;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\reports\asynchronous
 ;
 
@@ -13,7 +14,7 @@ class vim extends atoum\test
 {
 	public function testClass()
 	{
-		$this->testedClass->isSubclassOf('mageekguy\atoum\reports\asynchronous');
+		$this->testedClass->extends('mageekguy\atoum\reports\asynchronous');
 	}
 
 	public function test__construct()
@@ -21,15 +22,13 @@ class vim extends atoum\test
 		$this
 			->if($report = new asynchronous\vim())
 			->then
-				->object($report->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\locale'] = $locale = new atoum\locale())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\adapter())
-			->and($report = new asynchronous\vim($factory))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['locale'] = $locale = new atoum\locale())
+			->and($resolver['adapter'] = $adapter = new atoum\adapter())
+			->and($report = new asynchronous\vim($resolver))
 			->then
-				->object($report->getFactory())->isIdenticalTo($factory)
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
 		;

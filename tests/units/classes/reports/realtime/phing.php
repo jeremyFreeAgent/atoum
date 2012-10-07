@@ -5,6 +5,7 @@ namespace mageekguy\atoum\tests\units\reports\realtime;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\reports,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields
@@ -26,7 +27,6 @@ class phing extends atoum\test
 				->boolean($report->codeCoverageIsShowed())->isTrue()
 				->boolean($report->missingCodeCoverageIsShowed())->isTrue()
 				->boolean($report->progressIsShowed())->isTrue()
-				->object($report->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 		  ;
 	}
 }

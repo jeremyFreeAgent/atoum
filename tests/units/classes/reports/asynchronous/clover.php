@@ -16,7 +16,7 @@ class clover extends Atoum\test
 {
 	public function testClass()
 	{
-		$this->testedClass->isSubclassOf('mageekguy\atoum\reports\asynchronous');
+		$this->testedClass->extends('mageekguy\atoum\reports\asynchronous');
 	}
 
 	public function testClassConstants()
@@ -36,24 +36,22 @@ class clover extends Atoum\test
 			->if($report = new reports\clover())
 			->then
 				->array($report->getFields(atoum\runner::runStart))->isEmpty()
-				->object($report->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\locale'] = $locale = new atoum\locale())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\test\adapter())
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['locale'] = $locale = new atoum\locale())
+			->and($resolver['adapter'] = $adapter = new atoum\test\adapter())
 			->and($adapter->extension_loaded = true)
-			->and($report = new reports\clover($factory))
+			->and($report = new reports\clover($resolver))
 			->then
-				->object($report->getFactory())->isIdenticalTo($factory)
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
 				->array($report->getFields())->isEmpty()
 				->adapter($adapter)->call('extension_loaded')->withArguments('libxml')->once()
 			->if($adapter->extension_loaded = false)
 			->then
-				->exception(function() use ($factory) {
-								new reports\clover($factory);
+				->exception(function() use ($resolver) {
+								new reports\clover($resolver);
 							}
 						)
 				->isInstanceOf('mageekguy\atoum\exceptions\runtime')
@@ -84,8 +82,8 @@ class clover extends Atoum\test
 						$report->addWriter($writer)->handleEvent(atoum\runner::runStop, new \mageekguy\atoum\runner());
 					})
 					->mock($writer)->call('writeAsynchronousReport')->withArguments($report)->once()
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\test\adapter())
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter = new atoum\test\adapter())
 			->and($adapter->time = 762476400)
 			->and($adapter->uniqid = 'foo')
 			->and($observable = new \mock\mageekguy\atoum\runner())
@@ -101,7 +99,7 @@ class clover extends Atoum\test
 					'1.xml'
 				)
 			))
-			->and($report = new reports\clover($factory))
+			->and($report = new reports\clover($resolver))
 			->then
 				->object($report->handleEvent(atoum\runner::runStop, $observable))->isIdenticalTo($report)
 				->castToString($report)->isEqualToContentsOfFile($filepath)

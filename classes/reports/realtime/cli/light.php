@@ -4,6 +4,7 @@ namespace mageekguy\atoum\reports\realtime\cli;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\reports\realtime,
@@ -13,9 +14,9 @@ use
 
 class light extends realtime
 {
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
 		$firstLevelPrompt = new prompt('> ');
 		$firstLevelColorizer = new colorizer('1;36');

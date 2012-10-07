@@ -5,7 +5,8 @@ namespace mageekguy\atoum\tests\units\reports;
 require __DIR__ . '/../../runner.php';
 
 use
-	mageekguy\atoum
+	mageekguy\atoum,
+	mageekguy\atoum\dependencies
 ;
 
 class asynchronous extends atoum\test
@@ -13,9 +14,9 @@ class asynchronous extends atoum\test
 	public function testHandleEvent()
 	{
 		$this
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\test\adapter())
-			->if($report = new \mock\mageekguy\atoum\reports\asynchronous($factory))
+			->if($resolver = new atoum\dependencies\resolver())
+			->and($resolver['adapter'] = $adapter = new atoum\test\adapter())
+			->if($report = new \mock\mageekguy\atoum\reports\asynchronous($resolver))
 			->then
 				->object($report->handleEvent(atoum\runner::runStop, new atoum\runner()))->isIdenticalTo($report)
 				->variable($report->getTitle())->isNull()

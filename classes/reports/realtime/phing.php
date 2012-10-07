@@ -4,6 +4,7 @@ namespace mageekguy\atoum\reports\realtime;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\reports\realtime,
@@ -21,9 +22,9 @@ class phing extends realtime
 	protected $codeCoverageReportPath = null;
 	protected $codeCoverageReportUrl = null;
 
-	public function __construct($showProgress = true, $showCodeCoverage = true, $showMissingCodeCoverage = true, $showDuration = true, $showMemory = true, $codeCoverageReportPath = null, $codeCoverageReportUrl = null, atoum\factory $factory = null)
+	public function __construct($showProgress = true, $showCodeCoverage = true, $showMissingCodeCoverage = true, $showDuration = true, $showMemory = true, $codeCoverageReportPath = null, $codeCoverageReportUrl = null, dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
 		$this->showProgress = ($showProgress == true);
 		$this->showCodeCoverage = ($showCodeCoverage == true);

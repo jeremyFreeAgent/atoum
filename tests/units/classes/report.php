@@ -3,7 +3,8 @@
 namespace mageekguy\atoum\tests\units;
 
 use
-	mageekguy\atoum
+	mageekguy\atoum,
+	mageekguy\atoum\dependencies
 ;
 
 require_once __DIR__ . '/../runner.php';
@@ -13,8 +14,8 @@ class report extends atoum\test
 	public function testTestedClass()
 	{
 		$this->testedClass
-			->isSubclassOf('mageekguy\atoum\observer')
-			->isSubclassOf('mageekguy\atoum\adapter\aggregator')
+			->implements('mageekguy\atoum\observer')
+			->implements('mageekguy\atoum\adapter\aggregator')
 		;
 	}
 
@@ -24,21 +25,18 @@ class report extends atoum\test
 			->if($report = new atoum\report())
 			->then
 				->variable($report->getTitle())->isNull()
-				->object($report->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
 				->array($report->getFields())->isEmpty()
 				->array($report->getWriters())->isEmpty()
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\locale'] = $locale = new atoum\locale())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\adapter())
-			->and($report = new atoum\report($factory))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['locale'] = $locale = new atoum\locale())
+			->and($resolver['adapter'] = $adapter = new atoum\adapter())
+			->and($report = new atoum\report($resolver))
 			->then
 				->variable($report->getTitle())->isNull()
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
-				->object($report->getFactory()->build('mageekguy\atoum\locale'))->isIdenticalTo($locale)
-				->object($report->getFactory()->build('mageekguy\atoum\adapter'))->isIdenticalTo($adapter)
 				->array($report->getFields())->isEmpty()
 				->array($report->getWriters())->isEmpty()
 		;

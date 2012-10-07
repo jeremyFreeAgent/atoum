@@ -5,6 +5,7 @@ namespace mageekguy\atoum\reports\asynchronous;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\report\fields
 ;
 
@@ -14,9 +15,9 @@ class xunit extends atoum\reports\asynchronous
 
 	protected $score = null;
 
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
 		if ($this->adapter->extension_loaded('libxml') === false)
 		{
@@ -108,13 +109,13 @@ class xunit extends atoum\reports\asynchronous
 						$testCase->setAttribute('classname', $name);
 						$testCase->setAttribute('file', $error['file']);
 					}
-					
+
 					$testCase->appendChild($xError = $document->createElement('error'));
 
 					$xError->setAttribute('type', $error['type']);
 					$xError->appendChild($document->createCDATASection($error['message']));
 				}
-				
+
 				foreach ($class['fails'] as $fail)
 				{
 					if( ($testCase = $document->getElementById($fail['method'])) === null)
@@ -126,14 +127,14 @@ class xunit extends atoum\reports\asynchronous
 						$testCase->setAttribute('classname', $name);
 						$testCase->setAttribute('file', $fail['file']);
 					}
-					
+
 					$testCase->appendChild($xFail = $document->createElement('failure'));
 
 					$xFail->setAttribute('type', 'Failure');
 					$xFail->setAttribute('message', $fail['asserter']);
 					$xFail->appendChild($document->createCDATASection($fail['fail']));
 				}
-				
+
 				foreach ($class['excepts'] as $exc)
 				{
 					if( ($testCase = $document->getElementById($exc['method'])) === null)
@@ -145,7 +146,7 @@ class xunit extends atoum\reports\asynchronous
 						$testCase->setAttribute('classname', $name);
 						$testCase->setAttribute('file', $exc['file']);
 					}
-					
+
 					$testCase->appendChild($xError = $document->createElement('error'));
 
 					$xError->setAttribute('type', 'Exception');

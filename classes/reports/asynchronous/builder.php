@@ -7,15 +7,16 @@ use
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\report\fields\test,
 	mageekguy\atoum\report\fields\runner
 ;
 
 class builder extends atoum\reports\asynchronous
 {
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
 		$this
 			->addField(new runner\atoum\cli())

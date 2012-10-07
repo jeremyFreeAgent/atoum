@@ -5,6 +5,7 @@ namespace mageekguy\atoum\tests\units\reports\realtime\cli;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\reports,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\cli\prompt,
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\report\fields
@@ -19,7 +20,6 @@ class light extends atoum\test
 		$this
 			->if($report = new reports\realtime\cli\light())
 			->then
-				->object($report->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
 				->array($report->getFields())->isEqualTo(array(
@@ -62,12 +62,11 @@ class light extends atoum\test
 						)
 					)
 				)
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\locale'] = $locale = new atoum\locale())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\adapter())
-			->and($report = new reports\realtime\cli\light($factory))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['locale'] = $locale = new atoum\locale())
+			->and($resolver['adapter'] = $adapter = new atoum\adapter())
+			->and($report = new reports\realtime\cli\light($resolver))
 			->then
-				->object($report->getFactory())->isIdenticalTo($factory)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->array($report->getFields())->isEqualTo(array(

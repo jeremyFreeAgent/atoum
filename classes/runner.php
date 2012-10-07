@@ -622,7 +622,7 @@ class runner implements observable, adapter\aggregator
 
 	public function addDefaultReport()
 	{
-		$report = $this->factory['mageekguy\atoum\reports\realtime\cli']($this->factory);
+		$report = $this->factory['mageekguy\atoum\reports\realtime\cli']();
 		$report->addWriter($this->factory['mageekguy\atoum\writers\std\out']());
 
 		$this->addReport($report);

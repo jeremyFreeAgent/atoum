@@ -8,14 +8,15 @@ use
 	mageekguy\atoum\cli\colorizer,
 	mageekguy\atoum\reports,
 	mageekguy\atoum\report\fields\test,
-	mageekguy\atoum\report\fields\runner
+	mageekguy\atoum\report\fields\runner,
+	mageekguy\atoum\dependencies
 ;
 
 class vim extends reports\asynchronous
 {
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
 		$firstLevelPrompt = new prompt('> ');
 		$secondLevelPrompt = new prompt('=> ');

@@ -2,35 +2,25 @@
 
 namespace mageekguy\atoum;
 
+use
+	mageekguy\atoum\dependencies
+;
+
 class report implements observer, adapter\aggregator
 {
 	protected $title = null;
-	protected $factory = null;
 	protected $locale = null;
 	protected $adapter = null;
 	protected $writers = array();
 	protected $fields = array();
 	protected $lastSetFields = array();
 
-	public function __construct(factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
 		$this
-			->setFactory($factory ?: new factory())
-			->setLocale($this->factory['mageekguy\atoum\locale']())
-			->setAdapter($this->factory['mageekguy\atoum\adapter']())
+			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
 		;
-	}
-
-	public function setFactory(factory $factory)
-	{
-		$this->factory = $factory;
-
-		return $this;
-	}
-
-	public function getFactory()
-	{
-		return $this->factory;
 	}
 
 	public function setTitle($title)
@@ -118,5 +108,15 @@ class report implements observer, adapter\aggregator
 		$this->writers[] = $writer;
 
 		return $this;
+	}
+
+	protected static function getDefaultLocale()
+	{
+		return new locale();
+	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new adapter();
 	}
 }

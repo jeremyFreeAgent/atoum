@@ -4,8 +4,9 @@ namespace mageekguy\atoum\reports\asynchronous;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\score,
 	mageekguy\atoum\exceptions,
-	mageekguy\atoum\score
+	mageekguy\atoum\dependencies
 ;
 
 class clover extends atoum\reports\asynchronous
@@ -24,9 +25,9 @@ class clover extends atoum\reports\asynchronous
 	protected $classes = 0;
 	protected $package = '';
 
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
 		if ($this->getAdapter()->extension_loaded('libxml') === false)
 		{

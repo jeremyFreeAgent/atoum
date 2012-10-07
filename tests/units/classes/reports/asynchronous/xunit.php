@@ -5,6 +5,7 @@ namespace mageekguy\atoum\tests\units\reports\asynchronous;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\report,
+	mageekguy\atoum\dependencies,
 	ageekguy\atoum\asserter\exception,
 	mageekguy\atoum\reports\asynchronous as reports
 ;
@@ -29,25 +30,23 @@ class xunit extends atoum\test
 			->if($report = new reports\xunit())
 			->then
 				->array($report->getFields(atoum\runner::runStart))->isEmpty()
-				->object($report->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->object($report->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($report->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
-			->if($factory = new atoum\factory())
-			->and($factory['mageekguy\atoum\locale'] = $locale = new atoum\locale())
-			->and($factory['mageekguy\atoum\adapter'] = $adapter = new atoum\test\adapter())
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['locale'] = $locale = new atoum\locale())
+			->and($resolver['adapter'] = $adapter = new atoum\test\adapter())
 			->and($adapter->extension_loaded = true)
-			->and($report = new reports\xunit($factory))
+			->and($report = new reports\xunit($resolver))
 			->then
-				->object($report->getFactory())->isIdenticalTo($factory)
 				->object($report->getLocale())->isIdenticalTo($locale)
 				->object($report->getAdapter())->isIdenticalTo($adapter)
 				->array($report->getFields())->isEmpty()
 				->adapter($adapter)->call('extension_loaded')->withArguments('libxml')->once()
 			->if($adapter->extension_loaded = false)
 			->then
-				->exception(function() use ($factory) { new reports\xunit($factory); })
-				->isInstanceOf('mageekguy\atoum\exceptions\runtime')
-				->hasMessage('libxml PHP extension is mandatory for xunit report')
+				->exception(function() use ($resolver) { new reports\xunit($resolver); })
+					->isInstanceOf('mageekguy\atoum\exceptions\runtime')
+					->hasMessage('libxml PHP extension is mandatory for xunit report')
 		;
 	}
 
