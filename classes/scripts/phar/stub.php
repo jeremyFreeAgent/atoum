@@ -276,7 +276,7 @@ class stub extends scripts\runner
 
 	public function listAvailableVersions()
 	{
-		$currentPhar = $this->factory->build('phar', array($this->getName()));
+		$currentPhar = $this->pharResolver->__invoke(array('path' => $this->getName()));
 
 		if (isset($currentPhar['versions']) === false)
 		{
@@ -315,7 +315,7 @@ class stub extends scripts\runner
 
 		if ($phar === null)
 		{
-			$phar = $this->factory->build('phar', array($this->getName()));
+			$phar = $this->pharResolver->__invoke(array('path' => $this->getName()));
 		}
 
 		if (($versions = $this->getVersions($phar)) === null)
@@ -348,7 +348,7 @@ class stub extends scripts\runner
 
 		if ($phar === null)
 		{
-			$phar = $this->factory->build('phar', array($this->getName()));
+			$phar = $this->pharResolver->__invoke(array('path' => $this->getName()));
 		}
 
 		if (($versions = $this->getVersions($phar)) === null)
