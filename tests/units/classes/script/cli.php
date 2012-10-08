@@ -4,6 +4,7 @@ namespace mageekguy\atoum\tests\units\script;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mock\mageekguy\atoum\script\cli as testedClass
 ;
 
@@ -15,7 +16,7 @@ class cli extends atoum\test
 	{
 		$this->testedClass
 			->isAbstract()
-			->isSubclassOf('mageekguy\atoum\script')
+			->extends('mageekguy\atoum\script')
 		;
 	}
 
@@ -24,12 +25,11 @@ class cli extends atoum\test
 		$this
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->php_sapi_name = uniqid())
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory['atoum\adapter'] = $adapter)
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter)
 			->then
-				->exception(function() use ($factory, & $name) {
-						new testedClass($name = uniqid(), $factory);
+				->exception(function() use ($resolver, & $name) {
+						new testedClass($name = uniqid(), $resolver);
 					}
 				)
 					->isInstanceOf('mageekguy\atoum\exceptions\logic')

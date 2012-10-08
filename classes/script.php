@@ -5,7 +5,8 @@ namespace mageekguy\atoum;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\script,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 abstract class script implements atoum\adapter\aggregator
@@ -13,7 +14,6 @@ abstract class script implements atoum\adapter\aggregator
 	const padding = '   ';
 
 	protected $name = '';
-	protected $factory = null;
 	protected $locale = null;
 	protected $adapter = null;
 	protected $outputWriter = null;
@@ -22,38 +22,22 @@ abstract class script implements atoum\adapter\aggregator
 	private $help = array();
 	private $argumentsParser = null;
 
-	public function __construct($name, atoum\factory $factory = null)
+	public function __construct($name, dependencies\resolver $resolver = null)
 	{
 		$this->name = (string) $name;
 
 		$this
-			->setFactory($factory ?: new atoum\factory())
-			->setLocale($this->factory['atoum\locale']())
-			->setAdapter($this->factory['atoum\adapter']())
-			->setArgumentsParser($this->factory['atoum\script\arguments\parser']())
-			->setOutputWriter($this->factory['atoum\writers\std\out']())
-			->setErrorWriter($this->factory['atoum\writers\std\err']())
+			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
+			->setArgumentsParser($resolver['@arguments\parser'] ?: static::getDefaultArgumentsParser())
+			->setOutputWriter($resolver['@writers\stdout'] ?: static::getDefaultStdoutWriter())
+			->setErrorWriter($resolver['@writers\stderr'] ?: static::getDefaultStderrWriter())
 		;
-
-		$this->factory['atoum\locale'] = $this->locale;
-		$this->factory['atoum\adapter'] = $this->adapter;
 
 		if ($this->adapter->php_sapi_name() !== 'cli')
 		{
 			throw new exceptions\logic('\'' . $this->getName() . '\' must be used in CLI only');
 	 	}
-	}
-
-	public function setFactory(atoum\factory $factory)
-	{
-		$this->factory = $factory->import('mageekguy\atoum');
-
-		return $this;
-	}
-
-	public function getFactory()
-	{
-		return $this->factory;
 	}
 
 	public function setOutputWriter(atoum\writer $writer)
@@ -260,5 +244,30 @@ abstract class script implements atoum\adapter\aggregator
 		$this->help = array();
 
 		return $this;
+	}
+
+	protected static function getDefaultLocale()
+	{
+		return new atoum\locale;
+	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new atoum\adapter();
+	}
+
+	protected static function getDefaultArgumentsParser()
+	{
+		return new atoum\script\arguments\parser();
+	}
+
+	protected static function getDefaultStdoutWriter()
+	{
+		return new atoum\writers\std\out();
+	}
+
+	protected static function getDefaultStderrWriter()
+	{
+		return new atoum\writers\std\err();
 	}
 }

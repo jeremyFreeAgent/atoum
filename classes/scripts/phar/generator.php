@@ -7,17 +7,33 @@ require_once __DIR__ . '/../../../constants.php';
 use
 	mageekguy\atoum,
 	mageekguy\atoum\iterators,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class generator extends atoum\script
 {
 	const phar = 'mageekguy.atoum.phar';
 
+	protected $pharResolver = null;
 	protected $generate = true;
 	protected $originDirectory = null;
 	protected $destinationDirectory = null;
 	protected $stubFile = null;
+
+	public function __construct($name, dependencies\resolver $resolver = null)
+	{
+		parent::__construct($name, $resolver);
+
+		$this->setPharResolver($resolver['@phar'] ?: static::getDefaultPharResolver());
+	}
+
+	public function setPharResolver(dependencies\resolver $resolver)
+	{
+		$this->pharResolver = $resolver;
+
+		return $this;
+	}
 
 	public function setOriginDirectory($directory)
 	{
@@ -175,7 +191,7 @@ class generator extends atoum\script
 			throw new exceptions\runtime(sprintf($this->locale->_('Unable to read stub file \'%s\''), $this->stubFile));
 		}
 
-		$phar = $this->factory->build('phar', array($pharFile));
+		$phar = $this->pharResolver->__invoke(array('path' => $pharFile));
 
 		$phar['versions'] = serialize(array('1' => atoum\version, 'current' => '1'));
 
@@ -243,5 +259,10 @@ class generator extends atoum\script
 				$this->locale->_('Destination directory <dir>')
 			)
 		;
+	}
+
+	protected static function getDefaultPharResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \phar($resolver['@path']); });
 	}
 }

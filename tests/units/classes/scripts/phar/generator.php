@@ -7,7 +7,8 @@ use
 	mageekguy\atoum\mock,
 	mageekguy\atoum\mock\stream,
 	mageekguy\atoum\iterators,
-	mageekguy\atoum\scripts\phar
+	mageekguy\atoum\scripts\phar,
+	mageekguy\atoum\dependencies
 ;
 
 require_once __DIR__ . '/../../../runner.php';
@@ -26,35 +27,24 @@ class generator extends atoum\test
 		$this->assert
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->php_sapi_name = function() { return uniqid(); })
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory->returnWhenBuild('atoum\adapter', $adapter))
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter)
 			->then
-				->exception(function() use (& $name, $factory) {
-						$generator = new phar\generator($name = uniqid(), $factory);
+				->exception(function() use (& $name, $resolver) {
+						$generator = new phar\generator($name = uniqid(), $resolver);
 					}
 				)
 					->isInstanceOf('mageekguy\atoum\exceptions\logic')
 					->hasMessage('\'' . $name . '\' must be used in CLI only')
 			->if($adapter->php_sapi_name = function() { return 'cli'; })
-			->and($generator = new phar\generator($name = uniqid(), $factory))
+			->and($generator = new phar\generator($name = uniqid(), $resolver))
 			->then
+				->string($generator->getName())->isEqualTo($name)
 				->object($generator->getLocale())->isInstanceOf('mageekguy\atoum\locale')
 				->object($generator->getAdapter())->isInstanceOf('mageekguy\atoum\adapter')
 				->object($generator->getOutputWriter())->isInstanceOf('mageekguy\atoum\writer')
 				->object($generator->getErrorWriter())->isInstanceOf('mageekguy\atoum\writer')
-				->string($generator->getName())->isEqualTo($name)
-				->variable($generator->getOriginDirectory())->isNull()
-				->variable($generator->getDestinationDirectory())->isNull()
 				->object($generator->getArgumentsParser())->isInstanceOf('mageekguy\atoum\script\arguments\parser')
-			->if($factory->returnWhenBuild('atoum\locale', $locale = new atoum\locale()))
-			->and($factory->returnWhenBuild('atoum\script\arguments\parser', $argumentsParser = new atoum\script\arguments\parser()))
-			->and($generator = new phar\generator($name = uniqid(), $factory))
-			->then
-				->string($generator->getName())->isEqualTo($name)
-				->object($generator->getLocale())->isIdenticalTo($locale)
-				->object($generator->getAdapter())->isIdenticalTo($adapter)
-				->object($generator->getArgumentsParser())->isIdenticalTo($argumentsParser)
 				->variable($generator->getOriginDirectory())->isNull()
 				->variable($generator->getDestinationDirectory())->isNull()
 		;
@@ -66,10 +56,9 @@ class generator extends atoum\test
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->php_sapi_name = function() { return 'cli'; })
 			->and($adapter->realpath = function($path) { return $path; })
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory->returnWhenBuild('atoum\adapter', $adapter))
-			->and($generator = new phar\generator(uniqid(), $factory))
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter)
+			->and($generator = new phar\generator(uniqid(), $resolver))
 			->then
 				->exception(function() use ($generator) {
 						$generator->setOriginDirectory('');
@@ -113,10 +102,9 @@ class generator extends atoum\test
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->php_sapi_name = function() { return 'cli'; })
 			->and($adapter->realpath = function($path) { return $path; })
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory->returnWhenBuild('atoum\adapter', $adapter))
-			->and($generator = new phar\generator(uniqid(), $factory))
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter)
+			->and($generator = new phar\generator(uniqid(), $resolver))
 			->then
 				->exception(function() use ($generator) {
 						$generator->setDestinationDirectory('');
@@ -157,10 +145,9 @@ class generator extends atoum\test
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->php_sapi_name = function() { return 'cli'; })
 			->and($adapter->realpath = function($path) { return $path; })
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory->returnWhenBuild('atoum\adapter', $adapter))
-			->and($generator = new phar\generator(uniqid(), $factory))
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter)
+			->and($generator = new phar\generator(uniqid(), $resolver))
 			->then
 				->exception(function() use ($generator) {
 						$generator->setStubFile('');
@@ -245,10 +232,9 @@ class generator extends atoum\test
 				->and($adapter->is_dir = function() { return true; })
 				->and($adapter->is_file = function() { return true; })
 				->and($adapter->unlink = function() {})
-				->and($factory = new atoum\factory())
-				->and($factory->import('mageekguy\atoum'))
-				->and($factory->returnWhenBuild('atoum\adapter', $adapter))
-				->and($generator = new phar\generator(uniqid(), $factory))
+				->and($resolver = new dependencies\resolver())
+				->and($resolver['adapter'] = $adapter)
+				->and($generator = new phar\generator(uniqid(), $resolver))
 				->then
 					->exception(function () use ($generator) {
 							$generator->run();
@@ -299,7 +285,7 @@ class generator extends atoum\test
 						->isInstanceOf('mageekguy\atoum\exceptions\runtime')
 						->hasMessage('Stub file \'' . $generator->getStubFile() . '\' is not readable')
 				->if($adapter->is_readable = function($path) use ($originDirectory, $stubFile) { return ($path === (string) $originDirectory || $path === $stubFile); })
-				->and($generator->setFactory($factory->setBuilder('phar', function($name) use (& $phar) {
+				->and($generator->setPharResolver(new dependencies\resolver(function($resolver) use (& $phar) {
 								$pharController = new mock\controller();
 								$pharController->__construct = function() {};
 								$pharController->setStub = function() {};
@@ -309,7 +295,7 @@ class generator extends atoum\test
 								$pharController->offsetGet = function() {};
 								$pharController->offsetSet = function() {};
 
-								return ($phar = new \mock\phar($name));
+								return ($phar = new \mock\phar($resolver['@path']));
 							}
 						)
 					)
@@ -395,18 +381,19 @@ class generator extends atoum\test
 						->call('write')->withArguments($generator->getLocale()->_('Available options are:') . PHP_EOL)->once()
 						->call('write')->withArguments('                                -h, --help: ' . $generator->getLocale()->_('Display this help') . PHP_EOL)->once()
 						->call('write')->withArguments('   -d <directory>, --directory <directory>: ' . $generator->getLocale()->_('Destination directory <dir>') . PHP_EOL)->once()
-				->if($generator->getFactory()->setBuilder('phar', function($name) use (& $phar) {
-							$pharController = new mock\controller();
-							$pharController->__construct = function() {};
-							$pharController->setStub = function() {};
-							$pharController->setMetadata = function() {};
-							$pharController->buildFromIterator = function() {};
-							$pharController->setSignatureAlgorithm = function() {};
-							$pharController->offsetGet = function() {};
-							$pharController->offsetSet = function() {};
+				->if($generator->setPharResolver(new dependencies\resolver(function($resolver) use (& $phar) {
+								$pharController = new mock\controller();
+								$pharController->__construct = function() {};
+								$pharController->setStub = function() {};
+								$pharController->setMetadata = function() {};
+								$pharController->buildFromIterator = function() {};
+								$pharController->setSignatureAlgorithm = function() {};
+								$pharController->offsetGet = function() {};
+								$pharController->offsetSet = function() {};
 
-							return ($phar = new \mock\phar($name));
-						}
+								return ($phar = new \mock\phar($resolver['@path']));
+							}
+						)
 					)
 				)
 				->then

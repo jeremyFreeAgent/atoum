@@ -5,6 +5,7 @@ namespace mageekguy\atoum\scripts;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\scripts\phar,
 	mageekguy\atoum\scripts\builder
 ;
@@ -33,13 +34,13 @@ class builder extends atoum\script
 	protected $reportTitle = null;
 	protected $runnerConfigurationFiles = array();
 
-	public function __construct($name, atoum\factory $factory = null)
+	public function __construct($name, dependencies\resolver $resolver = null)
 	{
-		parent::__construct($name, $factory);
+		parent::__construct($name, $resolver);
 
 		$this
-			->setVcs($this->factory->build('atoum\scripts\builder\vcs\svn'))
-			->setSuperglobals($this->factory->build('atoum\superglobals'))
+			->setVcs($resolver['@vcs'] ?: static::getDefaultVcs())
+			->setSuperglobals($resolver['@superglobals'] ?: static::getDefaultSuperglobals())
 			->setUnitTestRunnerScript(self::defaultUnitTestRunnerScript)
 			->setPharGeneratorScript(self::defaultPharGeneratorScript)
 		;
@@ -762,5 +763,15 @@ class builder extends atoum\script
 	protected function cleanDirectoryPath($path)
 	{
 		return rtrim($path, DIRECTORY_SEPARATOR);
+	}
+
+	protected static function getDefaultVcs()
+	{
+		return new atoum\scripts\builder\vcs\svn();
+	}
+
+	protected static function getDefaultSuperglobals()
+	{
+		return new atoum\superglobals();
 	}
 }

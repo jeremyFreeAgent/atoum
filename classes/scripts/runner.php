@@ -7,7 +7,8 @@ require_once __DIR__ . '/../../constants.php';
 use
 	mageekguy\atoum,
 	mageekguy\atoum\system,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class runner extends atoum\script
@@ -16,6 +17,8 @@ class runner extends atoum\script
 
 	protected $runner = null;
 	protected $includer = null;
+	protected $cliResolver = null;
+	protected $configuratorResolver = null;
 	protected $runTests = true;
 	protected $scoreFile = null;
 	protected $arguments = array();
@@ -27,21 +30,16 @@ class runner extends atoum\script
 
 	protected static $autorunner = true;
 
-	public function __construct($name, atoum\factory $factory = null)
+	public function __construct($name, dependencies\resolver $resolver = null)
 	{
-		parent::__construct($name, $factory);
+		parent::__construct($name, $resolver);
 
 		$this
-			->setIncluder($this->factory['atoum\includer']())
-			->setRunner($this->factory['atoum\runner']($this->factory))
+			->setRunner($resolver['@runner'] ?: static::getDefaultRunner())
+			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
+			->setCliResolver($resolver['@cli'] ?: static::getDefaultCliResolver())
+			->setConfiguratorResolver($resolver['@configurator'] ?: static::getDefaultConfiguratorResolver())
 		;
-
-		$this->factory['atoum\includer'] = $this->includer;
-	}
-
-	public function isRunningFromCli()
-	{
-		return (isset($_SERVER['argv']) === true && isset($_SERVER['argv'][0]) === true && realpath($_SERVER['argv'][0]) === $this->getName());
 	}
 
 	public function setRunner(atoum\runner $runner)
@@ -66,6 +64,20 @@ class runner extends atoum\script
 	public function getIncluder()
 	{
 		return $this->includer;
+	}
+
+	public function setCliResolver(dependencies\resolver $resolver)
+	{
+		$this->cliResolver = $resolver;
+
+		return $this;
+	}
+
+	public function setConfiguratorResolver(dependencies\resolver $resolver)
+	{
+		$this->configuratorResolver = $resolver;
+
+		return $this;
 	}
 
 	public function setScoreFile($path)
@@ -107,6 +119,11 @@ class runner extends atoum\script
 	public function getTestAllDirectories()
 	{
 		return $this->testAllDirectories;
+	}
+
+	public function isRunningFromCli()
+	{
+		return (isset($_SERVER['argv']) === true && isset($_SERVER['argv'][0]) === true && realpath($_SERVER['argv'][0]) === $this->getName());
 	}
 
 	public function run(array $arguments = array())
@@ -189,7 +206,7 @@ class runner extends atoum\script
 
 	public function useConfigFile($path)
 	{
-		$script = $this->factory['atoum\configurator']($this);
+		$script = $this->configuratorResolver->__invoke(array('runner' => $this));
 
 		$runner = $this->runner;
 
@@ -751,7 +768,7 @@ class runner extends atoum\script
 	{
 		$arguments = ' --disable-loop-mode';
 
-		$cli = $this->factory['mageekguy\atoum\cli']();
+		$cli = $this->cliResolver->__invoke();
 
 		if ($cli->isTerminal() === true)
 		{
@@ -826,6 +843,26 @@ class runner extends atoum\script
 	protected static function getClassesOf($methods)
 	{
 		return sizeof($methods) <= 0 || isset($methods['*']) === true ? array() : array_keys($methods);
+	}
+
+	protected static function getDefaultRunner()
+	{
+		return new atoum\runner();
+	}
+
+	protected static function getDefaultIncluder()
+	{
+		return new atoum\includer();
+	}
+
+	protected static function getDefaultConfiguratorResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); });
+	}
+
+	protected static function getDefaultCliResolver()
+	{
+		return new dependencies\resolver(function() { return new atoum\cli(); });
 	}
 
 	private static function getFailMethods(atoum\score $score)

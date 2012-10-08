@@ -4,6 +4,7 @@ namespace mageekguy\atoum\tests\units;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mock\mageekguy\atoum as mock
 ;
 
@@ -27,20 +28,14 @@ class script extends atoum\test
 				->object($script->getArgumentsParser())->isInstanceOf('mageekguy\atoum\script\arguments\parser')
 				->object($script->getOutputWriter())->isInstanceOf('mageekguy\atoum\writers\std\out')
 				->object($script->getErrorWriter())->isInstanceOf('mageekguy\atoum\writers\std\err')
-				->object($script->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 				->array($script->getHelp())->isEmpty()
-				->object($script->getFactory()->build('mageekguy\atoum\locale'))->isIdenticalTo($script->getLocale())
-				->object($script->getFactory()->build('mageekguy\atoum\adapter'))->isIdenticalTo($script->getAdapter())
-			->if($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory->import('mageekguy\atoum\writers\std'))
-			->and($factory->import('mageekguy\atoum\script\arguments'))
-			->and($factory['atoum\locale'] = $locale = new atoum\locale())
-			->and($factory['atoum\adapter'] = $adapter = new atoum\adapter())
-			->and($factory['arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
-			->and($factory['std\out'] = $stdOut = new atoum\writers\std\out())
-			->and($factory['std\err'] = $stdErr = new atoum\writers\std\err())
-			->and($script = new mock\script($name = uniqid(), $factory))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['locale'] = $locale = new atoum\locale())
+			->and($resolver['adapter'] = $adapter = new atoum\adapter())
+			->and($resolver['arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
+			->and($resolver['writers\stdout'] = $stdOut = new atoum\writers\std\out())
+			->and($resolver['writers\stderr'] = $stdErr = new atoum\writers\std\err())
+			->and($script = new mock\script($name = uniqid(), $resolver))
 			->then
 				->string($script->getName())->isEqualTo($name)
 				->object($script->getLocale())->isIdenticalTo($locale)
@@ -48,30 +43,17 @@ class script extends atoum\test
 				->object($script->getArgumentsParser())->isIdenticalTo($argumentsParser)
 				->object($script->getOutputWriter())->isIdenticalTo($stdOut)
 				->object($script->getErrorWriter())->isIdenticalTo($stdErr)
-				->object($script->getFactory())->isIdenticalTo($factory)
 				->array($script->getHelp())->isEmpty()
-				->object($script->getFactory()->build('mageekguy\atoum\locale'))->isIdenticalTo($script->getLocale())
-				->object($script->getFactory()->build('mageekguy\atoum\adapter'))->isIdenticalTo($script->getAdapter())
 			->if($adapter = new atoum\test\adapter())
 			->and($adapter->php_sapi_name = uniqid())
-			->and($factory['atoum\adapter'] = $adapter)
+			->and($resolver['adapter'] = $adapter)
 			->then
-				->exception(function() use ($factory, & $name) {
-						new mock\script($name = uniqid(), $factory);
+				->exception(function() use ($resolver, & $name) {
+						new mock\script($name = uniqid(), $resolver);
 					}
 				)
 					->isInstanceOf('mageekguy\atoum\exceptions\logic')
 					->hasMessage('\'' . $name . '\' must be used in CLI only')
-		;
-	}
-
-	public function testSetFactory()
-	{
-		$this
-			->if($script = new mock\script($name = uniqid()))
-			->then
-				->object($script->setFactory($factory = new atoum\factory()))->isIdenticalTo($script)
-				->object($script->getFactory())->isIdenticalTo($factory)
 		;
 	}
 
@@ -175,12 +157,10 @@ class script extends atoum\test
 		$this
 			->if($argumentsParser = new mock\script\arguments\parser())
 			->and($argumentsParser->getMockController()->addHandler = function() {})
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory->import('mageekguy\atoum\script\arguments'))
-			->and($factory['arguments\parser'] = $argumentsParser)
-			->and($factory['atoum\adapter'] = $adapter = new atoum\test\adapter())
-			->and($script = new mock\script(uniqid(), $factory))
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['arguments\parser'] = $argumentsParser)
+			->and($resolver['adapter'] = $adapter = new atoum\test\adapter())
+			->and($script = new mock\script(uniqid(), $resolver))
 			->then
 				->object($script->run())->isIdenticalTo($script)
 				->mock($argumentsParser)->call('parse')->withArguments($script, array())->once()
@@ -202,11 +182,10 @@ class script extends atoum\test
 			->and($stdOut->getMockCOntroller()->write = function() {})
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->fgets = $input = uniqid())
-			->and($factory = new atoum\factory())
-			->and($factory->import('mageekguy\atoum'))
-			->and($factory['atoum\adapter'] = $adapter)
-			->and($factory['atoum\writers\std\out'] = $stdOut)
-			->and($script = new mock\script(uniqid(), $factory))
+			->and($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter)
+			->and($resolver['writers\stdout'] = $stdOut)
+			->and($script = new mock\script(uniqid(), $resolver))
 			->then
 				->string($script->prompt($message = uniqid()))->isEqualTo($input)
 				->mock($stdOut)->call('write')->withIdenticalArguments($message)->once()
