@@ -5,7 +5,8 @@ namespace mageekguy\atoum;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\iterators,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class runner implements observable, adapter\aggregator
@@ -21,7 +22,6 @@ class runner implements observable, adapter\aggregator
 	protected $score = null;
 	protected $adapter = null;
 	protected $locale = null;
-	protected $factory = null;
 	protected $includer = null;
 	protected $observers = null;
 	protected $reports = null;
@@ -33,27 +33,26 @@ class runner implements observable, adapter\aggregator
 	protected $maxChildrenNumber = null;
 	protected $bootstrapFile = null;
 	protected $testDirectoryIterator = null;
+	protected $reflectionClassResolver = null;
+	protected $glogIteratorResolver = null;
 	protected $debugMode = false;
 
 	private $start = null;
 	private $stop = null;
 
-	public function __construct(factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
 		$this
-			->setFactory($factory ?: new factory())
-			->setAdapter($this->factory['mageekguy\atoum\adapter']())
-			->setLocale($this->factory['mageekguy\atoum\locale']())
-			->setIncluder($this->factory['mageekguy\atoum\includer']())
-			->setScore($this->factory['mageekguy\atoum\runner\score']())
-			->setTestDirectoryIterator($this->factory['mageekguy\atoum\iterators\recursives\directory']())
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
+			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
+			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
+			->setScore($resolver['@score'] ?: static::getDefaultScore())
+			->setTestDirectoryIterator($resolver['@directory\iterator'] ?: static::getDefaultDirectoryIterator())
+			->setGlobIteratorResolver($resolver['@glob\iterator'] ?: static::getDefaultGlobIteratorResolver())
+			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
 		;
 
-		$this->factory['mageekguy\atoum\adapter'] = $this->adapter;
-		$this->factory['mageekguy\atoum\locale'] = $this->locale;
-		$this->factory['mageekguy\atoum\includer'] = $this->includer;
-
-		$runnerClass = $this->factory['reflectionClass']($this);
+		$runnerClass = $this->reflectionClassResolver->__invoke(array('class' => $this));
 
 		$this->path = $runnerClass->getFilename();
 		$this->class = $runnerClass->getName();
@@ -62,16 +61,18 @@ class runner implements observable, adapter\aggregator
 		$this->reports = new \splObjectStorage();
 	}
 
-	public function setFactory(factory $factory)
+	public function setGlobIteratorResolver(dependencies\resolver $resolver)
 	{
-		$this->factory = $factory;
+		$this->globIteratorResolver = $resolver;
 
 		return $this;
 	}
 
-	public function getFactory()
+	public function setReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		return $this->factory;
+		$this->reflectionClassResolver = $resolver;
+
+		return $this;
 	}
 
 	public function setTestDirectoryIterator(iterators\recursives\directory $iterator)
@@ -540,7 +541,7 @@ class runner implements observable, adapter\aggregator
 	{
 		try
 		{
-			foreach ($this->factory['globIterator'](rtrim($pattern, DIRECTORY_SEPARATOR)) as $path)
+			foreach ($this->globIteratorResolver->__invoke(array('pattern' => rtrim($pattern, DIRECTORY_SEPARATOR))) as $path)
 			{
 				if ($path->isDir() === true)
 				{
@@ -567,11 +568,11 @@ class runner implements observable, adapter\aggregator
 
 	public function getDeclaredTestClasses($testBaseClass = null)
 	{
-		$factory = $this->factory;
+		$reflectionClassResolver = $this->reflectionClassResolver;
 		$testBaseClass = $testBaseClass ?: __NAMESPACE__ . '\test';
 
-		return array_filter($this->adapter->get_declared_classes(), function($class) use ($factory, $testBaseClass) {
-				$class = $factory['reflectionClass']($class);
+		return array_filter($this->adapter->get_declared_classes(), function($class) use ($reflectionClassResolver, $testBaseClass) {
+				$class = $reflectionClassResolver(array('class' => $class));
 				return ($class->isSubClassOf($testBaseClass) === true && $class->isAbstract() === false);
 			}
 		);
@@ -622,8 +623,8 @@ class runner implements observable, adapter\aggregator
 
 	public function addDefaultReport()
 	{
-		$report = $this->factory['mageekguy\atoum\reports\realtime\cli']();
-		$report->addWriter($this->factory['mageekguy\atoum\writers\std\out']());
+		$report = new atoum\reports\realtime\cli();
+		$report->addWriter(new atoum\writers\std\out());
 
 		$this->addReport($report);
 
@@ -648,6 +649,42 @@ class runner implements observable, adapter\aggregator
 
 		return $isIgnored;
 	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new adapter();
+	}
+
+	protected static function getDefaultLocale()
+	{
+		return new locale();
+	}
+
+	protected static function getDefaultIncluder()
+	{
+		return new includer();
+	}
+
+	protected static function getDefaultScore()
+	{
+		return new runner\score();
+	}
+
+	protected static function getDefaultDirectoryIterator()
+	{
+		return new iterators\recursives\directory();
+	}
+
+	protected static function getDefaultReflectionClassResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
+	}
+
+	protected static function getDefaultGlobIteratorResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); });
+	}
+
 
 	private static function getMethods(test $test, array $runTestMethods, array $tags)
 	{

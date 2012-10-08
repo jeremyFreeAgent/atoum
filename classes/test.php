@@ -38,7 +38,6 @@ abstract class test implements observable, adapter\aggregator, \countable
 	private $class = '';
 	private $classNamespace = '';
 	private $testedClass = null;
-	private $factory = null;
 	private $adapter = null;
 	private $assertionManager = null;
 	private $asserterGenerator = null;
