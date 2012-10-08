@@ -7,7 +7,8 @@ use
 	mageekguy\atoum\mock,
 	mageekguy\atoum\asserter,
 	mageekguy\atoum\exceptions,
-	mageekguy\atoum\annotations
+	mageekguy\atoum\annotations,
+	mageekguy\atoum\dependencies
 ;
 
 abstract class test implements observable, adapter\aggregator, \countable
@@ -41,6 +42,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 	private $adapter = null;
 	private $assertionManager = null;
 	private $asserterGenerator = null;
+	private $reflectionMethodResolver = null;
 	private $score = null;
 	private $observers = array();
 	private $tags = array();
@@ -68,25 +70,34 @@ abstract class test implements observable, adapter\aggregator, \countable
 	private static $namespace = null;
 	private static $defaultEngine = self::defaultEngine;
 
-	public function __construct(factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
 		$this
-			->setFactory($factory ?: new factory())
-			->setScore($this->factory['mageekguy\atoum\test\score']())
-			->setLocale($this->factory['mageekguy\atoum\locale']())
-			->setAdapter($this->factory['mageekguy\atoum\adapter']())
-			->setSuperglobals($this->factory['mageekguy\atoum\superglobals']())
-			->setIncluder($this->factory['mageekguy\atoum\includer']())
+			->setScore($resolver['@score'] ?: static::getDefaultScore())
+			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
+			->setSuperglobals($resolver['@superglobals'] ?: static::getDefaultSuperglobals())
+			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
+			->setMockGenerator($resolver['@mock\generator'] ?: static::getDefaultMockGenerator($this))
+			->setAsserterGenerator($resolver['@asserter\generator'] ?: static::getDefaultAsserterGenerator($this))
+			->setReflectionMethodResolver($resolver['@reflection\method'] ?: static::getDefaultReflectionMethodResolver())
 			->enableCodeCoverage()
 		;
 
-		$class = $this->factory['reflectionClass']($this);
+		$reflectionClassResolver = $resolver['@reflection\class'];
+
+		if ($reflectionClassResolver === null)
+		{
+			$reflectionClassResolver = new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
+		}
+
+		$class = $reflectionClassResolver->__invoke(array('class' => $this));
 
 		$this->path = $class->getFilename();
 		$this->class = $class->getName();
 		$this->classNamespace = $class->getNamespaceName();
 
-		$annotationExtractor = $this->factory['mageekguy\atoum\annotations\extractor']();
+		$annotationExtractor = $resolver['@annotation\extractor'] ?: new annotations\extractor();
 
 		$test = $this;
 
@@ -144,7 +155,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 				->setAlias('class', 'phpClass')
 		;
 
-		$this->setAssertionManager($this->factory['mageekguy\atoum\test\assertion\manager']());
+		$this->setAssertionManager($resolver['@assertion\manager'] ?: new test\assertion\manager());
 	}
 
 	public function __toString()
@@ -160,18 +171,6 @@ abstract class test implements observable, adapter\aggregator, \countable
 	public function __call($method, array $arguments)
 	{
 		return $this->assertionManager->invoke($method, $arguments);
-	}
-
-	public function setFactory(factory $factory)
-	{
-		$this->factory = $factory;
-
-		return $this;
-	}
-
-	public function getFactory()
-	{
-		return $this->factory;
 	}
 
 	public function setClassEngine($engine)
@@ -333,6 +332,18 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return $this;
 	}
 
+	public function setReflectionMethodResolver(dependencies\resolver $resolver)
+	{
+		$this->reflectionMethodResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getReflectionMethodResolver()
+	{
+		return $this->reflectionMethodResolver;
+	}
+
 	public function setSuperglobals(superglobals $superglobals)
 	{
 		$this->superglobals = $superglobals;
@@ -378,7 +389,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	public function getMockGenerator()
 	{
-		return $this->mockGenerator ?: $this->setMockGenerator($this->factory['mageekguy\atoum\test\mock\generator']($this))->mockGenerator;
+		return $this->mockGenerator;
 	}
 
 	public function setAsserterGenerator(test\asserter\generator $generator)
@@ -392,7 +403,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 	{
 		test\adapter::resetCallsForAllInstances();
 
-		return $this->asserterGenerator ?: $this->setAsserterGenerator($this->factory['mageekguy\atoum\test\asserter\generator']($this))->asserterGenerator;
+		return $this->asserterGenerator;
 	}
 
 	public function setTestNamespace($testNamespace)
@@ -750,7 +761,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 							throw new test\exceptions\runtime('Data provider ' . $this->getClass() . '::' . $this->dataProviders[$testMethod] . '() must return an array or an iterator');
 						}
 
-						$reflectedTestMethod = $this->factory['reflectionMethod']($this, $testMethod);
+						$reflectedTestMethod = $this->reflectionMethodResolver->__invoke(array('class' => $this, 'method' => $testMethod));
 						$numberOfArguments = $reflectedTestMethod->getNumberOfRequiredParameters();
 
 						foreach ($data as $key => $arguments)
@@ -1001,6 +1012,46 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return $this;
 	}
 
+	protected static function getDefaultScore()
+	{
+		return new test\score();
+	}
+
+	protected static function getDefaultLocale()
+	{
+		return new locale();
+	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new adapter();
+	}
+
+	protected static function getDefaultSuperglobals()
+	{
+		return new superglobals();
+	}
+
+	protected static function getDefaultIncluder()
+	{
+		return new includer();
+	}
+
+	protected static function getDefaultMockGenerator(test $test)
+	{
+		 return new test\mock\generator($test);
+	}
+
+	protected static function getDefaultAsserterGenerator(test $test)
+	{
+		return new test\asserter\generator($test);
+	}
+
+	protected static function getDefaultReflectionMethodResolver()
+	{
+		return new dependencies\resolver(function($resolver) { return new \reflectionMethod($resolver['@class'], $resolver['@method']); });
+	}
+
 	private function runEngines()
 	{
 		$this->callObservers(self::beforeSetUp);
@@ -1101,7 +1152,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 			throw new exceptions\runtime('Test engine \'' . $engineName . '\' does not exist for method \'' . $this->class . '::' . $this->currentMethod . '()\'');
 		}
 
-		$engine = $this->factory[$engineClass]();
+		$engine = new $engineClass();
 
 		if ($engine instanceof test\engine === false)
 		{

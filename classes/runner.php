@@ -277,7 +277,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($testClasses as $testClass)
 		{
-			$test = new $testClass($this->factory);
+			$test = new $testClass();
 
 			if (self::isIgnored($test, $namespaces, $tags) === false)
 			{
@@ -441,7 +441,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($runTestClasses as $runTestClass)
 		{
-			$test = new $runTestClass($this->factory);
+			$test = new $runTestClass();
 
 			if (self::isIgnored($test, $namespaces, $tags) === false && ($methods = self::getMethods($test, $runTestMethods, $tags)))
 			{

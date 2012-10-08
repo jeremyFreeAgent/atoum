@@ -15,7 +15,8 @@ namespace mageekguy\atoum\tests\units
 {
 	use
 		mageekguy\atoum,
-		mageekguy\atoum\mock
+		mageekguy\atoum\mock,
+		mageekguy\atoum\dependencies
 	;
 
 	require_once __DIR__ . '/../runner.php';
@@ -62,7 +63,7 @@ namespace mageekguy\atoum\tests\units
 	{
 		public function testClass()
 		{
-			$this->testedClass->hasInterface('mageekguy\atoum\adapter\aggregator');
+			$this->testedClass->implements('mageekguy\atoum\adapter\aggregator');
 		}
 
 		public function testClassConstants()
@@ -91,7 +92,6 @@ namespace mageekguy\atoum\tests\units
 			$this
 				->if($test = new emptyTest())
 				->then
-					->object($test->getFactory())->isInstanceOf('mageekguy\atoum\factory')
 					->object($test->getScore())->isInstanceOf('mageekguy\atoum\score')
 					->object($test->getLocale())->isEqualTo(new atoum\locale())
 					->object($test->getAdapter())->isEqualTo(new atoum\adapter())
@@ -107,14 +107,13 @@ namespace mageekguy\atoum\tests\units
 					->string($test->getTestNamespace())->isEqualTo(atoum\test::defaultNamespace)
 					->integer($test->getMaxChildrenNumber())->isEqualTo(666)
 					->variable($test->getBootstrapFile())->isNull()
-				->if($factory = new atoum\factory())
-				->and($factory->returnWhenBuild('mageekguy\atoum\test\score', $score = new atoum\test\score()))
-				->and($factory->returnWhenBuild('mageekguy\atoum\locale', $locale = new atoum\locale()))
-				->and($factory->returnWhenBuild('mageekguy\atoum\adapter', $adapter = new atoum\adapter()))
-				->and($factory->returnWhenBuild('mageekguy\atoum\superglobals', $superglobals = new atoum\superglobals()))
-				->and($test = new emptyTest($factory))
+				->if($resolver = new dependencies\resolver())
+				->and($resolver['score'] = $score = new atoum\test\score())
+				->and($resolver['locale'] = $locale = new atoum\locale())
+				->and($resolver['adapter'] = $adapter = new atoum\adapter())
+				->and($resolver['superglobals'] = $superglobals = new atoum\superglobals())
+				->and($test = new emptyTest($resolver))
 				->then
-					->object($test->getFactory())->isIdenticalTo($factory)
 					->object($test->getScore())->isIdenticalTo($score)
 					->object($test->getLocale())->isIdenticalTo($locale)
 					->object($test->getAdapter())->isIdenticalTo($adapter)
@@ -191,9 +190,9 @@ namespace mageekguy\atoum\tests\units
 				->assert('Code coverage must be enabled only if xdebug is available')
 					->if($adapter = new atoum\test\adapter())
 					->and($adapter->extension_loaded = function($extension) { return $extension == 'xdebug'; })
-					->and($factory = new atoum\factory())
-					->and($factory->returnWhenBuild('mageekguy\atoum\adapter', $adapter))
-					->and($test = new emptyTest($factory))
+					->and($resolver = new dependencies\resolver())
+					->and($resolver['adapter'] = $adapter)
+					->and($test = new emptyTest($resolver))
 					->then
 						->boolean($test->codeCoverageIsEnabled())->isTrue()
 						->object($test->enableCodeCoverage())->isIdenticalTo($test)
@@ -205,9 +204,7 @@ namespace mageekguy\atoum\tests\units
 						->boolean($test->codeCoverageIsEnabled())->isTrue()
 				->assert('Code coverage must not be enabled if xdebug is not available')
 					->if($adapter->extension_loaded = function($extension) { return $extension != 'xdebug'; })
-					->and($factory = new atoum\factory())
-					->and($factory->returnWhenBuild('mageekguy\atoum\adapter', $adapter))
-					->and($test = new emptyTest($factory))
+					->and($test = new emptyTest($resolver))
 					->then
 						->boolean($test->codeCoverageIsEnabled())->isFalse()
 						->object($test->enableCodeCoverage())->isIdenticalTo($test)
@@ -220,9 +217,9 @@ namespace mageekguy\atoum\tests\units
 			$this
 				->if($adapter = new atoum\test\adapter())
 				->and($adapter->extension_loaded = true)
-				->and($factory = new atoum\factory())
-				->and($factory->returnWhenBuild('mageekguy\atoum\adapter', $adapter))
-				->and($test = new emptyTest($factory))
+				->and($resolver = new dependencies\resolver())
+				->and($resolver['adapter'] = $adapter)
+				->and($test = new emptyTest($resolver))
 				->then
 					->boolean($test->codeCoverageIsEnabled())->isTrue()
 					->object($test->disableCodeCoverage())->isIdenticalTo($test)
