@@ -4,6 +4,7 @@ namespace mageekguy\atoum\test\engines;
 
 use
 	mageekguy\atoum,
+	mageekguy\atoum\dependencies,
 	mageekguy\atoum\test\engines
 ;
 
@@ -11,11 +12,11 @@ class isolate extends engines\concurrent
 {
 	protected $score = null;
 
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		parent::__construct($resolver);
 
-		$this->score = $this->factory['mageekguy\atoum\score']();
+		$this->setScore($resolver['@score'] ?: static::getDefaultScore());
 	}
 
 	public function run(atoum\test $test)
@@ -35,5 +36,10 @@ class isolate extends engines\concurrent
 	public function getScore()
 	{
 		return $this->score;
+	}
+
+	protected static function getDefaultScore()
+	{
+		return new atoum\score();
 	}
 }

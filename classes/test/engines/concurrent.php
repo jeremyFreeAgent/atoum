@@ -5,26 +5,52 @@ namespace mageekguy\atoum\test\engines;
 use
 	mageekguy\atoum,
 	mageekguy\atoum\test,
-	mageekguy\atoum\exceptions
+	mageekguy\atoum\exceptions,
+	mageekguy\atoum\dependencies
 ;
 
 class concurrent extends test\engine
 {
+	protected $adapter = null;
+	protected $scoreResolver = null;
 	protected $test = null;
 	protected $method = '';
-	protected $factory = null;
 	protected $stdOut = '';
 	protected $stdErr = '';
 
-	private $adapter = null;
 	private $php = null;
 	private $pipes = array();
 
-	public function __construct(atoum\factory $factory = null)
+	public function __construct(dependencies\resolver $resolver = null)
 	{
-		parent::__construct($factory);
+		$this
+			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
+			->setScoreResolver($resolver['@score'] ?: static::getDefaultScoreResolver())
+		;
+	}
 
-		$this->adapter = $this->factory['mageekguy\atoum\adapter']();
+	public function setAdapter(atoum\adapter $adapter)
+	{
+		$this->adapter = $adapter;
+
+		return $this;
+	}
+
+	public function setScoreResolver(dependencies\resolver $resolver)
+	{
+		$this->scoreResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getScoreResolver()
+	{
+		return $this->scoreResolver;
+	}
+
+	public function getAdapter()
+	{
+		return $this->adapter;
 	}
 
 	public function isRunning()
@@ -159,7 +185,7 @@ class concurrent extends test\engine
 				if ($score instanceof atoum\score === false)
 				{
 					$score = $this
-						->factory['mageekguy\atoum\score']()
+						->scoreResolver->__invoke()
 						->addUncompletedMethod($this->test->getPath(), $this->test->getClass(), $this->method, $phpStatus['exitcode'], $this->stdOut)
 					;
 				}
@@ -182,5 +208,15 @@ class concurrent extends test\engine
 		}
 
 		return $score;
+	}
+
+	protected static function getDefaultAdapter()
+	{
+		return new atoum\adapter();
+	}
+
+	protected static function getDefaultScoreResolver()
+	{
+		return new dependencies\resolver(function() { return new atoum\score(); });
 	}
 }

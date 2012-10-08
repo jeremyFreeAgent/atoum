@@ -1101,7 +1101,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 			throw new exceptions\runtime('Test engine \'' . $engineName . '\' does not exist for method \'' . $this->class . '::' . $this->currentMethod . '()\'');
 		}
 
-		$engine = $this->factory[$engineClass]($this->factory);
+		$engine = $this->factory[$engineClass]();
 
 		if ($engine instanceof test\engine === false)
 		{
