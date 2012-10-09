@@ -81,6 +81,11 @@ class resolver extends atoum\test
 			->then
 				->object($resolver[$dependency])->isInstanceOf($this->getTestedClassName())
 				->string($resolver['@' . $dependency])->isEqualTo($value)
+			->if($resolver = new testedClass())
+			->and($resolver['parent']['value'] = $value = uniqid())
+			->and($resolver['parent']['child'])
+			->then
+				->string($resolver['parent']['child']['@value'])->isEqualTo($value)
 		;
 	}
 
