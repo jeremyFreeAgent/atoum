@@ -24,14 +24,19 @@ abstract class script implements atoum\adapter\aggregator
 
 	public function __construct($name, dependencies\resolver $resolver = null)
 	{
+		if ($resolver === null)
+		{
+			$resolver = new dependencies\resolver();
+		}
+
 		$this->name = (string) $name;
 
 		$this
-			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
-			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
-			->setArgumentsParser($resolver['@arguments\parser'] ?: static::getDefaultArgumentsParser())
-			->setOutputWriter($resolver['@writers\stdout'] ?: static::getDefaultStdoutWriter())
-			->setErrorWriter($resolver['@writers\stderr'] ?: static::getDefaultStderrWriter())
+			->setLocale($resolver['@locale'] ?: $resolver['locale'] = static::getDefaultLocale())
+			->setAdapter($resolver['@adapter'] ?: $resolver['adapter'] = static::getDefaultAdapter())
+			->setArgumentsParser($resolver['@arguments\parser'] ?: $resolver['arguments\parser'] = static::getDefaultArgumentsParser())
+			->setOutputWriter($resolver['@writers\stdout'] ?: $resolver['writers\stdout'] = static::getDefaultStdoutWriter())
+			->setErrorWriter($resolver['@writers\stderr'] ?: $resolver['writers\stderr'] = static::getDefaultStderrWriter())
 		;
 
 		if ($this->adapter->php_sapi_name() !== 'cli')

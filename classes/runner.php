@@ -23,6 +23,7 @@ class runner implements observable, adapter\aggregator
 	protected $adapter = null;
 	protected $locale = null;
 	protected $includer = null;
+	protected $testResolver = null;
 	protected $observers = null;
 	protected $reports = null;
 	protected $testNumber = 0;
@@ -42,6 +43,11 @@ class runner implements observable, adapter\aggregator
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
+		if ($resolver === null)
+		{
+			$resolver = new dependencies\resolver();
+		}
+
 		$this
 			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
 			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
@@ -59,6 +65,8 @@ class runner implements observable, adapter\aggregator
 
 		$this->observers = new \splObjectStorage();
 		$this->reports = new \splObjectStorage();
+
+		$this->testResolver = $resolver['test'];
 	}
 
 	public function setGlobIteratorResolver(dependencies\resolver $resolver)
@@ -278,7 +286,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($testClasses as $testClass)
 		{
-			$test = new $testClass();
+			$test = new $testClass($this->testResolver);
 
 			if (self::isIgnored($test, $namespaces, $tags) === false)
 			{
@@ -442,7 +450,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($runTestClasses as $runTestClass)
 		{
-			$test = new $runTestClass();
+			$test = new $runTestClass($this->testResolver);
 
 			if (self::isIgnored($test, $namespaces, $tags) === false && ($methods = self::getMethods($test, $runTestMethods, $tags)))
 			{
@@ -684,7 +692,6 @@ class runner implements observable, adapter\aggregator
 	{
 		return new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); });
 	}
-
 
 	private static function getMethods(test $test, array $runTestMethods, array $tags)
 	{

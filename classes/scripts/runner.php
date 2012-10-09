@@ -32,13 +32,18 @@ class runner extends atoum\script
 
 	public function __construct($name, dependencies\resolver $resolver = null)
 	{
+		if ($resolver === null)
+		{
+			$resolver = new dependencies\resolver();
+		}
+
 		parent::__construct($name, $resolver);
 
 		$this
-			->setRunner($resolver['@runner'] ?: static::getDefaultRunner())
-			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
-			->setCliResolver($resolver['@cli'] ?: static::getDefaultCliResolver())
-			->setConfiguratorResolver($resolver['@configurator'] ?: static::getDefaultConfiguratorResolver())
+			->setRunner($resolver['@runner'] ?: $resolver['runner'] = static::getDefaultRunner($resolver['runner']))
+			->setIncluder($resolver['@includer'] ?: $resolver['includer'] = static::getDefaultIncluder())
+			->setCliResolver($resolver['@cli'] ?: $resolver['cli'] = static::getDefaultCliResolver())
+			->setConfiguratorResolver($resolver['@configurator'] ?: $resolver['configurator'] = static::getDefaultConfiguratorResolver())
 		;
 	}
 
@@ -845,9 +850,9 @@ class runner extends atoum\script
 		return sizeof($methods) <= 0 || isset($methods['*']) === true ? array() : array_keys($methods);
 	}
 
-	protected static function getDefaultRunner()
+	protected static function getDefaultRunner(dependencies\resolver $resolver)
 	{
-		return new atoum\runner();
+		return new atoum\runner($resolver);
 	}
 
 	protected static function getDefaultIncluder()
