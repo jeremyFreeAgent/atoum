@@ -71,19 +71,24 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
+		if ($resolver === null)
+		{
+			$resolver = new dependencies\resolver();
+		}
+
 		$this
 			->setScore($resolver['@score'] ?: static::getDefaultScore())
 			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
 			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
 			->setSuperglobals($resolver['@superglobals'] ?: static::getDefaultSuperglobals())
 			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
-			->setMockGenerator($resolver['@mock\generator'] ?: static::getDefaultMockGenerator($this))
-			->setAsserterGenerator($resolver['@asserter\generator'] ?: static::getDefaultAsserterGenerator($this))
-			->setReflectionMethodResolver($resolver['@reflection\method'] ?: static::getDefaultReflectionMethodResolver())
+			->setMockGenerator($resolver['@mockGenerator'] ?: static::getDefaultMockGenerator($this))
+			->setAsserterGenerator($resolver['@asserterGenerator'] ?: static::getDefaultAsserterGenerator($this))
+			->setReflectionMethodResolver($resolver['@reflectionMethod'] ?: static::getDefaultReflectionMethodResolver())
 			->enableCodeCoverage()
 		;
 
-		$reflectionClassResolver = $resolver['@reflection\class'];
+		$reflectionClassResolver = $resolver['@reflectionClassResolver'];
 
 		if ($reflectionClassResolver === null)
 		{
@@ -96,7 +101,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 		$this->class = $class->getName();
 		$this->classNamespace = $class->getNamespaceName();
 
-		$annotationExtractor = $resolver['@annotation\extractor'] ?: new annotations\extractor();
+		$annotationExtractor = $resolver['@annotationExtractor'] ?: new annotations\extractor();
 
 		$test = $this;
 

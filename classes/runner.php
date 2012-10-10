@@ -49,13 +49,14 @@ class runner implements observable, adapter\aggregator
 		}
 
 		$this
-			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
-			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
-			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
 			->setScore($resolver['@score'] ?: static::getDefaultScore())
-			->setTestDirectoryIterator($resolver['@directory\iterator'] ?: static::getDefaultDirectoryIterator())
-			->setGlobIteratorResolver($resolver['@glob\iterator'] ?: static::getDefaultGlobIteratorResolver())
-			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+			->setAdapter($resolver['@adapter'] ?: $resolver['adapter'] = static::getDefaultAdapter())
+			->setLocale($resolver['@locale'] ?: $resolver['locale'] = static::getDefaultLocale())
+			->setIncluder($resolver['@includer'] ?: $resolver['includer'] = static::getDefaultIncluder())
+			->setTestDirectoryIterator($resolver['@directoryIterator'] ?: static::getDefaultDirectoryIterator())
+			->setGlobIteratorResolver($resolver['@globIteratorResolver'] ?: static::getDefaultGlobIteratorResolver())
+			->setReflectionClassResolver($resolver['@reflectionClassResolver'] ?: $resolver['reflectionClassResolver'] = static::getDefaultReflectionClassResolver())
+			->setTestResolver($resolver['@testResolver'] ?: static::getDefaultTestResolver($resolver['testResolver']))
 		;
 
 		$runnerClass = $this->reflectionClassResolver->__invoke(array('class' => $this));
@@ -65,8 +66,6 @@ class runner implements observable, adapter\aggregator
 
 		$this->observers = new \splObjectStorage();
 		$this->reports = new \splObjectStorage();
-
-		$this->testResolver = $resolver['test'];
 	}
 
 	public function setGlobIteratorResolver(dependencies\resolver $resolver)
@@ -76,11 +75,33 @@ class runner implements observable, adapter\aggregator
 		return $this;
 	}
 
+	public function getGlobIteratorResolver()
+	{
+		return $this->globIteratorResolver;
+	}
+
 	public function setReflectionClassResolver(dependencies\resolver $resolver)
 	{
 		$this->reflectionClassResolver = $resolver;
 
 		return $this;
+	}
+
+	public function getReflectionClassResolver()
+	{
+		return $this->reflectionClassResolver;
+	}
+
+	public function setTestResolver(dependencies\resolver $resolver)
+	{
+		$this->testResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getTestResolver()
+	{
+		return $this->testResolver;
 	}
 
 	public function setTestDirectoryIterator(iterators\recursives\directory $iterator)
@@ -286,7 +307,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($testClasses as $testClass)
 		{
-			$test = new $testClass($this->testResolver);
+			$test = $this->testResolver->__invoke(array('test' => $testClass));
 
 			if (self::isIgnored($test, $namespaces, $tags) === false)
 			{
@@ -450,7 +471,7 @@ class runner implements observable, adapter\aggregator
 
 		foreach ($runTestClasses as $runTestClass)
 		{
-			$test = new $runTestClass($this->testResolver);
+			$test = $this->testResolver->__invoke(array('test' => $runTestClass));
 
 			if (self::isIgnored($test, $namespaces, $tags) === false && ($methods = self::getMethods($test, $runTestMethods, $tags)))
 			{
@@ -691,6 +712,11 @@ class runner implements observable, adapter\aggregator
 	protected static function getDefaultGlobIteratorResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); });
+	}
+
+	protected static function getDefaultTestResolver(dependencies\resolver $testResolver)
+	{
+		return new dependencies\resolver(function($resolver) use ($testResolver) { return new $resolver['@test']($testResolver); });
 	}
 
 	private static function getMethods(test $test, array $runTestMethods, array $tags)

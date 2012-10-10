@@ -40,10 +40,10 @@ class runner extends atoum\script
 		parent::__construct($name, $resolver);
 
 		$this
-			->setRunner($resolver['@runner'] ?: $resolver['runner'] = static::getDefaultRunner($resolver['runner']))
+			->setRunner($resolver['@runner'] ?: static::getDefaultRunner($resolver['runner']))
 			->setIncluder($resolver['@includer'] ?: $resolver['includer'] = static::getDefaultIncluder())
-			->setCliResolver($resolver['@cli'] ?: $resolver['cli'] = static::getDefaultCliResolver())
-			->setConfiguratorResolver($resolver['@configurator'] ?: $resolver['configurator'] = static::getDefaultConfiguratorResolver())
+			->setCliResolver($resolver['@cliResolver'] ?: static::getDefaultCliResolver())
+			->setConfiguratorResolver($resolver['@configuratorResolver'] ?: static::getDefaultConfiguratorResolver())
 		;
 	}
 
