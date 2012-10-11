@@ -650,16 +650,6 @@ class runner implements observable, adapter\aggregator
 		return $reports;
 	}
 
-	public function addDefaultReport()
-	{
-		$report = new atoum\reports\realtime\cli();
-		$report->addWriter(new atoum\writers\std\out());
-
-		$this->addReport($report);
-
-		return $report;
-	}
-
 	public static function isIgnored(test $test, array $namespaces, array $tags)
 	{
 		$isIgnored = $test->isIgnored();

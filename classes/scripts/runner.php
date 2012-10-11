@@ -147,7 +147,7 @@ class runner extends atoum\script
 				{
 					if ($this->runner->hasReports() === false)
 					{
-						$this->runner->addDefaultReport();
+						$this->addDefaultReport();
 					}
 
 					$methods = $this->methods;
@@ -289,6 +289,16 @@ class runner extends atoum\script
 		$this->methods[$class][] = $method;
 
 		return $this;
+	}
+
+	public function addDefaultReport()
+	{
+		$report = $this->factory['mageekguy\atoum\reports\realtime\cli']($this->factory);
+		$report->addWriter($this->factory['mageekguy\atoum\writers\std\out']());
+
+		$this->runner->addReport($report);
+
+		return $report;
 	}
 
 	public static function autorunMustBeEnabled()
