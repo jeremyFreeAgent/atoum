@@ -42,25 +42,14 @@ class resolver implements \arrayAccess
 	{
 		$resolvedDependency = ltrim($dependency, '@');
 
-		if (isset($this->dependencies[$resolvedDependency]) === true)
+		if (isset($this->dependencies[$resolvedDependency]) === false)
 		{
-			$value = ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]());
-		}
-		else
-		{
-			$value = $this->getParentDependency($dependency);
-
-			if ($value === null)
-			{
-				$this->dependencies[$resolvedDependency] = new static();
-				$this->dependencies[$resolvedDependency]->name = $resolvedDependency;
-				$this->dependencies[$resolvedDependency]->parent = $this;
-
-				$value = ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]());
-			}
+			$this->dependencies[$resolvedDependency] = new static();
+			$this->dependencies[$resolvedDependency]->name = $resolvedDependency;
+			$this->dependencies[$resolvedDependency]->parent = $this;
 		}
 
-		return $value;
+		return ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]());
 	}
 
 	public function offsetSet($dependency, $mixed)
@@ -83,26 +72,5 @@ class resolver implements \arrayAccess
 	public function offsetExists($dependency)
 	{
 		return (isset($this->dependencies[$dependency]) === true && $this->dependencies[$dependency]->value !== null);
-	}
-
-	protected function getParentDependency($dependency)
-	{
-		$resolvedDependency = ltrim($dependency, '@');
-
-		$parent = $this->parent;
-
-		while ($parent !== null)
-		{
-			if (isset($parent->dependencies[$resolvedDependency]) === false)
-			{
-				$parent = $parent->parent;
-			}
-			else
-			{
-				return ($resolvedDependency === $dependency ? $parent->dependencies[$resolvedDependency] : $parent->dependencies[$resolvedDependency]());
-			}
-		}
-
-		return null;
 	}
 }

@@ -24,7 +24,7 @@ class controller extends test\adapter
 		parent::__construct($resolver);
 
 		$this
-			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+			->setReflectionClassResolver($resolver['@reflection\class'] ?: $this->getDefaultReflectionClassResolver())
 			->controlNextNewMock()
 		;
 	}
@@ -234,7 +234,7 @@ class controller extends test\adapter
 		return $reflectionClassResolver(array('class' => $class));
 	}
 
-	protected static function getDefaultReflectionClassResolver()
+	protected function getDefaultReflectionClassResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}

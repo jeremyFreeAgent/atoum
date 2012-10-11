@@ -23,9 +23,9 @@ class generator
 	public function __construct(dependencies\resolver $resolver = null)
 	{
 		$this
-			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
-			->setPhpMethodResolver($resolver['@php\method'] ?: static::getDefaultPhpMethodResolver())
-			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
+			->setPhpMethodResolver($resolver['@php\method'] ?: $this->getDefaultPhpMethodResolver())
+			->setReflectionClassResolver($resolver['@reflection\class'] ?: $this->getDefaultReflectionClassResolver())
 		;
 	}
 
@@ -541,17 +541,17 @@ class generator
 		;
 	}
 
-	protected static function getDefaultAdapter()
+	protected function getDefaultAdapter()
 	{
 		return new atoum\adapter();
 	}
 
-	protected static function getDefaultPhpMethodResolver()
+	protected function getDefaultPhpMethodResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new php\method($resolver['@method']); });
 	}
 
-	protected static function getDefaultReflectionClassResolver()
+	protected function getDefaultReflectionClassResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}

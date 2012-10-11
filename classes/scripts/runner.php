@@ -19,6 +19,7 @@ class runner extends atoum\script
 	protected $includer = null;
 	protected $cliResolver = null;
 	protected $configuratorResolver = null;
+	protected $reportResolver = null;
 	protected $runTests = true;
 	protected $scoreFile = null;
 	protected $arguments = array();
@@ -40,10 +41,11 @@ class runner extends atoum\script
 		parent::__construct($name, $resolver);
 
 		$this
-			->setRunner($resolver['@runner'] ?: static::getDefaultRunner($resolver['runner']))
-			->setIncluder($resolver['@includer'] ?: $resolver['includer'] = static::getDefaultIncluder())
-			->setCliResolver($resolver['@cliResolver'] ?: static::getDefaultCliResolver())
-			->setConfiguratorResolver($resolver['@configuratorResolver'] ?: static::getDefaultConfiguratorResolver())
+			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder())
+			->setRunner($resolver['@runner'] ?: $this->getDefaultRunner($resolver['runner']))
+			->setCliResolver($resolver['@cliResolver'] ?: $this->getDefaultCliResolver())
+			->setConfiguratorResolver($resolver['@configuratorResolver'] ?: $this->getDefaultConfiguratorResolver())
+			->setReportResolver($resolver['@reportResolver'] ?: $this->getDefaultReportResolver())
 		;
 	}
 
@@ -83,6 +85,23 @@ class runner extends atoum\script
 		$this->configuratorResolver = $resolver;
 
 		return $this;
+	}
+
+	public function getConfiguratorResolver()
+	{
+		return $this->configuratorResolver;
+	}
+
+	public function setReportResolver(dependencies\resolver $resolver)
+	{
+		$this->reportResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getReportResolver()
+	{
+		return $this->reportResolver;
 	}
 
 	public function setScoreFile($path)
@@ -293,8 +312,7 @@ class runner extends atoum\script
 
 	public function addDefaultReport()
 	{
-		$report = $this->factory['mageekguy\atoum\reports\realtime\cli']($this->factory);
-		$report->addWriter($this->factory['mageekguy\atoum\writers\std\out']());
+		$report = $this->reportResolver->__invoke();
 
 		$this->runner->addReport($report);
 
@@ -855,29 +873,44 @@ class runner extends atoum\script
 		return $this;
 	}
 
-	protected static function getClassesOf($methods)
+	protected function getDefaultRunner(dependencies\resolver $resolver)
 	{
-		return sizeof($methods) <= 0 || isset($methods['*']) === true ? array() : array_keys($methods);
-	}
+		$resolver['adapter'] = $this->adapter;
+		$resolver['locale'] = $this->locale;
+		$resolver['includer'] = $this->includer;
 
-	protected static function getDefaultRunner(dependencies\resolver $resolver)
-	{
 		return new atoum\runner($resolver);
 	}
 
-	protected static function getDefaultIncluder()
+	protected function getDefaultIncluder()
 	{
 		return new atoum\includer();
 	}
 
-	protected static function getDefaultConfiguratorResolver()
+	protected function getDefaultConfiguratorResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); });
 	}
 
-	protected static function getDefaultCliResolver()
+	protected function getDefaultReportResolver()
+	{
+		return new dependencies\resolver(function($resolver) {
+				$report = new atoum\reports\realtime\cli();
+				$report->addWriter(new atoum\writers\std\out());
+
+				return $report;
+			}
+		);
+	}
+
+	protected function getDefaultCliResolver()
 	{
 		return new dependencies\resolver(function() { return new atoum\cli(); });
+	}
+
+	protected static function getClassesOf($methods)
+	{
+		return sizeof($methods) <= 0 || isset($methods['*']) === true ? array() : array_keys($methods);
 	}
 
 	private static function getFailMethods(atoum\score $score)

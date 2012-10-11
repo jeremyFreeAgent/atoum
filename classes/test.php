@@ -77,14 +77,14 @@ abstract class test implements observable, adapter\aggregator, \countable
 		}
 
 		$this
-			->setScore($resolver['@score'] ?: static::getDefaultScore())
-			->setLocale($resolver['@locale'] ?: static::getDefaultLocale())
-			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
-			->setSuperglobals($resolver['@superglobals'] ?: static::getDefaultSuperglobals())
-			->setIncluder($resolver['@includer'] ?: static::getDefaultIncluder())
-			->setMockGenerator($resolver['@mockGenerator'] ?: static::getDefaultMockGenerator($this))
-			->setAsserterGenerator($resolver['@asserterGenerator'] ?: static::getDefaultAsserterGenerator($this))
-			->setReflectionMethodResolver($resolver['@reflectionMethod'] ?: static::getDefaultReflectionMethodResolver())
+			->setScore($resolver['@score'] ?: $this->getDefaultScore())
+			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale())
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
+			->setSuperglobals($resolver['@superglobals'] ?: $this->getDefaultSuperglobals())
+			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder())
+			->setMockGenerator($resolver['@mockGenerator'] ?: $this->getDefaultMockGenerator($resolver['mockGenerator']))
+			->setAsserterGenerator($resolver['@asserterGenerator'] ?: $this->getDefaultAsserterGenerator())
+			->setReflectionMethodResolver($resolver['@reflectionMethod'] ?: $this->getDefaultReflectionMethodResolver())
 			->enableCodeCoverage()
 		;
 
@@ -953,7 +953,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 		self::$defaultEngine = (string) $defaultEngine;
 	}
 
-	public static function getDefaultEngine()
+	public function getDefaultEngine()
 	{
 		return self::$defaultEngine ?: self::defaultEngine;
 	}
@@ -1016,42 +1016,44 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return $this;
 	}
 
-	protected static function getDefaultScore()
+	protected function getDefaultScore()
 	{
 		return new test\score();
 	}
 
-	protected static function getDefaultLocale()
+	protected function getDefaultLocale()
 	{
 		return new locale();
 	}
 
-	protected static function getDefaultAdapter()
+	protected function getDefaultAdapter()
 	{
 		return new adapter();
 	}
 
-	protected static function getDefaultSuperglobals()
+	protected function getDefaultSuperglobals()
 	{
 		return new superglobals();
 	}
 
-	protected static function getDefaultIncluder()
+	protected function getDefaultIncluder()
 	{
 		return new includer();
 	}
 
-	protected static function getDefaultMockGenerator(test $test)
+	protected function getDefaultMockGenerator(dependencies\resolver $resolver)
 	{
-		 return new test\mock\generator($test);
+		$resolver['adapter'] = $this->adapter;
+
+		return new test\mock\generator($this, $resolver);
 	}
 
-	protected static function getDefaultAsserterGenerator(test $test)
+	protected function getDefaultAsserterGenerator()
 	{
-		return new test\asserter\generator($test);
+		return new test\asserter\generator($this);
 	}
 
-	protected static function getDefaultReflectionMethodResolver()
+	protected function getDefaultReflectionMethodResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new \reflectionMethod($resolver['@class'], $resolver['@method']); });
 	}

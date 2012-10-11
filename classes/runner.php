@@ -49,14 +49,14 @@ class runner implements observable, adapter\aggregator
 		}
 
 		$this
-			->setScore($resolver['@score'] ?: static::getDefaultScore())
-			->setAdapter($resolver['@adapter'] ?: $resolver['adapter'] = static::getDefaultAdapter())
-			->setLocale($resolver['@locale'] ?: $resolver['locale'] = static::getDefaultLocale())
-			->setIncluder($resolver['@includer'] ?: $resolver['includer'] = static::getDefaultIncluder())
-			->setTestDirectoryIterator($resolver['@directoryIterator'] ?: static::getDefaultDirectoryIterator())
-			->setGlobIteratorResolver($resolver['@globIteratorResolver'] ?: static::getDefaultGlobIteratorResolver())
-			->setReflectionClassResolver($resolver['@reflectionClassResolver'] ?: $resolver['reflectionClassResolver'] = static::getDefaultReflectionClassResolver())
-			->setTestResolver($resolver['@testResolver'] ?: static::getDefaultTestResolver($resolver['testResolver']))
+			->setScore($resolver['@score'] ?: $this->getDefaultScore())
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
+			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale())
+			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder())
+			->setTestDirectoryIterator($resolver['@directoryIterator'] ?: $this->getDefaultDirectoryIterator())
+			->setGlobIteratorResolver($resolver['@globIteratorResolver'] ?: $this->getDefaultGlobIteratorResolver())
+			->setReflectionClassResolver($resolver['@reflectionClassResolver'] ?: $this->getDefaultReflectionClassResolver())
+			->setTestResolver($resolver['@testResolver'] ?: $this->getDefaultTestResolver($resolver['testResolver']))
 		;
 
 		$runnerClass = $this->reflectionClassResolver->__invoke(array('class' => $this));
@@ -669,43 +669,47 @@ class runner implements observable, adapter\aggregator
 		return $isIgnored;
 	}
 
-	protected static function getDefaultAdapter()
+	protected function getDefaultAdapter()
 	{
 		return new adapter();
 	}
 
-	protected static function getDefaultLocale()
+	protected function getDefaultLocale()
 	{
 		return new locale();
 	}
 
-	protected static function getDefaultIncluder()
+	protected function getDefaultIncluder()
 	{
 		return new includer();
 	}
 
-	protected static function getDefaultScore()
+	protected function getDefaultScore()
 	{
 		return new runner\score();
 	}
 
-	protected static function getDefaultDirectoryIterator()
+	protected function getDefaultDirectoryIterator()
 	{
 		return new iterators\recursives\directory();
 	}
 
-	protected static function getDefaultReflectionClassResolver()
+	protected function getDefaultReflectionClassResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}
 
-	protected static function getDefaultGlobIteratorResolver()
+	protected function getDefaultGlobIteratorResolver()
 	{
 		return new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); });
 	}
 
-	protected static function getDefaultTestResolver(dependencies\resolver $testResolver)
+	protected function getDefaultTestResolver(dependencies\resolver $testResolver)
 	{
+		$testResolver['locale'] = $this->locale;
+		$testResolver['adapter'] = $this->adapter;
+		$testResolver['includer'] = $this->includer;
+
 		return new dependencies\resolver(function($resolver) use ($testResolver) { return new $resolver['@test']($testResolver); });
 	}
 

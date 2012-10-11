@@ -32,11 +32,11 @@ abstract class script implements atoum\adapter\aggregator
 		$this->name = (string) $name;
 
 		$this
-			->setLocale($resolver['@locale'] ?: $resolver['locale'] = static::getDefaultLocale())
-			->setAdapter($resolver['@adapter'] ?: $resolver['adapter'] = static::getDefaultAdapter())
-			->setArgumentsParser($resolver['@arguments\parser'] ?: $resolver['arguments\parser'] = static::getDefaultArgumentsParser())
-			->setOutputWriter($resolver['@writers\stdout'] ?: $resolver['writers\stdout'] = static::getDefaultStdoutWriter())
-			->setErrorWriter($resolver['@writers\stderr'] ?: $resolver['writers\stderr'] = static::getDefaultStderrWriter())
+			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale())
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
+			->setArgumentsParser($resolver['@arguments\parser'] ?: $this->getDefaultArgumentsParser())
+			->setOutputWriter($resolver['@writers\stdout'] ?: $this->getDefaultStdoutWriter())
+			->setErrorWriter($resolver['@writers\stderr'] ?: $this->getDefaultStderrWriter())
 		;
 
 		if ($this->adapter->php_sapi_name() !== 'cli')
@@ -251,27 +251,27 @@ abstract class script implements atoum\adapter\aggregator
 		return $this;
 	}
 
-	protected static function getDefaultLocale()
+	protected function getDefaultLocale()
 	{
 		return new atoum\locale;
 	}
 
-	protected static function getDefaultAdapter()
+	protected function getDefaultAdapter()
 	{
 		return new atoum\adapter();
 	}
 
-	protected static function getDefaultArgumentsParser()
+	protected function getDefaultArgumentsParser()
 	{
 		return new atoum\script\arguments\parser();
 	}
 
-	protected static function getDefaultStdoutWriter()
+	protected function getDefaultStdoutWriter()
 	{
 		return new atoum\writers\std\out();
 	}
 
-	protected static function getDefaultStderrWriter()
+	protected function getDefaultStderrWriter()
 	{
 		return new atoum\writers\std\err();
 	}

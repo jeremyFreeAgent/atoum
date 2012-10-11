@@ -24,8 +24,8 @@ class concurrent extends test\engine
 	public function __construct(dependencies\resolver $resolver = null)
 	{
 		$this
-			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
-			->setScoreResolver($resolver['@score'] ?: static::getDefaultScoreResolver())
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
+			->setScoreResolver($resolver['@score'] ?: $this->getDefaultScoreResolver())
 		;
 	}
 
@@ -210,12 +210,12 @@ class concurrent extends test\engine
 		return $score;
 	}
 
-	protected static function getDefaultAdapter()
+	protected function getDefaultAdapter()
 	{
 		return new atoum\adapter();
 	}
 
-	protected static function getDefaultScoreResolver()
+	protected function getDefaultScoreResolver()
 	{
 		return new dependencies\resolver(function() { return new atoum\score(); });
 	}
