@@ -7,8 +7,8 @@ use
 
 $resolver = new dependencies\resolver();
 
-$resolver['adapter'] = $adapter = new atoum\adapter();
-
-var_dump($adapter);
+$resolver['adapter'] = new atoum\adapter();
+$resolver['locale'] = new atoum\locale();
+$resolver['reflection\class\resolver'] = new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 
 return $resolver;

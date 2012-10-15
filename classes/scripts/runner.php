@@ -373,7 +373,14 @@ class runner extends atoum\script
 
 				if ($includedResolver instanceof atoum\dependencies\resolver)
 				{
-					$resolver = $includedResolver;
+					if ($resolver === null)
+					{
+						$resolver = $includedResolver;
+					}
+					else
+					{
+						$resolver->merge($includedResolver);
+					}
 				}
 			}
 			catch (atoum\includer\exception $exception) {}

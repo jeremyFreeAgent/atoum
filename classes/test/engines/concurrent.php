@@ -87,6 +87,7 @@ class concurrent extends test\engine
 
 			$phpCode =
 				'<?php ' .
+				'use mageekguy\atoum;' .
 				'ob_start();' .
 				'require \'' . atoum\directory . '/classes/autoloader.php\';'
 			;
@@ -104,9 +105,10 @@ class concurrent extends test\engine
 			}
 
 			$phpCode .=
+				'$dependencies = atoum\scripts\runner::useDependenciesFile(\'' . atoum\directory . '\') ?: include \'' . atoum\directory . '/scripts/runner/dependencies.php\';' .
+				'$dependencies[\'locale\'] = new ' . get_class($this->test->getLocale()) . '(' . $this->test->getLocale()->get() . ');' .
 				'require \'' . $this->test->getPath() . '\';' .
-				'$test = new ' . $this->test->getClass() . '();' .
-				'$test->setLocale(new ' . get_class($this->test->getLocale()) . '(' . $this->test->getLocale()->get() . '));' .
+				'$test = new ' . $this->test->getClass() . '($dependencies);' .
 				'$test->setPhpPath(\'' . $phpPath . '\');'
 			;
 

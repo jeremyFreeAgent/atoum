@@ -19,17 +19,12 @@ class resolver implements \arrayAccess
 			$this[$name] = $value;
 		}
 
-		return ($this->value instanceof \closure === false ? $this->value : $this->value->__invoke($this));
+		return ($this->value instanceof \closure === false ? $this->value : call_user_func($this->value, $this));
 	}
 
 	public function offsetGet($dependency)
 	{
 		$resolvedDependency = ltrim($dependency, '@');
-
-//		if (isset($this->dependencies[$resolvedDependency]) === false)
-//		{
-//			$this->dependencies[$resolvedDependency] = new static();
-//		}
 
 		return (isset($this->dependencies[$resolvedDependency]) === false ? null : ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]()));
 	}
@@ -54,5 +49,12 @@ class resolver implements \arrayAccess
 	public function offsetExists($dependency)
 	{
 		return (isset($this->dependencies[$dependency]) === true && $this->dependencies[$dependency]->value !== null);
+	}
+
+	public function merge(dependencies\resolver $resolver)
+	{
+		$this->dependencies = array_merge($this->dependencies, $resolver->dependencies);
+
+		return $this;
 	}
 }

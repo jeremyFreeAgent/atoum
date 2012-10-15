@@ -41,6 +41,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 	private $adapter = null;
 	private $assertionManager = null;
 	private $asserterGenerator = null;
+	private $engineResolver = null;
 	private $reflectionMethodResolver = null;
 	private $score = null;
 	private $observers = array();
@@ -82,6 +83,8 @@ abstract class test implements observable, adapter\aggregator, \countable
 			->setDefaultMockGenerator($resolver)
 			->setDefaultAsserterGenerator($resolver)
 			->setDefaultReflectionMethodResolver($resolver)
+			->setDefaultAssertionManager($resolver)
+			->setDefaultEngineResolver($resolver)
 			->enableCodeCoverage()
 		;
 
@@ -155,8 +158,6 @@ abstract class test implements observable, adapter\aggregator, \countable
 				->setAlias('array', 'phpArray')
 				->setAlias('class', 'phpClass')
 		;
-
-		$this->setAssertionManager($resolver['@assertion\manager'] ?: new test\assertion\manager());
 	}
 
 	public function __toString()
@@ -298,6 +299,18 @@ abstract class test implements observable, adapter\aggregator, \countable
 	public function getAssertionManager()
 	{
 		return $this->assertionManager;
+	}
+
+	public function setEngineResolver(dependencies\resolver $resolver)
+	{
+		$this->engineResolver = $resolver;
+
+		return $this;
+	}
+
+	public function getEngineResolver()
+	{
+		return $this->engineResolver;
 	}
 
 	public function codeCoverageIsEnabled()
@@ -1015,7 +1028,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	protected function setDefaultScore(dependencies\resolver $resolver)
 	{
-		return $this->setScore($resolver['@test\score'] ?: new test\score());
+		return $this->setScore($resolver['@test\score'] ?: new test\score($resolver));
 	}
 
 	protected function setDefaultLocale(dependencies\resolver $resolver)
@@ -1045,12 +1058,22 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	protected function setDefaultAsserterGenerator(dependencies\resolver $resolver)
 	{
-		return $this->setAsserterGenerator($resolver['@asserter\generator'] ?: new test\asserter\generator($this));
+		return $this->setAsserterGenerator($resolver['@asserter\generator'] ?: new test\asserter\generator($this, $resolver['@locale']));
 	}
 
 	protected function setDefaultReflectionMethodResolver(dependencies\resolver $resolver)
 	{
 		return $this->setReflectionMethodResolver($resolver['@reflection\method'] ?: new dependencies\resolver(function($resolver) { return new \reflectionMethod($resolver['@class'], $resolver['@method']); }));
+	}
+
+	protected function setDefaultAssertionManager(dependencies\resolver $resolver)
+	{
+		return $this->setAssertionManager($resolver['@assertion\manager'] ?: new test\assertion\manager());
+	}
+
+	protected function setDefaultEngineResolver(dependencies\resolver $resolver)
+	{
+		return $this->setEngineResolver($resolver['@test\engine\resolver'] ?: new dependencies\resolver(function($engineResolver) use ($resolver) { return new $engineResolver['@class']($resolver); }));
 	}
 
 	private function runEngines()
@@ -1155,7 +1178,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 				throw new exceptions\runtime('Test engine \'' . $engineName . '\' does not exist for method \'' . $this->class . '::' . $this->currentMethod . '()\'');
 			}
 
-			$engine = new $engineClass();
+			$engine = $this->engineResolver->__invoke(array('class' => $engineClass));
 
 			if ($engine instanceof test\engine === false)
 			{
