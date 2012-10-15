@@ -459,19 +459,19 @@ class coverage implements \countable, \serializable
 		$resolver = $resolver ?: new dependencies\resolver();
 
 		return $this
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
-			->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: $this->getDefaultReflectionClassResolver($resolver))
+			->setDefaultAdapter($resolver)
+			->setDefaultReflectionClassResolver($resolver)
 		;
 	}
 
-	protected function getDefaultAdapter(dependencies\resolver $resolver)
+	protected function setDefaultAdapter(dependencies\resolver $resolver)
 	{
-		return new atoum\adapter();
+		return $this->setAdapter($resolver['@adapter'] ?: new atoum\adapter());
 	}
 
-	protected function getDefaultReflectionClassResolver(dependencies\resolver $resolver)
+	protected function setDefaultReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
+		return $this->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
 	}
 
 	protected static function itemIsExcluded(array $excludedItems, $item, $delimiter)

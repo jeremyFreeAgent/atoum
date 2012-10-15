@@ -39,11 +39,11 @@ class runner extends atoum\script
 		parent::__construct($name, $resolver);
 
 		$this
-			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder($resolver))
-			->setRunner($resolver['@runner'] ?: $this->getDefaultRunner($resolver))
-			->setCliResolver($resolver['@cli\resolver'] ?: $this->getDefaultCliResolver($resolver))
-			->setConfiguratorResolver($resolver['@configurator\resolver'] ?: $this->getDefaultConfiguratorResolver($resolver))
-			->setReportResolver($resolver['@report\resolver'] ?: $this->getDefaultReportResolver($resolver))
+			->setDefaultIncluder($resolver)
+			->setDefaultRunner($resolver)
+			->setDefaultCliResolver($resolver)
+			->setConfiguratorResolver($resolver)
+			->setDefaultReportResolver($resolver)
 		;
 	}
 
@@ -894,37 +894,38 @@ class runner extends atoum\script
 		return $this;
 	}
 
-	protected function getDefaultRunner(dependencies\resolver $resolver)
+	protected function setDefaultRunner(dependencies\resolver $resolver)
 	{
-		return new atoum\runner($resolver);
+		return $this->setRunner($resolver['@runner'] ?: new atoum\runner($resolver));
 	}
 
-	protected function getDefaultIncluder(dependencies\resolver $resolver)
+	protected function setDefaultIncluder(dependencies\resolver $resolver)
 	{
-		return new atoum\includer();
+		return $this->setIncluder($resolver['@includer'] ?: new atoum\includer());
 	}
 
-	protected function getDefaultConfiguratorResolver(dependencies\resolver $resolver)
+	protected function setDefaultConfiguratorResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); });
+		return $this->setConfiguratorResolver($resolver['@configurator\resolver'] ?: new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); }));
 	}
 
-	protected function getDefaultReportResolver(dependencies\resolver $resolver)
+	protected function setDefaultReportResolver(dependencies\resolver $resolver)
 	{
 		$outputWriter = $this->outputWriter;
 
-		return new dependencies\resolver(function($resolver) use ($outputWriter) {
-				$report = new atoum\reports\realtime\cli();
-				$report->addWriter($outputWriter);
+		return $this->setReportResolver($resolver['@report\resolver'] ?: new dependencies\resolver(function($resolver) use ($outputWriter) {
+					$report = new atoum\reports\realtime\cli();
+					$report->addWriter($outputWriter);
 
-				return $report;
-			}
+					return $report;
+				}
+			)
 		);
 	}
 
-	protected function getDefaultCliResolver(dependencies\resolver $resolver)
+	protected function setDefaultCliResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function() { return new atoum\cli(); });
+		return $this->setCliResolver($resolver['@cli\resolver'] ?: new dependencies\resolver(function() { return new atoum\cli(); }));
 	}
 
 	protected static function getClassesOf($methods)

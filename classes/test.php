@@ -74,14 +74,14 @@ abstract class test implements observable, adapter\aggregator, \countable
 		$resolver = $resolver ?: new dependencies\resolver();
 
 		$this
-			->setScore($resolver['@test\score'] ?: $this->getDefaultScore($resolver))
-			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale($resolver))
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
-			->setSuperglobals($resolver['@superglobals'] ?: $this->getDefaultSuperglobals($resolver))
-			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder($resolver))
-			->setMockGenerator($resolver['@mock\generator'] ?: $this->getDefaultMockGenerator($resolver))
-			->setAsserterGenerator($resolver['@asserter\generator'] ?: $this->getDefaultAsserterGenerator($resolver))
-			->setReflectionMethodResolver($resolver['@reflection\method'] ?: $this->getDefaultReflectionMethodResolver($resolver))
+			->setDefaultScore($resolver)
+			->setDefaultLocale($resolver)
+			->setDefaultAdapter($resolver)
+			->setDefaultSuperglobals($resolver)
+			->setDefaultIncluder($resolver)
+			->setDefaultMockGenerator($resolver)
+			->setDefaultAsserterGenerator($resolver)
+			->setDefaultReflectionMethodResolver($resolver)
 			->enableCodeCoverage()
 		;
 
@@ -1013,44 +1013,44 @@ abstract class test implements observable, adapter\aggregator, \countable
 		return $this;
 	}
 
-	protected function getDefaultScore(dependencies\resolver $resolver)
+	protected function setDefaultScore(dependencies\resolver $resolver)
 	{
-		return new test\score();
+		return $this->setScore($resolver['@test\score'] ?: new test\score());
 	}
 
-	protected function getDefaultLocale(dependencies\resolver $resolver)
+	protected function setDefaultLocale(dependencies\resolver $resolver)
 	{
-		return new locale();
+		return $this->setLocale($resolver['@locale'] ?: new locale());
 	}
 
-	protected function getDefaultAdapter(dependencies\resolver $resolver)
+	protected function setDefaultAdapter(dependencies\resolver $resolver)
 	{
-		return new adapter();
+		return $this->setAdapter($resolver['@adapter'] ?: new adapter());
 	}
 
-	protected function getDefaultSuperglobals(dependencies\resolver $resolver)
+	protected function setDefaultSuperglobals(dependencies\resolver $resolver)
 	{
-		return new superglobals();
+		return $this->setSuperglobals($resolver['@superglobals'] ?: new superglobals());
 	}
 
-	protected function getDefaultIncluder(dependencies\resolver $resolver)
+	protected function setDefaultIncluder(dependencies\resolver $resolver)
 	{
-		return new includer();
+		return $this->setIncluder($resolver['@includer'] ?: new includer());
 	}
 
-	protected function getDefaultMockGenerator(dependencies\resolver $resolver)
+	protected function setDefaultMockGenerator(dependencies\resolver $resolver)
 	{
-		return new test\mock\generator($this, $resolver);
+		return $this->setMockGenerator($resolver['@mock\generator'] ?: new test\mock\generator($this, $resolver));
 	}
 
-	protected function getDefaultAsserterGenerator(dependencies\resolver $resolver)
+	protected function setDefaultAsserterGenerator(dependencies\resolver $resolver)
 	{
-		return new test\asserter\generator($this);
+		return $this->setAsserterGenerator($resolver['@asserter\generator'] ?: new test\asserter\generator($this));
 	}
 
-	protected function getDefaultReflectionMethodResolver(dependencies\resolver $resolver)
+	protected function setDefaultReflectionMethodResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new \reflectionMethod($resolver['@class'], $resolver['@method']); });
+		return $this->setReflectionMethodResolver($resolver['@reflection\method'] ?: new dependencies\resolver(function($resolver) { return new \reflectionMethod($resolver['@class'], $resolver['@method']); }));
 	}
 
 	private function runEngines()

@@ -17,9 +17,11 @@ class report implements observer, adapter\aggregator
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		$this
-			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale())
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
+			->setDefaultLocale($resolver)
+			->setDefaultAdapter($resolver)
 		;
 	}
 
@@ -110,13 +112,13 @@ class report implements observer, adapter\aggregator
 		return $this;
 	}
 
-	protected function getDefaultLocale()
+	protected function setDefaultLocale(dependencies\resolver $resolver)
 	{
-		return new locale();
+		return $this->setLocale($resolver['@locale'] ?: new locale());
 	}
 
-	protected function getDefaultAdapter()
+	protected function setDefaultAdapter(dependencies\resolver $resolver)
 	{
-		return new adapter();
+		return $this->setAdapter($resolver['@adapter'] ?: new adapter());
 	}
 }

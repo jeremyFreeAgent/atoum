@@ -41,8 +41,8 @@ class builder extends atoum\script
 		parent::__construct($name, $resolver);
 
 		$this
-			->setVcs($resolver['@scripts\builder\vcs'] ?: $this->getDefaultVcs($resolver))
-			->setSuperglobals($resolver['@superglobals'] ?: $this->getDefaultSuperglobals($resolver))
+			->setDefaultVcs($resolver)
+			->setDefaultSuperglobals($resolver)
 			->setUnitTestRunnerScript(self::defaultUnitTestRunnerScript)
 			->setPharGeneratorScript(self::defaultPharGeneratorScript)
 		;
@@ -767,13 +767,13 @@ class builder extends atoum\script
 		return rtrim($path, DIRECTORY_SEPARATOR);
 	}
 
-	protected function getDefaultVcs(dependencies\resolver $resolver)
+	protected function setDefaultVcs(dependencies\resolver $resolver)
 	{
-		return new atoum\scripts\builder\vcs\svn();
+		return $this->setVcs($resolver['@scripts\builder\vcs'] ?: new atoum\scripts\builder\vcs\svn());
 	}
 
-	protected static function getDefaultSuperglobals(dependencies\resolver $resolver)
+	protected function setDefaultSuperglobals(dependencies\resolver $resolver)
 	{
-		return new atoum\superglobals();
+		return $this->setSuperglobals($resolver['@superglobals'] ?: new atoum\superglobals());
 	}
 }

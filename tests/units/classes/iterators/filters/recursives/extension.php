@@ -31,7 +31,7 @@ class extension extends atoum\test
 				->object($filter->getInnerIterator())->isEqualTo(new \recursiveDirectoryIterator(__DIR__ ))
 				->string($filter->getInnerIterator()->getPath())->isEqualTo(__DIR__)
 			->if($resolver = new dependencies\resolver())
-			->and($resolver['iterator'] = function($resolver) use (& $innerIterator) { return ($innerIterator = new \mock\recursiveDirectoryIterator($resolver['@directory'])); })
+			->and($resolver['iterators\recursives\directory'] = function($resolver) use (& $innerIterator) { return ($innerIterator = new \mock\recursiveDirectoryIterator($resolver['@directory'])); })
 			->and($filter = new recursives\extension($path = uniqid(), $acceptedExtensions, $resolver))
 			->then
 				->object($filter->getInnerIterator())->isIdenticalTo($innerIterator)

@@ -22,10 +22,12 @@ class generator
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		$this
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
-			->setPhpMethodResolver($resolver['@php\method'] ?: $this->getDefaultPhpMethodResolver())
-			->setReflectionClassResolver($resolver['@reflection\class'] ?: $this->getDefaultReflectionClassResolver())
+			->setDefaultAdapter($resolver)
+			->setDefaultPhpMethodResolver($resolver)
+			->setDefaultReflectionClassResolver($resolver)
 		;
 	}
 
@@ -64,7 +66,6 @@ class generator
 	{
 		return $this->phpMethodResolver;
 	}
-
 
 	public function setDefaultNamespace($namespace)
 	{
@@ -316,6 +317,21 @@ class generator
 		return '\\' . $this->getDefaultNamespace() . ($lastAntiSlash === false ? '' : '\\' . substr($class, 0, $lastAntiSlash));
 	}
 
+	protected function setDefaultAdapter(dependencies\resolver $resolver)
+	{
+		return $this->setAdapter($resolver['@adapter'] ?: new atoum\adapter());
+	}
+
+	protected function setDefaultPhpMethodResolver(dependencies\resolver $resolver)
+	{
+		return $this->setPhpMethodResolver($resolver['@php\method'] ?: new dependencies\resolver(function($resolver) { return new php\method($resolver['@method']); }));
+	}
+
+	protected function setDefaultReflectionClassResolver(dependencies\resolver $resolver)
+	{
+		return $this->setReflectionClassResolver($resolver['@reflection\class'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
+	}
+
 	protected static function getClassName($class)
 	{
 		$class = ltrim($class, '\\');
@@ -539,20 +555,5 @@ class generator
 			. "\t\t" . '}' . PHP_EOL
 			. "\t" . '}' . PHP_EOL
 		;
-	}
-
-	protected function getDefaultAdapter()
-	{
-		return new atoum\adapter();
-	}
-
-	protected function getDefaultPhpMethodResolver()
-	{
-		return new dependencies\resolver(function($resolver) { return new php\method($resolver['@method']); });
-	}
-
-	protected function getDefaultReflectionClassResolver()
-	{
-		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}
 }

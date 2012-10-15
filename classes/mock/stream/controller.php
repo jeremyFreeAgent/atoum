@@ -111,12 +111,7 @@ class controller extends test\adapter
 
 	protected function setDefaultInvokerResolver(dependencies\resolver $resolver)
 	{
-		$this->setInvokerResolver($resolver['@mock\stream\invoker'] ?: $this->getDefaultInvokerResolver($resolver));
-	}
-
-	protected function getDefaultInvokerResolver(dependencies\resolver $resolver)
-	{
-		return new dependencies\resolver(function($resolver) { return new invoker($resolver['@method']); });
+		$this->setInvokerResolver($resolver['@mock\stream\invoker'] ?: new dependencies\resolver(function($resolver) { return new invoker($resolver['@method']); }));
 	}
 
 	protected static function mapMethod($method)

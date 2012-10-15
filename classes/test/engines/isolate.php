@@ -19,7 +19,7 @@ class isolate extends engines\concurrent
 
 		parent::__construct($resolver);
 
-		$this->setScore($resolver['@test\score'] ?: $this->getDefaultScore($resolver));
+		$this->setDefaultScore($resolver);
 	}
 
 	public function run(atoum\test $test)
@@ -41,8 +41,8 @@ class isolate extends engines\concurrent
 		return $this->score;
 	}
 
-	protected static function getDefaultScore(dependencies\resolver $resolver)
+	protected function setDefaultScore(dependencies\resolver $resolver)
 	{
-		return new atoum\test\score($resolver);
+		return $this->setScore($resolver['@test\score'] ?: new atoum\test\score($resolver));
 	}
 }

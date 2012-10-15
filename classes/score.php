@@ -26,7 +26,7 @@ class score
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setCoverage($resolver['@coverage'] ?: $this->getDefaultCoverage($resolver));
+		$this->setDefaultCoverage($resolver);
 	}
 
 	public function reset()
@@ -388,9 +388,9 @@ class score
 		return (sizeof(array_filter($this->failAssertions, function($assertion) use ($id) { return ($assertion['id'] === $id); })) > 0);
 	}
 
-	protected static function getDefaultCoverage(dependencies\resolver $resolver = null)
+	protected function setDefaultCoverage(dependencies\resolver $resolver = null)
 	{
-		return new score\coverage($resolver);
+		return $this->setCoverage($resolver['@coverage'] ?: new score\coverage($resolver));
 	}
 
 	private static function getMethods(array $array)

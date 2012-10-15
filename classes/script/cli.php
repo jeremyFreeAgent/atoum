@@ -19,5 +19,4 @@ abstract class cli extends atoum\script
 			throw new exceptions\logic('\'' . $this->getName() . '\' must be used in CLI only');
 	 	}
 	}
-
 }

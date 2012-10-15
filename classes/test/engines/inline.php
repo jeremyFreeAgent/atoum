@@ -16,7 +16,7 @@ class inline extends test\engine
 	{
 		$resolver = $resolver ?: new dependencies\resolver();
 
-		$this->setScore($resolver['@test\score'] ?: $this->getDefaultScore($resolver));
+		$this->setDefaultScore($resolver);
 	}
 
 	public function setScore(atoum\score $score)
@@ -54,8 +54,8 @@ class inline extends test\engine
 		return $this->score;
 	}
 
-	protected function getDefaultScore(dependencies\resolver $resolver)
+	protected function setDefaultScore(dependencies\resolver $resolver)
 	{
-		return new test\score($resolver);
+		return $this->setScore($resolver['@test\score'] ?: new test\score($resolver));
 	}
 }

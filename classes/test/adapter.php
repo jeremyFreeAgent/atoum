@@ -214,14 +214,9 @@ class adapter extends atoum\adapter
 		return $this->invokerResolver->__invoke();
 	}
 
-	protected function getDefaultInvokerResolver(dependencies\resolver $resolver)
-	{
-		return new dependencies\resolver(function() { return new invoker(); });
-	}
-
 	protected function setDefaultInvokerResolver(dependencies\resolver $resolver)
 	{
-		$this->setInvokerResolver($resolver['@test\adapter\invoker'] ?: $this->getDefaultInvokerResolver($resolver));
+		$this->setInvokerResolver($resolver['@test\adapter\invoker'] ?: new dependencies\resolver(function() { return new invoker(); }));
 	}
 
 	protected static function isLanguageConstruct($functionName)

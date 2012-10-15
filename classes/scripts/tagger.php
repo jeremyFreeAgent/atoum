@@ -20,7 +20,7 @@ class tagger extends atoum\script
 
 		parent::__construct($name, $resolver);
 
-		$this->setEngine($resolver['@scripts\tagger\engine'] ?: $this->getDefaultEngine($resolver));
+		$this->setDefaultEngine($resolver);
 	}
 
 	public function setEngine(tagger\engine $engine)
@@ -134,8 +134,8 @@ class tagger extends atoum\script
 		return $this;
 	}
 
-	protected function getDefaultEngine(dependencies\resolver $resolver)
+	protected function setDefaultEngine(dependencies\resolver $resolver)
 	{
-		return new atoum\scripts\tagger\engine();
+		return $this->setEngine($resolver['@scripts\tagger\engine'] ?: new atoum\scripts\tagger\engine());
 	}
 }

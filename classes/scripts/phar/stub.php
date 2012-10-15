@@ -23,7 +23,7 @@ class stub extends scripts\runner
 
 		parent::__construct($name, $resolver);
 
-		$this->setPharResolver($resolver['@phar'] ?: $this->getDefaultPharResolver($resolver));
+		$this->setDefaultPharResolver($resolver);
 	}
 
 	public function setPharResolver(dependencies\resolver $resolver)
@@ -575,8 +575,8 @@ class stub extends scripts\runner
 		return atoum\directory . '/' . self::scriptsDirectory . '/' . $scriptName . self::scriptsExtension;
 	}
 
-	protected function getDefaultPharResolver(dependencies\resolver $resolver)
+	protected function setDefaultPharResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new \phar($resolver['@path']); });
+		return $this->setPharResolver($resolver['@phar'] ?: new dependencies\resolver(function($resolver) { return new \phar($resolver['@path']); }));
 	}
 }

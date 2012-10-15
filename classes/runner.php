@@ -46,14 +46,14 @@ class runner implements observable, adapter\aggregator
 		$resolver = $resolver ?: new dependencies\resolver();
 
 		$this
-			->setScore($resolver['@runner\score'] ?: $this->getDefaultScore($resolver))
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
-			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale($resolver))
-			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder($resolver))
-			->setTestDirectoryIterator($resolver['@test\directory\iterator'] ?: $this->getDefaultTestDirectoryIterator($resolver))
-			->setGlobIteratorResolver($resolver['@globIterator\resolver'] ?: $this->getDefaultGlobIteratorResolver($resolver))
-			->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: $this->getDefaultReflectionClassResolver($resolver))
-			->setTestResolver($resolver['@test\resolver'] ?: $this->getDefaultTestResolver($resolver))
+			->setDefaultScore($resolver)
+			->setDefaultAdapter($resolver)
+			->setDefaultLocale($resolver)
+			->setDefaultIncluder($resolver)
+			->setDefaultTestDirectoryIterator($resolver)
+			->setDefaultGlobIteratorResolver($resolver)
+			->setDefaultReflectionClassResolver($resolver)
+			->setDefaultTestResolver($resolver)
 		;
 
 		$runnerClass = $this->reflectionClassResolver->__invoke(array('class' => $this));
@@ -666,48 +666,48 @@ class runner implements observable, adapter\aggregator
 		return $isIgnored;
 	}
 
-	protected function getDefaultAdapter()
+	protected function setDefaultAdapter(dependencies\resolver $resolver)
 	{
-		return new adapter();
+		return $this->setAdapter($resolver['@adapter'] ?: new adapter());
 	}
 
-	protected function getDefaultLocale()
+	protected function setDefaultLocale(dependencies\resolver $resolver)
 	{
-		return new locale();
+		return $this->setLocale($resolver['@locale'] ?: new locale());
 	}
 
-	protected function getDefaultIncluder()
+	protected function setDefaultIncluder(dependencies\resolver $resolver)
 	{
-		return new includer();
+		return $this->setIncluder($resolver['@includer'] ?: new includer());
 	}
 
-	protected function getDefaultScore()
+	protected function setDefaultScore(dependencies\resolver $resolver)
 	{
-		return new runner\score();
+		return $this->setScore($resolver['@runner\score'] ?: new runner\score());
 	}
 
-	protected function getDefaultTestDirectoryIterator()
+	protected function setDefaultTestDirectoryIterator(dependencies\resolver $resolver)
 	{
-		return new iterators\recursives\directory();
+		return $this->setTestDirectoryIterator($resolver['@test\directory\iterator'] ?: new iterators\recursives\directory());
 	}
 
-	protected function getDefaultReflectionClassResolver()
+	protected function setDefaultReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
+		return $this->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
 	}
 
-	protected function getDefaultGlobIteratorResolver()
+	protected function setDefaultGlobIteratorResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); });
+		return $this->setGlobIteratorResolver($resolver['@globIterator\resolver'] ?: new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); }));
 	}
 
-	protected function getDefaultTestResolver(dependencies\resolver $testResolver)
+	protected function setDefaultTestResolver(dependencies\resolver $resolver)
 	{
-		$testResolver['locale'] = $this->locale;
-		$testResolver['adapter'] = $this->adapter;
-		$testResolver['includer'] = $this->includer;
+		$resolver['locale'] = $this->locale;
+		$resolver['adapter'] = $this->adapter;
+		$resolver['includer'] = $this->includer;
 
-		return new dependencies\resolver(function($resolver) use ($testResolver) { return new $resolver['@test']($testResolver); });
+		return $this->setTestResolver($resolver['@test\resolver'] ?: new dependencies\resolver(function($testResolver) use ($resolver) { return new $testResolver['@test']($resolver); }));
 	}
 
 	private static function getMethods(test $test, array $runTestMethods, array $tags)

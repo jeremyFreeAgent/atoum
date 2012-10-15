@@ -29,11 +29,11 @@ abstract class script implements atoum\adapter\aggregator
 		$resolver = $resolver ?: new dependencies\resolver();
 
 		$this
-			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale($resolver))
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
-			->setArgumentsParser($resolver['@script\arguments\parser'] ?: $this->getDefaultArgumentsParser($resolver))
-			->setOutputWriter($resolver['@writers\stdout'] ?: $this->getDefaultStdoutWriter($resolver))
-			->setErrorWriter($resolver['@writers\stderr'] ?: $this->getDefaultStderrWriter($resolver))
+			->setDefaultLocale($resolver)
+			->setDefaultAdapter($resolver)
+			->setDefaultArgumentsParser($resolver)
+			->setDefaultOutputWriter($resolver)
+			->setDefaultErrorWriter($resolver)
 		;
 
 		if ($this->adapter->php_sapi_name() !== 'cli')
@@ -248,28 +248,28 @@ abstract class script implements atoum\adapter\aggregator
 		return $this;
 	}
 
-	protected function getDefaultLocale(dependencies\resolver $resolver)
+	protected function setDefaultLocale(dependencies\resolver $resolver)
 	{
-		return new atoum\locale;
+		return $this->setLocale($resolver['@locale'] ?: new atoum\locale());
 	}
 
-	protected function getDefaultAdapter(dependencies\resolver $resolver)
+	protected function setDefaultAdapter(dependencies\resolver $resolver)
 	{
-		return new atoum\adapter();
+		return $this->setAdapter($resolver['@adapter'] ?: new atoum\adapter());
 	}
 
-	protected function getDefaultArgumentsParser(dependencies\resolver $resolver)
+	protected function setDefaultArgumentsParser(dependencies\resolver $resolver)
 	{
-		return new atoum\script\arguments\parser();
+		return $this->setArgumentsParser($resolver['@script\arguments\parser'] ?: new atoum\script\arguments\parser());
 	}
 
-	protected function getDefaultStdoutWriter(dependencies\resolver $resolver)
+	protected function setDefaultOutputWriter(dependencies\resolver $resolver)
 	{
-		return new atoum\writers\std\out();
+		return $this->setOutputWriter($resolver['@writers\stdout'] ?: new atoum\writers\std\out());
 	}
 
-	protected function getDefaultStderrWriter(dependencies\resolver $resolver)
+	protected function setDefaultErrorWriter(dependencies\resolver $resolver)
 	{
-		return new atoum\writers\std\err();
+		return $this->setErrorWriter($resolver['@writers\stderr'] ?: new atoum\writers\std\err());
 	}
 }

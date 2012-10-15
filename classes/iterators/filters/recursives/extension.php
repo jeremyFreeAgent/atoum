@@ -18,12 +18,12 @@ class extension extends \recursiveFilterIterator
 		}
 		else
 		{
-			if ($resolver !== null && isset($resolver['iterator']) === true)
+			if ($resolver !== null && isset($resolver['iterators\recursives\directory']) === true)
 			{
-				$resolver['iterator']['directory'] = (string) $mixed;
+				$resolver['iterators\recursives\directory']['directory'] = (string) $mixed;
 			}
 
-			parent::__construct($resolver['@iterator'] ?: new \recursiveDirectoryIterator((string) $mixed));
+			parent::__construct($resolver['@iterators\recursives\directory'] ?: new \recursiveDirectoryIterator((string) $mixed));
 		}
 
 		$this->setAcceptedExtensions($acceptedExtensions);
