@@ -48,7 +48,7 @@ class inline extends atoum\test
 		$this
 			->if($engine = new engines\inline())
 			->then
-				->object($engine->getScore())->isInstanceof('mageekguy\atoum\score')
+				->object($engine->getScore())->isInstanceof('mageekguy\atoum\test\score')
 			->if($test = new \mock\mageekguy\atoum\test())
 			->and($test->getMockController()->getCurrentMethod = $method = uniqid())
 			->and($test->getMockController()->runTestMethod = $test)

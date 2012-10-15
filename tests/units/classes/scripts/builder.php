@@ -65,11 +65,11 @@ class builder extends atoum\test
 			->if($resolver = new dependencies\resolver())
 			->and($resolver['locale'] = $locale = new atoum\locale())
 			->and($resolver['adapter'] = $adapter = new atoum\adapter())
-			->and($resolver['arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
+			->and($resolver['script\arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
 			->and($resolver['writers\stdout'] = $stdOut = new atoum\writers\std\out())
 			->and($resolver['writers\stderr'] = $stdErr = new atoum\writers\std\err())
 			->and($resolver['superglobals'] = $superglobals = new atoum\superglobals())
-			->and($resolver['vcs'] = $vcs = new atoum\scripts\builder\vcs\svn())
+			->and($resolver['scripts\builder\vcs'] = $vcs = new atoum\scripts\builder\vcs\svn())
 			->and($builder = new scripts\builder($name = uniqid(), $resolver))
 			->then
 				->string($builder->getName())->isEqualTo($name)

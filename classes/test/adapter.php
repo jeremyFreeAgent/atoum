@@ -20,7 +20,9 @@ class adapter extends atoum\adapter
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setInvokerResolver($resolver['@invoker'] ?: static::getDefaultInvokerResolver());
+		$resolver = $resolver ?: new dependencies\resolver();
+
+		$this->setDefaultInvokerResolver($resolver);
 
 		if (self::$instances === null)
 		{
@@ -212,9 +214,14 @@ class adapter extends atoum\adapter
 		return $this->invokerResolver->__invoke();
 	}
 
-	protected static function getDefaultInvokerResolver()
+	protected function getDefaultInvokerResolver(dependencies\resolver $resolver)
 	{
 		return new dependencies\resolver(function() { return new invoker(); });
+	}
+
+	protected function setDefaultInvokerResolver(dependencies\resolver $resolver)
+	{
+		$this->setInvokerResolver($resolver['@test\adapter\invoker'] ?: $this->getDefaultInvokerResolver($resolver));
 	}
 
 	protected static function isLanguageConstruct($functionName)

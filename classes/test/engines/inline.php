@@ -14,7 +14,9 @@ class inline extends test\engine
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setScore($resolver['@score'] ?: static::getDefaultScore());
+		$resolver = $resolver ?: new dependencies\resolver();
+
+		$this->setScore($resolver['@test\score'] ?: $this->getDefaultScore($resolver));
 	}
 
 	public function setScore(atoum\score $score)
@@ -52,8 +54,8 @@ class inline extends test\engine
 		return $this->score;
 	}
 
-	protected static function getDefaultScore()
+	protected function getDefaultScore(dependencies\resolver $resolver)
 	{
-		return new test\score();
+		return new test\score($resolver);
 	}
 }

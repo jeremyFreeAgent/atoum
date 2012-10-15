@@ -14,9 +14,9 @@ class directory implements \iteratorAggregate
 	protected $path = null;
 	protected $acceptDots = false;
 	protected $acceptedExtensions = array('php');
-	protected $iteratorResolver = null;
 	protected $dotFilterResolver = null;
 	protected $extensionFilterResolver = null;
+	protected $directoryIteratorResolver = null;
 
 	public function __construct($path = null, dependencies\resolver $resolver = null)
 	{
@@ -25,10 +25,12 @@ class directory implements \iteratorAggregate
 			$this->setPath($path);
 		}
 
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		$this
-			->setIteratorResolver($resolver['@iterator'] ?: static::getDefaultIteratorResolver())
-			->setDotFilterResolver($resolver['@filters\dot'] ?: static::getDefaultDotFilterResolver())
-			->setExtensionFilterResolver($resolver['@filters\extension'] ?: static::getDefaultExtensionFilterResolver())
+			->setDirectoryIteratorResolver($resolver['@iterators\recursives\directory\resolver'] ?: $this->getDefaultDirectoryIteratorResolver($resolver))
+			->setDotFilterResolver($resolver['@iterators\filters\recursives\dot\resolver'] ?: $this->getDefaultDotFilterResolver($resolver))
+			->setExtensionFilterResolver($resolver['@iterators\filters\recursives\extension\resolver'] ?: $this->getDefaultExtensionFilterResolver($resolver))
 		;
 	}
 
@@ -39,16 +41,16 @@ class directory implements \iteratorAggregate
 		return $this;
 	}
 
-	public function setIteratorResolver(dependencies\resolver $resolver)
+	public function setDirectoryIteratorResolver(dependencies\resolver $resolver)
 	{
-		$this->iteratorResolver = $resolver;
+		$this->directoryIteratorResolver = $resolver;
 
 		return $this;
 	}
 
-	public function getIteratorResolver()
+	public function getDirectoryIteratorResolver()
 	{
-		return $this->iteratorResolver;
+		return $this->directoryIteratorResolver;
 	}
 
 	public function setDotFilterResolver(dependencies\resolver $resolver)
@@ -91,7 +93,7 @@ class directory implements \iteratorAggregate
 			throw new exceptions\runtime('Path is undefined');
 		}
 
-		$iterator = $this->iteratorResolver->__invoke(array('directory' => $this->path));
+		$iterator = $this->directoryIteratorResolver->__invoke(array('directory' => $this->path));
 
 		if ($this->acceptDots === false)
 		{
@@ -166,18 +168,18 @@ class directory implements \iteratorAggregate
 		return trim($extension, '.');
 	}
 
-	protected static function getDefaultIteratorResolver()
+	protected function getDefaultDirectoryIteratorResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new \recursiveDirectoryIterator($resolver['directory']()); });
+		return new dependencies\resolver(function($resolver) { return new \recursiveDirectoryIterator($resolver['@directory']); });
 	}
 
-	protected static function getDefaultDotFilterResolver()
+	protected static function getDefaultDotFilterResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new filters\recursives\dot($resolver['iterator']()); });
+		return new dependencies\resolver(function($resolver) { return new filters\recursives\dot($resolver['@iterator']); });
 	}
 
-	protected static function getDefaultExtensionFilterResolver()
+	protected static function getDefaultExtensionFilterResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) { return new filters\recursives\extension($resolver['iterator'](), $resolver['extensions']()); });
+		return new dependencies\resolver(function($resolver) { return new filters\recursives\extension($resolver['@iterator'], $resolver['@extensions']); });
 	}
 }

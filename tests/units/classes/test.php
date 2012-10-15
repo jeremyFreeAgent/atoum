@@ -108,7 +108,7 @@ namespace mageekguy\atoum\tests\units
 					->integer($test->getMaxChildrenNumber())->isEqualTo(666)
 					->variable($test->getBootstrapFile())->isNull()
 				->if($resolver = new dependencies\resolver())
-				->and($resolver['score'] = $score = new atoum\test\score())
+				->and($resolver['test\score'] = $score = new atoum\test\score())
 				->and($resolver['locale'] = $locale = new atoum\locale())
 				->and($resolver['adapter'] = $adapter = new atoum\adapter())
 				->and($resolver['superglobals'] = $superglobals = new atoum\superglobals())

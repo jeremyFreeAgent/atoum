@@ -26,7 +26,7 @@ class score
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
-		$this->setCoverage($resolver['@coverage'] ?: static::getDefaultCoverage($resolver['coverage']));
+		$this->setCoverage($resolver['@coverage'] ?: $this->getDefaultCoverage($resolver));
 	}
 
 	public function reset()

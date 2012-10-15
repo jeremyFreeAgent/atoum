@@ -32,7 +32,7 @@ class script extends atoum\test
 			->if($resolver = new dependencies\resolver())
 			->and($resolver['locale'] = $locale = new atoum\locale())
 			->and($resolver['adapter'] = $adapter = new atoum\adapter())
-			->and($resolver['arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
+			->and($resolver['script\arguments\parser'] = $argumentsParser = new atoum\script\arguments\parser())
 			->and($resolver['writers\stdout'] = $stdOut = new atoum\writers\std\out())
 			->and($resolver['writers\stderr'] = $stdErr = new atoum\writers\std\err())
 			->and($script = new mock\script($name = uniqid(), $resolver))
@@ -158,7 +158,7 @@ class script extends atoum\test
 			->if($argumentsParser = new mock\script\arguments\parser())
 			->and($argumentsParser->getMockController()->addHandler = function() {})
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['arguments\parser'] = $argumentsParser)
+			->and($resolver['script\arguments\parser'] = $argumentsParser)
 			->and($resolver['adapter'] = $adapter = new atoum\test\adapter())
 			->and($script = new mock\script(uniqid(), $resolver))
 			->then

@@ -4,8 +4,6 @@ namespace mageekguy\atoum\dependencies;
 
 class resolver implements \arrayAccess
 {
-	protected $name = null;
-	protected $parent = null;
 	protected $value = null;
 	protected $dependencies = array();
 
@@ -24,37 +22,21 @@ class resolver implements \arrayAccess
 		return ($this->value instanceof \closure === false ? $this->value : $this->value->__invoke($this));
 	}
 
-	public function __toString()
-	{
-		$path = $this->name;
-		$parent = $this->parent;
-
-		while ($parent !== null)
-		{
-			$path = $parent->name . '/' . $path;
-			$parent = $parent->parent;
-		}
-
-		return ($path !== null ? '' : '/') . $path;
-	}
-
 	public function offsetGet($dependency)
 	{
 		$resolvedDependency = ltrim($dependency, '@');
 
-		if (isset($this->dependencies[$resolvedDependency]) === false)
-		{
-			$this->dependencies[$resolvedDependency] = new static();
-			$this->dependencies[$resolvedDependency]->name = $resolvedDependency;
-			$this->dependencies[$resolvedDependency]->parent = $this;
-		}
+//		if (isset($this->dependencies[$resolvedDependency]) === false)
+//		{
+//			$this->dependencies[$resolvedDependency] = new static();
+//		}
 
-		return ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]());
+		return (isset($this->dependencies[$resolvedDependency]) === false ? null : ($resolvedDependency === $dependency ? $this->dependencies[$resolvedDependency] : $this->dependencies[$resolvedDependency]()));
 	}
 
 	public function offsetSet($dependency, $mixed)
 	{
-		$this[$dependency]->value = $mixed;
+		$this->dependencies[$dependency] = new static($mixed);
 
 		return $this;
 	}

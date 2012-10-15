@@ -24,19 +24,16 @@ abstract class script implements atoum\adapter\aggregator
 
 	public function __construct($name, dependencies\resolver $resolver = null)
 	{
-		if ($resolver === null)
-		{
-			$resolver = new dependencies\resolver();
-		}
-
 		$this->name = (string) $name;
 
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		$this
-			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale())
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
-			->setArgumentsParser($resolver['@arguments\parser'] ?: $this->getDefaultArgumentsParser())
-			->setOutputWriter($resolver['@writers\stdout'] ?: $this->getDefaultStdoutWriter())
-			->setErrorWriter($resolver['@writers\stderr'] ?: $this->getDefaultStderrWriter())
+			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale($resolver))
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
+			->setArgumentsParser($resolver['@script\arguments\parser'] ?: $this->getDefaultArgumentsParser($resolver))
+			->setOutputWriter($resolver['@writers\stdout'] ?: $this->getDefaultStdoutWriter($resolver))
+			->setErrorWriter($resolver['@writers\stderr'] ?: $this->getDefaultStderrWriter($resolver))
 		;
 
 		if ($this->adapter->php_sapi_name() !== 'cli')
@@ -251,27 +248,27 @@ abstract class script implements atoum\adapter\aggregator
 		return $this;
 	}
 
-	protected function getDefaultLocale()
+	protected function getDefaultLocale(dependencies\resolver $resolver)
 	{
 		return new atoum\locale;
 	}
 
-	protected function getDefaultAdapter()
+	protected function getDefaultAdapter(dependencies\resolver $resolver)
 	{
 		return new atoum\adapter();
 	}
 
-	protected function getDefaultArgumentsParser()
+	protected function getDefaultArgumentsParser(dependencies\resolver $resolver)
 	{
 		return new atoum\script\arguments\parser();
 	}
 
-	protected function getDefaultStdoutWriter()
+	protected function getDefaultStdoutWriter(dependencies\resolver $resolver)
 	{
 		return new atoum\writers\std\out();
 	}
 
-	protected function getDefaultStderrWriter()
+	protected function getDefaultStderrWriter(dependencies\resolver $resolver)
 	{
 		return new atoum\writers\std\err();
 	}

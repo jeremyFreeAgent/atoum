@@ -43,20 +43,17 @@ class runner implements observable, adapter\aggregator
 
 	public function __construct(dependencies\resolver $resolver = null)
 	{
-		if ($resolver === null)
-		{
-			$resolver = new dependencies\resolver();
-		}
+		$resolver = $resolver ?: new dependencies\resolver();
 
 		$this
-			->setScore($resolver['@score'] ?: $this->getDefaultScore())
-			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter())
-			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale())
-			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder())
-			->setTestDirectoryIterator($resolver['@directoryIterator'] ?: $this->getDefaultDirectoryIterator())
-			->setGlobIteratorResolver($resolver['@globIteratorResolver'] ?: $this->getDefaultGlobIteratorResolver())
-			->setReflectionClassResolver($resolver['@reflectionClassResolver'] ?: $this->getDefaultReflectionClassResolver())
-			->setTestResolver($resolver['@testResolver'] ?: $this->getDefaultTestResolver($resolver['testResolver']))
+			->setScore($resolver['@runner\score'] ?: $this->getDefaultScore($resolver))
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
+			->setLocale($resolver['@locale'] ?: $this->getDefaultLocale($resolver))
+			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder($resolver))
+			->setTestDirectoryIterator($resolver['@test\directory\iterator'] ?: $this->getDefaultTestDirectoryIterator($resolver))
+			->setGlobIteratorResolver($resolver['@globIterator\resolver'] ?: $this->getDefaultGlobIteratorResolver($resolver))
+			->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: $this->getDefaultReflectionClassResolver($resolver))
+			->setTestResolver($resolver['@test\resolver'] ?: $this->getDefaultTestResolver($resolver))
 		;
 
 		$runnerClass = $this->reflectionClassResolver->__invoke(array('class' => $this));
@@ -689,7 +686,7 @@ class runner implements observable, adapter\aggregator
 		return new runner\score();
 	}
 
-	protected function getDefaultDirectoryIterator()
+	protected function getDefaultTestDirectoryIterator()
 	{
 		return new iterators\recursives\directory();
 	}

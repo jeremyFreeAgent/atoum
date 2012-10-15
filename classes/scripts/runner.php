@@ -14,6 +14,7 @@ use
 class runner extends atoum\script
 {
 	const defaultConfigFile = '.atoum.php';
+	const defaultDependenciesFile = '.atoum.dependencies.php';
 
 	protected $runner = null;
 	protected $includer = null;
@@ -33,19 +34,16 @@ class runner extends atoum\script
 
 	public function __construct($name, dependencies\resolver $resolver = null)
 	{
-		if ($resolver === null)
-		{
-			$resolver = new dependencies\resolver();
-		}
+		$resolver = $resolver ?: new dependencies\resolver();
 
 		parent::__construct($name, $resolver);
 
 		$this
-			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder())
-			->setRunner($resolver['@runner'] ?: $this->getDefaultRunner($resolver['runner']))
-			->setCliResolver($resolver['@cliResolver'] ?: $this->getDefaultCliResolver())
-			->setConfiguratorResolver($resolver['@configuratorResolver'] ?: $this->getDefaultConfiguratorResolver())
-			->setReportResolver($resolver['@reportResolver'] ?: $this->getDefaultReportResolver())
+			->setIncluder($resolver['@includer'] ?: $this->getDefaultIncluder($resolver))
+			->setRunner($resolver['@runner'] ?: $this->getDefaultRunner($resolver))
+			->setCliResolver($resolver['@cli\resolver'] ?: $this->getDefaultCliResolver($resolver))
+			->setConfiguratorResolver($resolver['@configurator\resolver'] ?: $this->getDefaultConfiguratorResolver($resolver))
+			->setReportResolver($resolver['@report\resolver'] ?: $this->getDefaultReportResolver($resolver))
 		;
 	}
 
@@ -246,14 +244,14 @@ class runner extends atoum\script
 		return $this;
 	}
 
-	public function useDefaultConfigFiles($startDirectory = null)
+	public function useDefaultConfigFiles($startDirectory = null, $directorySeparator = null)
 	{
 		if ($startDirectory === null)
 		{
 			$startDirectory = $this->adapter->getcwd();
 		}
 
-		foreach (self::getSubDirectoryPath($startDirectory) as $directory)
+		foreach (self::getSubDirectoryPath($startDirectory, $directorySeparator) as $directory)
 		{
 			try
 			{
@@ -324,7 +322,7 @@ class runner extends atoum\script
 		return (static::$autorunner === true);
 	}
 
-	public static function enableAutorun($name)
+	public static function enableAutorun($name, dependencies\resolver $resolver = null)
 	{
 		static $autorunIsRegistered = false;
 
@@ -351,7 +349,7 @@ class runner extends atoum\script
 			throw new exceptions\runtime('Unable to autorun \'' . $name . '\' because \'' . static::$autorunner->getName() . '\' is already set as autorunner');
 		}
 
-		static::$autorunner = new static($name);
+		static::$autorunner = new static($name, $resolver);
 
 		return static::$autorunner;
 	}
@@ -359,6 +357,29 @@ class runner extends atoum\script
 	public static function disableAutorun()
 	{
 		static::$autorunner = false;
+	}
+
+	public static function useDependenciesFile($startDirectory, $dependenciesFile = null, $directorySeparator = null, atoum\includer $includer = null)
+	{
+		$resolver = null;
+		$includer = $includer ?: new atoum\includer();
+		$dependenciesFile = $dependenciesFile ?: self::defaultDependenciesFile;
+
+		foreach (self::getSubDirectoryPath($startDirectory, $directorySeparator) as $directory)
+		{
+			try
+			{
+				$includer->includePath($directory . $dependenciesFile, function($path) use (& $includedResolver) { $includedResolver = include_once($path); });
+
+				if ($includedResolver instanceof atoum\dependencies\resolver)
+				{
+					$resolver = $includedResolver;
+				}
+			}
+			catch (atoum\includer\exception $exception) {}
+		}
+
+		return $resolver;
 	}
 
 	public static function getSubDirectoryPath($directory, $directorySeparator = null)
@@ -875,35 +896,33 @@ class runner extends atoum\script
 
 	protected function getDefaultRunner(dependencies\resolver $resolver)
 	{
-		$resolver['adapter'] = $this->adapter;
-		$resolver['locale'] = $this->locale;
-		$resolver['includer'] = $this->includer;
-
 		return new atoum\runner($resolver);
 	}
 
-	protected function getDefaultIncluder()
+	protected function getDefaultIncluder(dependencies\resolver $resolver)
 	{
 		return new atoum\includer();
 	}
 
-	protected function getDefaultConfiguratorResolver()
+	protected function getDefaultConfiguratorResolver(dependencies\resolver $resolver)
 	{
 		return new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); });
 	}
 
-	protected function getDefaultReportResolver()
+	protected function getDefaultReportResolver(dependencies\resolver $resolver)
 	{
-		return new dependencies\resolver(function($resolver) {
+		$outputWriter = $this->outputWriter;
+
+		return new dependencies\resolver(function($resolver) use ($outputWriter) {
 				$report = new atoum\reports\realtime\cli();
-				$report->addWriter(new atoum\writers\std\out());
+				$report->addWriter($outputWriter);
 
 				return $report;
 			}
 		);
 	}
 
-	protected function getDefaultCliResolver()
+	protected function getDefaultCliResolver(dependencies\resolver $resolver)
 	{
 		return new dependencies\resolver(function() { return new atoum\cli(); });
 	}

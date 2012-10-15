@@ -41,13 +41,13 @@ class coverage extends atoum\test
 				->object($reflectionClassResolver(array('class' => __CLASS__)))->isEqualTo(new \reflectionClass(__CLASS__))
 			->if($dependenciesResolver = new dependencies\resolver())
 			->and($dependenciesResolver['adapter'] = $adapter = new atoum\adapter())
-			->and($dependenciesResolver['reflection\class'] = $reflectionClassDependency = new dependencies\resolver())
+			->and($dependenciesResolver['reflection\class\resolver'] = $reflectionClassResolver = new dependencies\resolver())
 			->and($coverage = new testedClass($dependenciesResolver))
 			->then
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
 				->object($coverage->getAdapter())->isIdenticalTo($adapter)
-				->object($coverage->getReflectionClassResolver())->isIdenticalTo($reflectionClassDependency)
+				->object($coverage->getReflectionClassResolver())->isIdenticalTo($reflectionClassResolver)
 		;
 	}
 

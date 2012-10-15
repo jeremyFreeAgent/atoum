@@ -23,9 +23,11 @@ class generator extends atoum\script
 
 	public function __construct($name, dependencies\resolver $resolver = null)
 	{
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		parent::__construct($name, $resolver);
 
-		$this->setPharResolver($resolver['@phar'] ?: static::getDefaultPharResolver());
+		$this->setPharResolver($resolver['@phar'] ?: $this->getDefaultPharResolver($resolver));
 	}
 
 	public function setPharResolver(dependencies\resolver $resolver)
@@ -261,7 +263,7 @@ class generator extends atoum\script
 		;
 	}
 
-	protected static function getDefaultPharResolver()
+	protected function getDefaultPharResolver(dependencies\resolver $resolver)
 	{
 		return new dependencies\resolver(function($resolver) { return new \phar($resolver['@path']); });
 	}

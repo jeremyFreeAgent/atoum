@@ -456,18 +456,20 @@ class coverage implements \countable, \serializable
 
 	protected function setDependencies(dependencies\resolver $resolver = null)
 	{
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		return $this
-			->setAdapter($resolver['@adapter'] ?: static::getDefaultAdapter())
-			->setReflectionClassResolver($resolver['@reflection\class'] ?: static::getDefaultReflectionClassResolver())
+			->setAdapter($resolver['@adapter'] ?: $this->getDefaultAdapter($resolver))
+			->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: $this->getDefaultReflectionClassResolver($resolver))
 		;
 	}
 
-	protected static function getDefaultAdapter()
+	protected function getDefaultAdapter(dependencies\resolver $resolver)
 	{
 		return new atoum\adapter();
 	}
 
-	protected static function getDefaultReflectionClassResolver()
+	protected function getDefaultReflectionClassResolver(dependencies\resolver $resolver)
 	{
 		return new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); });
 	}

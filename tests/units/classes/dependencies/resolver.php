@@ -21,15 +21,12 @@ class resolver extends atoum\test
 		$this
 			->if($resolver = new testedClass())
 			->then
-				->castToString($resolver)->isEqualTo('/')
 				->variable($resolver())->isNull()
 			->if($resolver = new testedClass($value = uniqid()))
 			->then
-				->castToString($resolver)->isEqualTo('/')
 				->string($resolver())->isEqualTo($value)
 			->if($resolver = new testedClass(function() use (& $value) { return ($value = uniqid()); }))
 			->then
-				->castToString($resolver)->isEqualTo('/')
 				->string($resolver())->isEqualTo($value)
 		;
 	}
@@ -40,24 +37,20 @@ class resolver extends atoum\test
 			->if($resolver = new testedClass())
 			->and($resolver[$dependency = uniqid()] = $value = uniqid())
 			->then
-				->object($resolver[uniqid()])->isInstanceOf($this->getTestedClassName())
+				->variable($resolver[uniqid()])->isNull()
 				->variable($resolver['@' . uniqid()])->isNull()
 				->object($resolver[$dependency])->isInstanceOf($this->getTestedClassName())
 				->string($resolver['@' . $dependency])->isEqualTo($value)
 			->if($resolver[$dependency][$otherDependency = uniqid()] = $otherValue = uniqid())
 			->then
-				->object($resolver[uniqid()])->isInstanceOf($this->getTestedClassName())
+				->variable($resolver[uniqid()])->isNull()
 				->variable($resolver['@' . uniqid()])->isNull()
 				->object($resolver[$dependency])->isInstanceOf($this->getTestedClassName())
 				->string($resolver['@' . $dependency])->isEqualTo($value)
-				->object($resolver[$dependency][uniqid()])->isInstanceOf($this->getTestedClassName())
+				->variable($resolver[$dependency][uniqid()])->isNull()
 				->variable($resolver[$dependency]['@' . uniqid()])->isNull()
 				->string($resolver[$dependency]['@' . $otherDependency])->isEqualTo($otherValue)
 				->object($resolver[$dependency][$otherDependency])->isInstanceOf($this->getTestedClassName())
-			->if($resolver[$unknownDependency = uniqid()][$dependency = uniqid()] = $value = uniqid())
-			->then
-				->object($resolver[uniqid()])->isInstanceOf($this->getTestedClassName())
-				->variable($resolver['@' . uniqid()])->isNull()
 		;
 	}
 
@@ -66,17 +59,8 @@ class resolver extends atoum\test
 		$this
 			->if($resolver = new testedClass())
 			->then
-				->object($resolver[$dependency = uniqid()])->isInstanceOf($this->getTestedClassName())
+				->variable($resolver[uniqid()])->isNull()
 				->variable($resolver['@' . uniqid()])->isNull()
-				->castToString($resolver)->isEqualTo('/')
-				->castToString($resolver[$dependency])->isEqualTo('/' . $dependency)
-				->object($resolver[$dependency][$otherDependency = uniqid()])->isInstanceOf($this->getTestedClassName())
-				->variable($resolver['@' . uniqid()])->isNull()
-				->castToString($resolver)->isEqualTo('/')
-				->castToString($resolver[$dependency])->isEqualTo('/' . $dependency)
-				->variable($resolver[$dependency]['@' . $otherDependency])->isNull()
-				->castToString($resolver[$dependency])->isEqualTo('/' . $dependency)
-				->castToString($resolver[$dependency][$otherDependency])->isEqualTo('/' . $dependency . '/' . $otherDependency)
 		;
 	}
 

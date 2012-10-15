@@ -35,12 +35,12 @@ class adapter extends test
 				->object($adapter->getInvokerResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
 				->object($invokerResolver())->isEqualTo(new invoker())
 			->if($resolver = new dependencies\resolver())
-			->and($resolver['invoker'] = new dependencies\resolver())
+			->and($resolver['test\adapter\invoker'] = $invoker = new dependencies\resolver())
 			->and($adapter = new testedClass($resolver))
 			->then
 				->array($adapter->getInvokers())->isEmpty()
 				->array($adapter->getCalls())->isEmpty()
-				->object($adapter->getInvokerResolver())->isIdenticalTo($resolver['@invoker'])
+				->object($adapter->getInvokerResolver())->isIdenticalTo($invoker)
 		;
 	}
 

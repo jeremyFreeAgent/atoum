@@ -57,10 +57,10 @@ class controller extends atoum\test
 			->then
 				->object($streamController->getInvokerResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
 			->if($resolver = new dependencies\resolver())
-			->and($resolver['invoker'] = new dependencies\resolver(function() {}))
+			->and($resolver['mock\stream\invoker'] = $invokerResolver = new dependencies\resolver(function() {}))
 			->and($streamController = new testedClass(uniqid(), $resolver))
 			->then
-				->object($streamController->getInvokerResolver())->isIdenticalTo($resolver['@invoker'])
+				->object($streamController->getInvokerResolver())->isIdenticalTo($invokerResolver)
 		;
 	}
 

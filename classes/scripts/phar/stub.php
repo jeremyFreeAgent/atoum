@@ -19,9 +19,11 @@ class stub extends scripts\runner
 
 	public function __construct($name, dependencies\resolver $resolver = null)
 	{
+		$resolver = $resolver ?: new dependencies\resolver();
+
 		parent::__construct($name, $resolver);
 
-		$this->setPharResolver($resolver['@phar'] ?: static::getDefaultPharResolver());
+		$this->setPharResolver($resolver['@phar'] ?: $this->getDefaultPharResolver($resolver));
 	}
 
 	public function setPharResolver(dependencies\resolver $resolver)
@@ -165,14 +167,14 @@ class stub extends scripts\runner
 		return $this;
 	}
 
-	public function useDefaultConfigFiles($startDirectory = null)
+	public function useDefaultConfigFiles($startDirectory = null, $directorySeparator = null)
 	{
 		if ($startDirectory === null)
 		{
 			$startDirectory = dirname($this->getName());
 		}
 
-		return parent::useDefaultConfigFiles($startDirectory);
+		return parent::useDefaultConfigFiles($startDirectory, $directorySeparator);
 	}
 
 	public function version()
@@ -573,7 +575,7 @@ class stub extends scripts\runner
 		return atoum\directory . '/' . self::scriptsDirectory . '/' . $scriptName . self::scriptsExtension;
 	}
 
-	protected static function getDefaultPharResolver()
+	protected function getDefaultPharResolver(dependencies\resolver $resolver)
 	{
 		return new dependencies\resolver(function($resolver) { return new \phar($resolver['@path']); });
 	}
