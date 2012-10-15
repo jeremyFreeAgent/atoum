@@ -471,7 +471,7 @@ class coverage implements \countable, \serializable
 
 	protected function setDefaultReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		return $this->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
+		return $this->setReflectionClassResolver($resolver['reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
 	}
 
 	protected static function itemIsExcluded(array $excludedItems, $item, $delimiter)

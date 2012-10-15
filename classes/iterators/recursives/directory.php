@@ -165,17 +165,17 @@ class directory implements \iteratorAggregate
 
 	protected function setDefaultDirectoryIteratorResolver(dependencies\resolver $resolver)
 	{
-		return $this->setDirectoryIteratorResolver($resolver['@iterators\recursives\directory\resolver'] ?: new dependencies\resolver(function($resolver) { return new \recursiveDirectoryIterator($resolver['@directory']); }));
+		return $this->setDirectoryIteratorResolver($resolver['iterators\recursives\directory\resolver'] ?: new dependencies\resolver(function($resolver) { return new \recursiveDirectoryIterator($resolver['@directory']); }));
 	}
 
 	protected function setDefaultDotFilterResolver(dependencies\resolver $resolver)
 	{
-		return $this->setDotFilterResolver($resolver['@iterators\filters\recursives\dot\resolver'] ?: new dependencies\resolver(function($resolver) { return new filters\recursives\dot($resolver['@iterator']); }));
+		return $this->setDotFilterResolver($resolver['iterators\filters\recursives\dot\resolver'] ?: new dependencies\resolver(function($resolver) { return new filters\recursives\dot($resolver['@iterator']); }));
 	}
 
 	protected function setDefaultExtensionFilterResolver(dependencies\resolver $resolver)
 	{
-		return $this->setExtensionFilterResolver($resolver['@iterators\filters\recursives\extension\resolver'] ?: new dependencies\resolver(function($resolver) { return new filters\recursives\extension($resolver['@iterator'], $resolver['@extensions']); }));
+		return $this->setExtensionFilterResolver($resolver['iterators\filters\recursives\extension\resolver'] ?: new dependencies\resolver(function($resolver) { return new filters\recursives\extension($resolver['@iterator'], $resolver['@extensions']); }));
 	}
 
 	protected static function cleanExtension($extension)

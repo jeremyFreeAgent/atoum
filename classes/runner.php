@@ -693,12 +693,12 @@ class runner implements observable, adapter\aggregator
 
 	protected function setDefaultReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		return $this->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
+		return $this->setReflectionClassResolver($resolver['reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
 	}
 
 	protected function setDefaultGlobIteratorResolver(dependencies\resolver $resolver)
 	{
-		return $this->setGlobIteratorResolver($resolver['@globIterator\resolver'] ?: new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); }));
+		return $this->setGlobIteratorResolver($resolver['globIterator\resolver'] ?: new dependencies\resolver(function($resolver) { return new \globIterator($resolver['@pattern']); }));
 	}
 
 	protected function setDefaultTestResolver(dependencies\resolver $resolver)
@@ -707,7 +707,7 @@ class runner implements observable, adapter\aggregator
 		$resolver['adapter'] = $this->adapter;
 		$resolver['includer'] = $this->includer;
 
-		return $this->setTestResolver($resolver['@test\resolver'] ?: new dependencies\resolver(function($testResolver) use ($resolver) { return new $testResolver['@test']($resolver); }));
+		return $this->setTestResolver($resolver['test\resolver'] ?: new dependencies\resolver(function($testResolver) use ($resolver) { return new $testResolver['@test']($resolver); }));
 	}
 
 	private static function getMethods(test $test, array $runTestMethods, array $tags)

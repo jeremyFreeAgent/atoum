@@ -39,15 +39,15 @@ class coverage extends atoum\test
 				->object($coverage->getAdapter())->isEqualTo(new atoum\adapter())
 				->object($coverage->getReflectionClassResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
 				->object($reflectionClassResolver(array('class' => __CLASS__)))->isEqualTo(new \reflectionClass(__CLASS__))
-			->if($dependenciesResolver = new dependencies\resolver())
-			->and($dependenciesResolver['adapter'] = $adapter = new atoum\adapter())
-			->and($dependenciesResolver['reflection\class\resolver'] = $reflectionClassResolver = new dependencies\resolver())
-			->and($coverage = new testedClass($dependenciesResolver))
+			->if($resolver = new dependencies\resolver())
+			->and($resolver['adapter'] = $adapter = new atoum\adapter())
+			->and($resolver['reflection\class\resolver'] = function() {})
+			->and($coverage = new testedClass($resolver))
 			->then
 				->variable($coverage->getValue())->isNull()
 				->array($coverage->getMethods())->isEmpty()
 				->object($coverage->getAdapter())->isIdenticalTo($adapter)
-				->object($coverage->getReflectionClassResolver())->isIdenticalTo($reflectionClassResolver)
+				->object($coverage->getReflectionClassResolver())->isIdenticalTo($resolver['reflection\class\resolver'])
 		;
 	}
 

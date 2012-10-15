@@ -238,7 +238,7 @@ class controller extends test\adapter
 
 	protected function setDefaultReflectionClassResolver(dependencies\resolver $resolver)
 	{
-		return $this->setReflectionClassResolver($resolver['@reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
+		return $this->setReflectionClassResolver($resolver['reflection\class\resolver'] ?: new dependencies\resolver(function($resolver) { return new \reflectionClass($resolver['@class']); }));
 	}
 
 	private function set__call()

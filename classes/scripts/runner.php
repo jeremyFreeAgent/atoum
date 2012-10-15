@@ -913,14 +913,14 @@ class runner extends atoum\script
 
 	protected function setDefaultConfiguratorResolver(dependencies\resolver $resolver)
 	{
-		return $this->setConfiguratorResolver($resolver['@configurator\resolver'] ?: new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); }));
+		return $this->setConfiguratorResolver($resolver['configurator\resolver'] ?: new dependencies\resolver(function($resolver) { return new atoum\configurator($resolver['@runner']); }));
 	}
 
 	protected function setDefaultReportResolver(dependencies\resolver $resolver)
 	{
 		$outputWriter = $this->outputWriter;
 
-		return $this->setReportResolver($resolver['@report\resolver'] ?: new dependencies\resolver(function($resolver) use ($outputWriter) {
+		return $this->setReportResolver($resolver['report\resolver'] ?: new dependencies\resolver(function($resolver) use ($outputWriter) {
 					$report = new atoum\reports\realtime\cli();
 					$report->addWriter($outputWriter);
 
@@ -932,7 +932,7 @@ class runner extends atoum\script
 
 	protected function setDefaultCliResolver(dependencies\resolver $resolver)
 	{
-		return $this->setCliResolver($resolver['@cli\resolver'] ?: new dependencies\resolver(function() { return new atoum\cli(); }));
+		return $this->setCliResolver($resolver['cli\resolver'] ?: new dependencies\resolver(function() { return new atoum\cli(); }));
 	}
 
 	protected static function getClassesOf($methods)

@@ -221,6 +221,6 @@ class concurrent extends test\engine
 
 	protected function setDefaultScoreResolver(dependencies\resolver $resolver)
 	{
-		return $this->setScoreResolver($resolver['@score\resolver'] ?: new dependencies\resolver(function() { return new atoum\score(); }));
+		return $this->setScoreResolver($resolver['score\resolver'] ?: new dependencies\resolver(function() { return new atoum\score(); }));
 	}
 }

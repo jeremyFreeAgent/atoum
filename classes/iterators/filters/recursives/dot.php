@@ -16,7 +16,9 @@ class dot extends \recursiveFilterIterator
 		}
 		else
 		{
-			if ($resolver !== null && isset($resolver['iterators\recursives\directory']) === true)
+			$resolver = $resolver ?: new dependencies\resolver();
+
+			if (isset($resolver['iterators\recursives\directory']) === true)
 			{
 				$resolver['iterators\recursives\directory']['directory'] = (string) $mixed;
 			}

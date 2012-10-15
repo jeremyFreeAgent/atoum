@@ -212,7 +212,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use (& $realClass) { return ($class == '\\' . $realClass); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($reflectionClass))
+			->and($resolver['reflection\class\resolver'] = $reflectionClass)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->then
@@ -302,7 +302,7 @@ class generator extends atoum\test
 			->and($overloadedMethod = new mock\php\method('__construct'))
 			->and($overloadedMethod->addArgument($argument = new mock\php\method\argument(uniqid())))
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($reflectionClass))
+			->and($resolver['reflection\class\resolver'] = $reflectionClass)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->and($generator->overload($overloadedMethod))
@@ -392,7 +392,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use ($realClass) { return ($class == '\\' . $realClass); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($reflectionClass))
+			->and($resolver['reflection\class\resolver'] = $reflectionClass)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->then
@@ -476,7 +476,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use ($realClass) { return ($class == '\\' . $realClass); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($reflectionClass))
+			->and($resolver['reflection\class\resolver'] = $reflectionClass)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->and($generator->shunt('__construct'))
@@ -557,7 +557,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use (& $realClass) { return ($class == '\\' . $realClass); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($reflectionClass))
+			->and($resolver['reflection\class\resolver'] = $reflectionClass)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->then
@@ -640,7 +640,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use (& $realClass) { return ($class == '\\' . $realClass); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($reflectionClass))
+			->and($resolver['reflection\class\resolver'] = $reflectionClass)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->then
@@ -747,7 +747,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use ($className) { return ($class == '\\' . $className); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($class))
+			->and($resolver['reflection\class\resolver'] = $class)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->then
@@ -840,7 +840,7 @@ class generator extends atoum\test
 			->and($adapter = new atoum\test\adapter())
 			->and($adapter->class_exists = function($class) use ($className) { return ($class == '\\' . $className); })
 			->and($resolver = new dependencies\resolver())
-			->and($resolver['reflection\class\resolver'] = new dependencies\resolver($class))
+			->and($resolver['reflection\class\resolver'] = $class)
 			->and($resolver['adapter'] = $adapter)
 			->and($generator = new testedClass($resolver))
 			->then

@@ -2,6 +2,8 @@
 
 namespace mageekguy\atoum;
 
+$start = memory_get_usage();
+
 use
 	mageekguy\atoum,
 	mageekguy\atoum\scripts

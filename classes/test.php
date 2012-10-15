@@ -88,7 +88,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 			->enableCodeCoverage()
 		;
 
-		$reflectionClassResolver = $resolver['@reflection\class\resolver'];
+		$reflectionClassResolver = $resolver['reflection\class\resolver'];
 
 		if ($reflectionClassResolver === null)
 		{
@@ -101,7 +101,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 		$this->class = $class->getName();
 		$this->classNamespace = $class->getNamespaceName();
 
-		$annotationExtractor = $resolver['@annotation\extractor\resolver'] ?: new annotations\extractor();
+		$annotationExtractor = $resolver['annotation\extractor\resolver'] ?: new annotations\extractor();
 
 		$test = $this;
 
@@ -1073,7 +1073,7 @@ abstract class test implements observable, adapter\aggregator, \countable
 
 	protected function setDefaultEngineResolver(dependencies\resolver $resolver)
 	{
-		return $this->setEngineResolver($resolver['@test\engine\resolver'] ?: new dependencies\resolver(function($engineResolver) use ($resolver) { return new $engineResolver['@class']($resolver); }));
+		return $this->setEngineResolver($resolver['test\engine\resolver'] ?: new dependencies\resolver(function($engineResolver) use ($resolver) { return new $engineResolver['@class']($resolver); }));
 	}
 
 	private function runEngines()

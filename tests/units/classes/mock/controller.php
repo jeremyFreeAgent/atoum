@@ -42,14 +42,14 @@ class controller extends atoum\test
 				->object($mockController->getReflectionClassResolver())->isInstanceOf('mageekguy\atoum\dependencies\resolver')
 			->if($resolver = new dependencies\resolver())
 			->and($resolver['test\adapter\invoker'] = $invokerResolver = new dependencies\resolver(function() { return new invoker(); }))
-			->and($resolver['reflection\class\resolver'] = $reflectionClassResolver = new dependencies\resolver(function($class) { return new \reflectionClass($class); }))
+			->and($resolver['reflection\class\resolver'] = function($class) { return new \reflectionClass($class); })
 			->and($mockController = new testedClass($resolver))
 			->then
 				->array($mockController->getCalls())->isEmpty()
 				->array($mockController->getInvokers())->isEmpty()
 				->variable($mockController->getMockClass())->isNull()
 				->object($mockController->getInvokerResolver())->isIdenticalTo($invokerResolver)
-				->object($mockController->getReflectionClassResolver())->isIdenticalTo($reflectionClassResolver)
+				->object($mockController->getReflectionClassResolver())->isIdenticalTo($resolver['reflection\class\resolver'])
 		;
 	}
 
